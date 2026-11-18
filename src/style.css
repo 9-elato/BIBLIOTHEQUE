@@ -15,3 +15,18 @@
 @media(max-width:700px){.app{height:100dvh}.site-header{top:8px;left:12px;right:12px}.logo-emoji{font-size:26px}.logo-line{gap:6px}.logo-line h1{font-size:20px}.logo-line p{font-size:9px;max-width:180px}.top-tools{gap:4px}.top-tools button{padding:9px}.top-tools svg{width:17px;height:17px}.room-nav{top:69px;width:calc(100vw - 15px);max-width:none;gap:4px}.room-signs{gap:3px;min-width:0}.room-signs button{font-size:10px;padding:7px 6px;border-radius:12px}.room-toggle{font-size:10px;padding:7px 8px}.book-legend{top:111px;font-size:10px;max-width:80%;overflow:hidden;text-overflow:ellipsis;padding:5px 9px}.welcome{top:145px;left:8px;width:155px;padding:10px 12px}.welcome-title{font-size:11px}.welcome p{font-size:10px}.welcome button{font-size:10px}.side-menu{right:7px;top:31%;gap:5px}.side-menu button{min-width:40px;padding:10px;border-radius:18px}.side-menu svg{width:19px}.joystick{left:6px;bottom:37px;transform:scale(.78)}.room-badge{bottom:12px;max-width:54%;left:50%;font-size:10px;padding:8px 10px}.invite{right:6px;bottom:42px;font-size:0;padding:12px}.invite span{font-size:12px}.book-legend{pointer-events:none}.drawer{padding:46px 17px 30px}.edit-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:390px){.welcome{top:131px}.book-legend{display:none}.room-nav{top:61px}.room-signs button{font-size:9px;padding:6px 4px}.room-toggle{font-size:9px;padding:6px 5px}.joystick{transform:scale(.70)}}
 @media(hover:none){.room-signs button:hover,.side-menu button:hover{transform:none}}
+/* v2.0: four-room navigation can scroll on narrow devices without covering controls. */
+.room-nav{width:min(860px,94vw);max-width:94vw;justify-content:center}
+.room-signs{max-width:calc(100% - 118px);overflow-x:auto;scrollbar-width:thin;flex:0 1 auto;padding:3px}
+.room-signs button{flex-shrink:0}
+.room-toggle{flex-shrink:0}
+@media(max-width:700px){.room-nav{width:calc(100vw - 14px);max-width:calc(100vw - 14px)}.room-signs{max-width:calc(100% - 89px)}.room-toggle{flex-shrink:0}}
+
+/* v2.1 reading interaction improvements */
+.holding-hud{position:absolute;left:50%;bottom:78px;transform:translateX(-50%);z-index:4;background:#fff4dcf5;color:#775138;border:1px solid #d6ac70;border-radius:28px;padding:8px 14px;display:flex;gap:12px;align-items:center;white-space:nowrap;box-shadow:0 7px 23px #5037253a;font-size:12px}
+.holding-hud button{background:#865c3b;color:#fff4dc;border:0;border-radius:20px;padding:6px 10px}
+.book-extra{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:18px 0}
+.book-extra>div{display:flex;flex-direction:column;background:#fae9d5;border:1px solid #e5c7a7;border-radius:10px;padding:12px}
+.book-extra b{font-size:11px;color:#a57d5c}.book-extra span{font-size:13px;margin-top:5px}
+.top-tools .gear-button{box-shadow:0 0 0 2px #e3bc81aa,0 5px 18px #4c2a174d}
+@media(max-width:700px){.holding-hud{bottom:108px;left:50%;font-size:10px;padding:6px 9px}.book-extra{gap:5px}.book-extra>div{padding:8px}}
