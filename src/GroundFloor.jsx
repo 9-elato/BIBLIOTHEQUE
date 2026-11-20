@@ -193,7 +193,7 @@ function SecretCabinet({x=0,half=0,moving,open,onKey,onReady}) {
       {j<4&&Array.from({length:moving?5:10},(_,i)=>{
         const flag=moving&&half===1&&j===1&&i===1
         return <group key={i} position={[-w/2+.24+i*(moving ? .235 : .245),y+.29,.08]} {...click(flag&&!open?onKey:null)}>
-          {(!flag||!open)&&<><Box p={[0,0,0]} s={[.185,.45+(i%3)*.045,.34]} c={flag?'#9c5636':covers[(i+j)%covers.length]}/>{flag&&<><Box p={[0,.08,.177]} s={[.185,.046,.026]} c="#ffce76" glow="#b17b2b"/><Round p={[0,-.056,.177]} r={.057}/></>}</>}
+          {<><Box p={[0,0,0]} s={[.185,.45+(i%3)*.045,.34]} c={flag?'#9c5636':covers[(i+j)%covers.length]}/>{flag&&<><Box p={[0,.08,.177]} s={[.185,.046,.026]} c="#ffce76" glow="#b17b2b"/><Round p={[0,-.056,.177]} r={.057}/></>}</>}
         </group>
       })}
     </group>)}

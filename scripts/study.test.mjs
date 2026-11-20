@@ -1,13 +1,14 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {studySeason,studyDoorBlocks,toggleStudyDoor} from '../src/studyLayout.js'
+import {studySeason,studyDoorBlocks,toggleStudyDoor,advanceStudyDoor} from '../src/studyLayout.js'
 import {movePlayer} from '../src/navigation.js'
 import {SEATS} from '../src/seating.js'
 test('study door blocks closed passage and clears the central route when open',()=>{
  const door={amount:0,open:false},world={end:45,gateReady:true,entranceOpen:true,studyDoor:door}
  let p={x:0,z:-17,level:0,yaw:0}
  assert.ok(movePlayer(p,0,-5,world).z>-19)
- assert.equal(toggleStudyDoor(door,{x:0,z:-18.5}),false)
+ assert.equal(toggleStudyDoor(door,{x:0,z:-18.5}),true)
+ door.open=false
  assert.equal(toggleStudyDoor(door,p),true)
  door.amount=1
  assert.equal(studyDoorBlocks(0,-19,door),false)
@@ -23,4 +24,16 @@ test('study desk and window seats are reachable along clear circulation routes',
 })
 test('seasonal study details use the month with snow overriding to winter',()=>{
  assert.equal(studySeason(3),'spring');assert.equal(studySeason(6),'summer');assert.equal(studySeason(9),'autumn');assert.equal(studySeason(0),'winter');assert.equal(studySeason(6,'snow'),'winter')
+})
+
+test('study door opens away from nearby visitors on both sides and finishes in real time',()=>{
+ for(const z of [-18.5,-19.5]){
+  const door={open:false,amount:0},player={x:0,z}
+  assert.equal(toggleStudyDoor(door,player),true)
+  for(let i=0;i<24;i++){advanceStudyDoor(door,.6/24);assert.equal(studyDoorBlocks(player.x,player.z,door),false)}
+  assert.ok(door.amount>.999)
+ }
+ const slow={open:true,amount:0};advanceStudyDoor(slow,1);assert.equal(slow.amount,1)
+ const door={open:true,amount:1,swing:-1}
+ assert.equal(toggleStudyDoor(door,{x:0,z:-19}),false,'do not close onto someone in doorway')
 })

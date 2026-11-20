@@ -1,3 +1,4 @@
+import {canToggleStudyDoor} from './studyLayout.js'
 import {GAME_SPOTS} from './miniGames.js'
 import {atticX} from './atticLayout.js'
 import {ATTIC_HEIGHT} from './navigation.js'
@@ -13,7 +14,7 @@ export function interactionAt(s, {entranceOpen, gateReady, gateOpening=false, bo
   if(Math.abs(s.level-7.2)<.1&&world?.glassDoor&&near(0,-6.95,2.65))return {type:'glassDoor',label:Math.abs(s.x)<1.7&&s.z<-6.5&&s.z>-8.8?'유리문에서 한 걸음 물러나기':world.glassDoor.open?'온실 유리문 닫기':'온실 유리문 열기'}
   if(Math.abs(s.level-7.2)<.1&&near(0,-14,2.7))return {type:'gardenWater',label:'분수 물소리 켜고 끄기'}
   if(s.level===0&&world?.studyDoor){
-   if(Math.abs(s.x)<1.3&&Math.abs(s.z+19)<3)return {type:'studyDoor',label:Math.abs(s.z+19)<1.65?'한 걸음 물러난 뒤 E로 문 조작':world.studyDoor.open?'작업실 나무문 닫기':'작업실 나무문 열기'}
+   if(Math.abs(s.x)<1.3&&Math.abs(s.z+19)<3)return {type:'studyDoor',label:!canToggleStudyDoor(world.studyDoor,s)?'문 옆에서 한 걸음 물러나세요':world.studyDoor.open?'작업실 나무문 닫기':'작업실 나무문 열기'}
    if(near(-6.25,-21.5,1.6))return {type:'music',label:'LP 플레이어와 음악 열기'}
    if(s.x<-.5&&near(-.95,-26.72,1.85))return {type:'studyLamp',label:'책상 조명 켜고 끄기'}
   }
@@ -35,7 +36,7 @@ export function interactionAt(s, {entranceOpen, gateReady, gateOpening=false, bo
       !(s.z>10.1&&s.z<12.05&&(entranceOpen?Math.abs(s.x)<1.8:Math.abs(s.x)>.65&&Math.abs(s.x)<1.8)))
       return {type:'door',label:entranceOpen?'문 닫기':'문 열기'}
     if (!gateReady&&Math.abs(s.x)<2&&s.z>-14.1&&s.z<-11.2)
-      return gateOpening?{type:'wait',label:'비밀 책장 열리는 중…'}:{type:'key',label:'열쇠 책 꺼내기'}
+      return gateOpening?{type:'wait',label:'비밀 책장 열리는 중…'}:{type:'key',label:'황동 장식 책 눌러 비밀 책장 열기'}
     if (DESKS.some(([x,z])=>near(x,z))||(s.z<-19.3&&Math.abs(s.x)<2.7))
       return {type:'notes',label:'독서 노트 작성'}
     const shelf=bookcases.find(p=>near(p.x,p.z,2.25))

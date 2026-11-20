@@ -40,7 +40,7 @@ import {startSitting,startStanding,advanceSeating} from './seating'
 
 const MOVE=['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight']
 const AtticGLB=lazy(()=>import('./AtticGLB'))
-function WalkControl({blanket,onBlanket,glassDoor,studyDoor,onMusic,ladders,onExperience,onCloseSecret,mode,blocked,joy,books,onZone,teleport,character,heldBook,keyHeld,layout,entranceOpen,gateReady,onKey,onInteraction,onToggleEntrance,onOpenNotes,onGenre,onTravel,onRead,canPlace,onPlaceNearby,onSeatStatus}) {
+function WalkControl({blanket,onBlanket,glassDoor,studyDoor,onMusic,ladders,onExperience,onCloseSecret,mode,blocked,joy,books,onZone,teleport,character,heldBook,layout,entranceOpen,gateReady,gateOpening,onKey,onInteraction,onToggleEntrance,onOpenNotes,onGenre,onTravel,onRead,canPlace,onPlaceNearby,onSeatStatus}) {
   const {gl,scene}=useThree()
   const ray=useMemo(()=>new THREE.Raycaster(),[])
   const rayDirection=useMemo(()=>new THREE.Vector3(),[])
@@ -69,7 +69,7 @@ function WalkControl({blanket,onBlanket,glassDoor,studyDoor,onMusic,ladders,onEx
     return()=>{clearInterval(timer);window.removeEventListener('library-tour-start',start);window.removeEventListener('library-tour-stop',stop);window.removeEventListener('keydown',key)}
   },[])
   const bookcases=useMemo(()=>layout.sections.flatMap(section=>section.cases.map(c=>({x:c.x,z:c.z,genre:section.genre.id,slot:(c.number-1)*24}))),[layout])
-  status.current={onBlanket,gateOpening:!gateReady&&keyHeld,blocked,mode,onKey,gateReady,onToggleEntrance,onOpenNotes,onGenre,entranceOpen,onTravel,onRead,bookcases,heldBook,canPlace,onPlaceNearby,world:{end:layout.end,gateReady,entranceOpen,ladders,studyDoor,glassDoor}}
+  status.current={onBlanket,gateOpening,blocked,mode,onKey,gateReady,onToggleEntrance,onOpenNotes,onGenre,entranceOpen,onTravel,onRead,bookcases,heldBook,canPlace,onPlaceNearby,world:{end:layout.end,gateReady,entranceOpen,ladders,studyDoor,glassDoor}}
   const look=useMemo(()=>new THREE.Vector3(),[])
   const target=useMemo(()=>new THREE.Vector3(),[])
   useEffect(()=>{
@@ -242,7 +242,7 @@ function WalkControl({blanket,onBlanket,glassDoor,studyDoor,onMusic,ladders,onEx
   })
   return <group ref={avatar} userData={{player:true}} visible={mode==='third'}>
     {blanket&&<LoungeBlanket lap pose={pose}/>}
-    <Suspense fallback={null}><AvatarModels character={character} moving={moving} pose={pose} book={books.find(b=>b.id===heldBook) || (keyHeld ? {color:'#94704b',isKey:true} : null)}/></Suspense>
+    <Suspense fallback={null}><AvatarModels character={character} moving={moving} pose={pose} book={books.find(b=>b.id===heldBook) || null}/></Suspense>
   </group>
 }
 function Overhead({end}) {
@@ -255,7 +255,7 @@ function Overhead({end}) {
   const zoom=Math.min(size.width/(end+23),size.height/41)
   return <OrthographicCamera ref={ref} makeDefault position={[(end-19)/2,65,-6]} zoom={zoom} near={.1} far={180}/>
 }
-export default function ArchiveScene({blanket,onBlanket,onMusic,onExperience,books=[],placements={},canPlace=false,onPlaceNearby,onPick,onGenre,mode='third',weather,time,blocked,joy,onZone,teleport,onDoor,character,heldBook,season,onOpenNotes,onKeyHeld,keyHeld,onInteraction,onRead,onSeatStatus}) {
+export default function ArchiveScene({blanket,onBlanket,onMusic,onExperience,books=[],placements={},canPlace=false,onPlaceNearby,onPick,onGenre,mode='third',weather,time,blocked,joy,onZone,teleport,onDoor,character,heldBook,season,onOpenNotes,onInteraction,onRead,onSeatStatus}) {
   const glassDoor=useMemo(()=>({open:false,amount:0}),[])
   const studyDoor=useMemo(()=>({open:false,amount:0}),[])
   const [localZone,setLocalZone]=useState('저택 정원')
@@ -277,7 +277,7 @@ export default function ArchiveScene({blanket,onBlanket,onMusic,onExperience,boo
   const showInterior=map||entranceOpen||localZone!=='저택 정원'
   const [interiorLoaded,setInteriorLoaded]=useState(false)
   useEffect(()=>{if(showInterior)setInteriorLoaded(true)},[showInterior])
-  const unlock=()=>{if(!open){setOpen(true);onKeyHeld()}}
+  const unlock=()=>{if(!open)setOpen(true)}
   return <Canvas frameloop={blocked?'demand':'always'} camera={{fov:69,near:.065,far:190,position:[0,2,25]}} shadows dpr={1} gl={{powerPreference:'high-performance'}}>
     <color attach="background" args={[({morning:'#b9ced0',afternoon:'#becbc0',evening:'#708097',night:'#182438'})[time]]}/>
     {!map&&<fog attach="fog" args={[decorTime==='evening'?'#928b84':'#cbbfa7',31,105]}/>}
@@ -293,11 +293,11 @@ export default function ArchiveScene({blanket,onBlanket,onMusic,onExperience,boo
       {!blanket&&<LoungeBlanket onClick={e=>{e.stopPropagation();onBlanket()}}/>}
       <StaticBatch><InteriorDetails/></StaticBatch><AtmosphereDetails time={time} weather={weather} event={season} secretOpen={open}/>
       <StaticBatch><LibraryDetails/></StaticBatch><MainRoomDetails layout={layout} time={decorTime} zone={localZone}/><StaticBatch revision={decorTime}><HallDetails time={decorTime}/></StaticBatch>
-      <SecretDetails open={open} time={decorTime}/><StudyRoom open={open} prepare={localZone==='북쪽 복도'} door={studyDoor} time={time} weather={weather} event={season} onNotes={onOpenNotes} onMusic={onMusic}/><PlacedBooks books={books} placements={placements} heldBook={heldBook} onPick={onPick}/>
+      <SecretDetails open={open} prepare={localZone==='북쪽 복도'} time={decorTime}/><StudyRoom open={open} prepare={localZone==='북쪽 복도'} door={studyDoor} time={time} weather={weather} event={season} onNotes={onOpenNotes} onMusic={onMusic}/><PlacedBooks books={books} placements={placements} heldBook={heldBook} onPick={onPick}/>
       {(nearAttic||atticLoaded)&&<group visible={nearAttic} position={[-11.45,0,0]} scale={[ATTIC_EXPANSION,1,1]}><group position={[11.45,0,0]}><Suspense fallback={null}><AtticGLB time={time} weather={weather} event={season}/></Suspense></group></group>}<PaperSpirits/>
     </>}
     </group>}</group><Weather weather={weather}/>
-    <WalkControl blanket={blanket} onBlanket={onBlanket} glassDoor={glassDoor} studyDoor={studyDoor} onMusic={onMusic} ladders={ladders} onExperience={onExperience} onCloseSecret={()=>{setOpen(false);setGateReady(false);studyDoor.open=false}} mode={mode} blocked={blocked} joy={joy} books={books} onZone={reportZone} teleport={teleport} character={character} heldBook={heldBook} keyHeld={keyHeld} layout={layout} entranceOpen={entranceOpen} gateReady={gateReady} onKey={unlock} onInteraction={onInteraction} onToggleEntrance={setEntranceOpen} onOpenNotes={onOpenNotes} onGenre={onGenre} onTravel={onDoor} onRead={onRead} canPlace={canPlace} onPlaceNearby={onPlaceNearby} onSeatStatus={onSeatStatus}/>
+    <WalkControl blanket={blanket} onBlanket={onBlanket} glassDoor={glassDoor} studyDoor={studyDoor} onMusic={onMusic} ladders={ladders} onExperience={onExperience} onCloseSecret={()=>{setOpen(false);setGateReady(false);studyDoor.open=false}} mode={mode} blocked={blocked} joy={joy} books={books} onZone={reportZone} teleport={teleport} character={character} heldBook={heldBook} layout={layout} entranceOpen={entranceOpen} gateReady={gateReady} gateOpening={open&&!gateReady} onKey={unlock} onInteraction={onInteraction} onToggleEntrance={setEntranceOpen} onOpenNotes={onOpenNotes} onGenre={onGenre} onTravel={onDoor} onRead={onRead} canPlace={canPlace} onPlaceNearby={onPlaceNearby} onSeatStatus={onSeatStatus}/>
     <SceneBudget/>
     {profiling&&<FrameProfiler/>}
     {map&&<Overhead end={layout.end}/>}
