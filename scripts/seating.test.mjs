@@ -32,7 +32,7 @@ test('both garden benches are reachable from the path and allow walking after st
   assert.ok(Math.abs(walked.z-(s.entry.z-1))<.01,s.id+' can leave')
  }
 })
-function finish(state){let result;for(let i=0;i<80;i++){result=advanceSeating(state,1/60);state=result.seating;if(!state||state.phase==='seated')return result}throw Error('transition did not finish')}
+function finish(state){let result;for(let i=0;i<240;i++){result=advanceSeating(state,1/60);state=result.seating;if(!state||state.phase==='seated')return result}throw Error('transition did not finish')}
 test('all 27 cushion approaches are reachable and select the correct seat',()=>{
  assert.equal(SEATS.length,27)
  for(const s of SEATS){assert.equal(walkHeight(s.entry.x,s.entry.z,s.level,world),s.level,s.id);assert.equal(nearbySeat(origin(s),world)?.id,s.id)}
@@ -80,4 +80,24 @@ test('upstairs seats have walkable routes from their floor landing without cross
   }
   assert.deepEqual([...found].sort(),targets.map(s=>s.id).sort())
  }
+})
+
+test('daybed torso clears thick quilt and sits upright before a slow dismount',()=>{
+ const bed=SEATS.find(s=>s.id==='attic-daybed')
+ let seated=finish(startSitting(origin(bed),bed)).seating
+ seated.posture='lying'
+ let r
+ for(let i=0;i<180;i++){r=advanceSeating(seated,1/60);seated=r.seating}
+ assert.ok(r.pose.y-bed.level-.5>1.18,'body underside must clear quilt')
+ let leaving=startStanding(seated,world),previous=r.pose
+ assert.equal(leaving.duration,2.8)
+ for(let i=0;i<75;i++){
+  r=advanceSeating(leaving,1/60);leaving=r.seating
+  assert.equal(r.pose.amount,1,'sit upright before sliding off bed')
+  assert.ok(Math.abs(r.pose.y-previous.y)<.04,'no height snap');previous=r.pose
+ }
+ assert.ok(r.pose.recline<.01)
+ const end=finish(leaving)
+ assert.equal(end.seating,null);assert.equal(end.pose.recline,0)
+ assert.equal(walkHeight(end.pose.x,end.pose.z,bed.level,world),bed.level)
 })

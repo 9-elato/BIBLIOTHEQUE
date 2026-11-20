@@ -19,12 +19,12 @@ test('attic expands west while its stair landing remains fixed',()=>{
 test('daybed reclines smoothly and standing returns to a safe floor position',()=>{
  const bed=SEATS.find(s=>s.id==='attic-daybed'),world={end:45,entranceOpen:true,gateReady:true}
  let state=startSitting({...bed.entry,level:bed.level,yaw:0,bodyYaw:.8},bed),result
- for(let i=0;i<80;i++)state=advanceSeating(state,1/60).seating
+ for(let i=0;i<240;i++)state=advanceSeating(state,1/60).seating
  state={...state,posture:'lying'}
  for(let i=0;i<150;i++){result=advanceSeating(state,1/60);state=result.seating}
  assert.ok(Math.abs(result.pose.recline-Math.PI/2)<.001)
  state=startStanding(state,world)
- for(let i=0;i<80&&state;i++){result=advanceSeating(state,1/60);state=result.seating}
+ for(let i=0;i<240&&state;i++){result=advanceSeating(state,1/60);state=result.seating}
  assert.equal(state,null)
  assert.equal(walkHeight(result.pose.x,result.pose.z,bed.level,world),bed.level)
 })

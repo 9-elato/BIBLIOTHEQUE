@@ -44,18 +44,23 @@ export function exitForSeat(sitting,world){
 export function startStanding(sitting,world){
   if(sitting.phase!=='seated')return sitting
   const exit=exitForSeat(sitting,world)
-  return exit?{...sitting,origin:exit,phase:'leaving',elapsed:0,duration:.9}:sitting
+  return exit?{...sitting,origin:exit,phase:'leaving',elapsed:0,duration:sitting.seat.id==='attic-daybed'?2.8:.9,exitRecline:sitting.recline||0}:sitting
 }
 export function advanceSeating(sitting,dt){
   const next={...sitting,elapsed:Math.min(sitting.duration,sitting.elapsed+Math.max(0,Math.min(dt,.1)))}
   if(next.phase==='entering'&&next.elapsed>=next.duration)next.phase='seated'
-  const progress=next.phase==='seated'?1:smooth(next.elapsed/next.duration)
+  const bedExit=next.phase==='leaving'&&next.seat.id==='attic-daybed'
+  const t=next.elapsed/next.duration
+  const progress=next.phase==='seated'?1:smooth(bedExit?Math.max(0,(t-.45)/.55):t)
   const amount=next.phase==='leaving'?1-progress:progress
   const {seat:s,origin:o}=next
   next.recline=(sitting.recline||0)+((next.posture==='lying'&&next.phase!=='leaving'?Math.PI/2:0)-(sitting.recline||0))*(1-Math.exp(-5*Math.max(0,Math.min(dt,.1))))
+  if(bedExit)next.recline=(next.exitRecline||0)*(1-smooth(Math.min(1,t/.45)))
   const lie=next.recline/(Math.PI/2)
   const pose={x:lerp(o.x,s.anchor.x-.22*lie,amount),z:lerp(o.z,s.anchor.z,amount),
-    y:s.level+s.height*amount+.10*Math.sin(Math.PI*amount),
+    // Rotation is around the avatar's feet, not its body centre. Lift the
+    // horizontal torso above the thick quilt (top ~1.18m, body radius ~.5m).
+    y:s.level+s.height*amount+.10*Math.sin(Math.PI*amount)+(s.id==='attic-daybed'?.85*lie*amount:0),
     rotation:angle(o.bodyYaw??-o.yaw,s.turn+Math.PI,amount),amount,recline:next.recline}
   return {seating:next.phase==='leaving'&&next.elapsed>=next.duration?null:next,pose}
 }

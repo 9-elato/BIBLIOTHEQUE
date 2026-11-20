@@ -1,3 +1,5 @@
+import {tourEnabled} from './FurnitureTourPanel'
+import {createFurnitureTour,advanceFurnitureTour} from './furnitureTour'
 import StaticBatch from './StaticBatch'
 import SceneBudget from './SceneBudget'
 import {profiling,FrameProfiler} from './PerformancePanel'
@@ -54,7 +56,18 @@ function WalkControl({blanket,onBlanket,glassDoor,studyDoor,onMusic,ladders,onEx
   const currentZone=useRef('')
   const lastHint=useRef('')
   const state=useRef({x:0,z:23,level:0,yaw:0,bodyYaw:0,pitch:0,keys:new Set(),pointer:null,lx:0,ly:0,seated:false})
+  const tour=useRef(null)
   const status=useRef({})
+  useEffect(()=>{
+    if(!tourEnabled)return
+    const publish=()=>window.dispatchEvent(new CustomEvent('library-tour-status',{detail:{running:Boolean(tour.current?.running),label:tour.current?.label,results:[...(tour.current?.results||[])]}}))
+    const stop=()=>{if(tour.current?.running){Object.assign(state.current,tour.current.saved,{seated:null});state.current.keys.clear();tour.current.running=false;publish()}}
+    const start=e=>{if(status.current.blocked||status.current.mode!=='third'||state.current.seated)return;stop();tour.current=createFurnitureTour(state.current,e.detail==='bed');publish()}
+    const key=e=>{if(MOVE.includes(e.code)||e.code==='Escape')stop()}
+    window.addEventListener('library-tour-start',start);window.addEventListener('library-tour-stop',stop);window.addEventListener('keydown',key)
+    const timer=setInterval(publish,500)
+    return()=>{clearInterval(timer);window.removeEventListener('library-tour-start',start);window.removeEventListener('library-tour-stop',stop);window.removeEventListener('keydown',key)}
+  },[])
   const bookcases=useMemo(()=>layout.sections.flatMap(section=>section.cases.map(c=>({x:c.x,z:c.z,genre:section.genre.id,slot:(c.number-1)*24}))),[layout])
   status.current={onBlanket,gateOpening:!gateReady&&keyHeld,blocked,mode,onKey,gateReady,onToggleEntrance,onOpenNotes,onGenre,entranceOpen,onTravel,onRead,bookcases,heldBook,canPlace,onPlaceNearby,world:{end:layout.end,gateReady,entranceOpen,ladders,studyDoor,glassDoor}}
   const look=useMemo(()=>new THREE.Vector3(),[])
@@ -80,7 +93,7 @@ function WalkControl({blanket,onBlanket,glassDoor,studyDoor,onMusic,ladders,onEx
     const canvas=gl.domElement
     const interact=()=>{
       const ui=status.current
-      if(ui.blocked||ui.mode==='overview')return
+      if(ui.blocked||ui.mode==='overview'||tour.current?.running)return
       const action=interactionAt(s,ui)
       if(!action)return
       s.keys.clear()
@@ -153,14 +166,18 @@ function WalkControl({blanket,onBlanket,glassDoor,studyDoor,onMusic,ladders,onEx
     const front=active&&!blocked?direction(['KeyW','ArrowUp'],['KeyS','ArrowDown'])+(joy.y||0):0
     const side=active&&!blocked?direction(['KeyD','ArrowRight'],['KeyA','ArrowLeft'])+(joy.x||0):0
     const world={end:layout.end,gateReady,entranceOpen,ladders,studyDoor,glassDoor}
+    if(tour.current?.running&&!blocked){
+      advanceFurnitureTour(tour.current,s,world,dt)
+      if(!tour.current.running)Object.assign(s,tour.current.saved,{seated:null})
+    }
     advanceLadders(ladders,dt,s)
     if(s.level===0&&s.z<-15.5)visitedSecret.current=true
-    if(visitedSecret.current&&s.z>-13.1){visitedSecret.current=false;onCloseSecret()}
-    const len=s.seated?0:Math.hypot(front,side)
+    if(visitedSecret.current&&s.z>-13.1&&!tour.current?.running){visitedSecret.current=false;onCloseSecret()}
+    const len=s.seated||tour.current?.running?0:Math.hypot(front,side)
     const viewYaw=s.yaw+(s.seated&&mode==='first'?Math.PI:0)
     const sin=Math.sin(viewYaw),cos=Math.cos(viewYaw)
-    moving.current=len>.1
-    if(moving.current) {
+    moving.current=len>.1||(tour.current?.running&&tour.current.phase==='approach')
+    if(len>.1) {
       const step=3.6*Math.min(dt,.05),direction=movementVector(viewYaw,front,side)
       const beforeX=s.x,beforeZ=s.z
       Object.assign(s,movePlayer(s,direction.x*step,direction.z*step,world))
