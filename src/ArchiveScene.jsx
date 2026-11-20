@@ -249,6 +249,9 @@ export default function ArchiveScene({onMusic,onExperience,books=[],placements={
   const ladders=useMemo(()=>makeLadders(layout),[layout])
   const decorTime=['evening','night'].includes(time)?'evening':'afternoon'
   const map=mode==='overview'
+  const showInterior=map||entranceOpen||localZone!=='저택 정원'
+  const [interiorLoaded,setInteriorLoaded]=useState(false)
+  useEffect(()=>{if(showInterior)setInteriorLoaded(true)},[showInterior])
   const unlock=()=>{if(!open){setOpen(true);onKeyHeld()}}
   return <Canvas camera={{fov:69,near:.065,far:190,position:[0,2,25]}} shadows dpr={1} gl={{powerPreference:'high-performance'}}>
     <color attach="background" args={[({morning:'#b9ced0',afternoon:'#becbc0',evening:'#708097',night:'#182438'})[time]]}/>
@@ -256,16 +259,18 @@ export default function ArchiveScene({onMusic,onExperience,books=[],placements={
     <ambientLight color={time==='night'?'#829bc2':time==='morning'?'#fff1d5':'#ffffff'} intensity={inGreenhouse?(time==='night'?.12:weather==='sunny'?.25:.4):inLounge?(decorTime==='evening'?.22:.4):(decorTime==='evening'?(outside?.27:.65):.97)}/>
     <hemisphereLight args={['#fff1d8','#7a6655',inGreenhouse?(time==='night'?.18:.45):inLounge?(decorTime==='evening'?.38:.7):(decorTime==='evening'?(outside?.48:1.05):1.68)]}/>
     <directionalLight color={time==='night'?'#95afd8':time==='morning'?'#ffe5bc':'#ffffff'} position={time==='morning'?[12,12,8]:[-10,18,9]} intensity={inGreenhouse?0:inLounge?.65:(decorTime==='evening'?(outside?.45:1):2.15)}/>
-    <group scale={[1,WORLD_HEIGHT_SCALE,1]}><GroundFloor event={season} sceneTime={time} heldBook={heldBook} map={map} layout={layout} weather={weather} time={decorTime} open={open} onKey={unlock} onReady={()=>setGateReady(true)} onGenre={onGenre} onPick={onPick} onNote={onOpenNotes}/>
+    <group scale={[1,WORLD_HEIGHT_SCALE,1]}>
+    {!map&&<><WorldAdditions weather={weather} time={decorTime} entranceOpen={entranceOpen} onEntranceToggle={setEntranceOpen} season={season}/><Suspense fallback={null}><FacadeModel visible={outside}/></Suspense></>}
+    {(showInterior||interiorLoaded)&&<group visible={showInterior}>
+    <GroundFloor event={season} sceneTime={time} heldBook={heldBook} map={map} layout={layout} weather={weather} time={decorTime} open={open} onKey={unlock} onReady={()=>setGateReady(true)} onGenre={onGenre} onPick={onPick} onNote={onOpenNotes}/>
     {!map&&<>
-      <WorldAdditions weather={weather} time={decorTime} entranceOpen={entranceOpen} onEntranceToggle={setEntranceOpen} season={season}/>
-      <Mezzanine time={decorTime}/><Greenhouse active={localZone==='실내 온실'} door={glassDoor} time={time} weather={weather} event={season}/><TallStacks layout={layout} ladders={ladders} time={time} weather={weather} event={season}/><Suspense fallback={null}><FacadeModel visible={outside}/></Suspense><InteractiveProps onOpen={onExperience}/>
+      <Mezzanine time={decorTime}/><Greenhouse active={localZone==='실내 온실'} door={glassDoor} time={time} weather={weather} event={season}/><TallStacks layout={layout} ladders={ladders} time={time} weather={weather} event={season}/><InteractiveProps onOpen={onExperience}/>
       <InteriorDetails/><AtmosphereDetails time={time} weather={weather} event={season} secretOpen={open}/>
       <LibraryDetails/><MainRoomDetails layout={layout} time={decorTime} zone={localZone}/><HallDetails time={decorTime}/>
       <SecretDetails open={open} time={decorTime}/><StudyRoom open={open} door={studyDoor} time={time} weather={weather} event={season} onNotes={onOpenNotes} onMusic={onMusic}/><PlacedBooks books={books} placements={placements} heldBook={heldBook} onPick={onPick}/>
       {(nearAttic||atticLoaded)&&<group visible={nearAttic} position={[-11.45,0,0]} scale={[ATTIC_EXPANSION,1,1]}><group position={[11.45,0,0]}><Suspense fallback={null}><AtticGLB time={time} weather={weather} event={season}/></Suspense></group></group>}<PaperSpirits/>
     </>}
-    </group><Weather weather={weather}/>
+    </group>}</group><Weather weather={weather}/>
     <WalkControl glassDoor={glassDoor} studyDoor={studyDoor} onMusic={onMusic} ladders={ladders} onExperience={onExperience} onCloseSecret={()=>{setOpen(false);setGateReady(false);studyDoor.open=false}} mode={mode} blocked={blocked} joy={joy} books={books} onZone={reportZone} teleport={teleport} character={character} heldBook={heldBook} keyHeld={keyHeld} layout={layout} entranceOpen={entranceOpen} gateReady={gateReady} onKey={unlock} onInteraction={onInteraction} onToggleEntrance={setEntranceOpen} onOpenNotes={onOpenNotes} onGenre={onGenre} onTravel={onDoor} onRead={onRead} canPlace={canPlace} onPlaceNearby={onPlaceNearby} onSeatStatus={onSeatStatus}/>
     {map&&<Overhead end={layout.end}/>}
   </Canvas>
