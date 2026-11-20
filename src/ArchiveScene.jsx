@@ -1,3 +1,4 @@
+import LoungeBlanket from './LoungeBlanket'
 import {toggleGlassDoor} from './greenhouseLayout'
 import StudyRoom from './StudyRoom'
 import {toggleStudyDoor} from './studyLayout'
@@ -34,7 +35,7 @@ import {startSitting,startStanding,advanceSeating} from './seating'
 
 const MOVE=['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight']
 const AtticGLB=lazy(()=>import('./AtticGLB'))
-function WalkControl({glassDoor,studyDoor,onMusic,ladders,onExperience,onCloseSecret,mode,blocked,joy,books,onZone,teleport,character,heldBook,keyHeld,layout,entranceOpen,gateReady,onKey,onInteraction,onToggleEntrance,onOpenNotes,onGenre,onTravel,onRead,canPlace,onPlaceNearby,onSeatStatus}) {
+function WalkControl({blanket,onBlanket,glassDoor,studyDoor,onMusic,ladders,onExperience,onCloseSecret,mode,blocked,joy,books,onZone,teleport,character,heldBook,keyHeld,layout,entranceOpen,gateReady,onKey,onInteraction,onToggleEntrance,onOpenNotes,onGenre,onTravel,onRead,canPlace,onPlaceNearby,onSeatStatus}) {
   const {gl,scene}=useThree()
   const ray=useMemo(()=>new THREE.Raycaster(),[])
   const rayDirection=useMemo(()=>new THREE.Vector3(),[])
@@ -52,7 +53,7 @@ function WalkControl({glassDoor,studyDoor,onMusic,ladders,onExperience,onCloseSe
   const state=useRef({x:0,z:23,level:0,yaw:0,bodyYaw:0,pitch:0,keys:new Set(),pointer:null,lx:0,ly:0,seated:false})
   const status=useRef({})
   const bookcases=useMemo(()=>layout.sections.flatMap(section=>section.cases.map(c=>({x:c.x,z:c.z,genre:section.genre.id,slot:(c.number-1)*24}))),[layout])
-  status.current={blocked,mode,onKey,gateReady,onToggleEntrance,onOpenNotes,onGenre,entranceOpen,onTravel,onRead,bookcases,heldBook,canPlace,onPlaceNearby,world:{end:layout.end,gateReady,entranceOpen,ladders,studyDoor,glassDoor}}
+  status.current={onBlanket,gateOpening:!gateReady&&keyHeld,blocked,mode,onKey,gateReady,onToggleEntrance,onOpenNotes,onGenre,entranceOpen,onTravel,onRead,bookcases,heldBook,canPlace,onPlaceNearby,world:{end:layout.end,gateReady,entranceOpen,ladders,studyDoor,glassDoor}}
   const look=useMemo(()=>new THREE.Vector3(),[])
   const target=useMemo(()=>new THREE.Vector3(),[])
   useEffect(()=>{
@@ -95,6 +96,8 @@ function WalkControl({glassDoor,studyDoor,onMusic,ladders,onExperience,onCloseSe
       else if(action.type==='music')onMusic?.()
       else if(action.type==='ladder')toggleLadder(action.ladder)
       else if(action.type==='telescope'||action.type==='board')onExperience(action.type)
+      else if(action.type==='minigame')onExperience(action.game)
+      else if(action.type==='blanket')ui.onBlanket()
       else if(action.type==='key')ui.onKey?.()
       else if(action.type==='notes')ui.onOpenNotes?.()
       else if(action.type==='shelf')ui.onGenre?.(action.genre)
@@ -218,6 +221,7 @@ function WalkControl({glassDoor,studyDoor,onMusic,ladders,onExperience,onCloseSe
     camera.lookAt(look)
   })
   return <group ref={avatar} userData={{player:true}} visible={mode==='third'}>
+    {blanket&&<LoungeBlanket lap pose={pose}/>}
     <Suspense fallback={null}><AvatarModels character={character} moving={moving} pose={pose} book={books.find(b=>b.id===heldBook) || (keyHeld ? {color:'#94704b',isKey:true} : null)}/></Suspense>
   </group>
 }
@@ -231,7 +235,7 @@ function Overhead({end}) {
   const zoom=Math.min(size.width/(end+23),size.height/41)
   return <OrthographicCamera ref={ref} makeDefault position={[(end-19)/2,65,-6]} zoom={zoom} near={.1} far={180}/>
 }
-export default function ArchiveScene({onMusic,onExperience,books=[],placements={},canPlace=false,onPlaceNearby,onPick,onGenre,mode='third',weather,time,blocked,joy,onZone,teleport,onDoor,character,heldBook,season,onOpenNotes,onKeyHeld,keyHeld,onInteraction,onRead,onSeatStatus}) {
+export default function ArchiveScene({blanket,onBlanket,onMusic,onExperience,books=[],placements={},canPlace=false,onPlaceNearby,onPick,onGenre,mode='third',weather,time,blocked,joy,onZone,teleport,onDoor,character,heldBook,season,onOpenNotes,onKeyHeld,keyHeld,onInteraction,onRead,onSeatStatus}) {
   const glassDoor=useMemo(()=>({open:false,amount:0}),[])
   const studyDoor=useMemo(()=>({open:false,amount:0}),[])
   const [localZone,setLocalZone]=useState('저택 정원')
@@ -253,7 +257,7 @@ export default function ArchiveScene({onMusic,onExperience,books=[],placements={
   const [interiorLoaded,setInteriorLoaded]=useState(false)
   useEffect(()=>{if(showInterior)setInteriorLoaded(true)},[showInterior])
   const unlock=()=>{if(!open){setOpen(true);onKeyHeld()}}
-  return <Canvas camera={{fov:69,near:.065,far:190,position:[0,2,25]}} shadows dpr={1} gl={{powerPreference:'high-performance'}}>
+  return <Canvas frameloop={blocked?'demand':'always'} camera={{fov:69,near:.065,far:190,position:[0,2,25]}} shadows dpr={1} gl={{powerPreference:'high-performance'}}>
     <color attach="background" args={[({morning:'#b9ced0',afternoon:'#becbc0',evening:'#708097',night:'#182438'})[time]]}/>
     {!map&&<fog attach="fog" args={[decorTime==='evening'?'#928b84':'#cbbfa7',31,105]}/>}
     <ambientLight color={time==='night'?'#829bc2':time==='morning'?'#fff1d5':'#ffffff'} intensity={inGreenhouse?(time==='night'?.12:weather==='sunny'?.25:.4):inLounge?(decorTime==='evening'?.22:.4):(decorTime==='evening'?(outside?.27:.65):.97)}/>
@@ -264,14 +268,15 @@ export default function ArchiveScene({onMusic,onExperience,books=[],placements={
     {(showInterior||interiorLoaded)&&<group visible={showInterior}>
     <GroundFloor event={season} sceneTime={time} heldBook={heldBook} map={map} layout={layout} weather={weather} time={decorTime} open={open} onKey={unlock} onReady={()=>setGateReady(true)} onGenre={onGenre} onPick={onPick} onNote={onOpenNotes}/>
     {!map&&<>
-      <Mezzanine time={decorTime}/><Greenhouse active={localZone==='실내 온실'} door={glassDoor} time={time} weather={weather} event={season}/><TallStacks layout={layout} ladders={ladders} time={time} weather={weather} event={season}/><InteractiveProps onOpen={onExperience}/>
+      <Mezzanine time={decorTime}/><Greenhouse active={localZone==='실내 온실'} door={glassDoor} time={time} weather={weather} event={season}/><TallStacks layout={layout} ladders={ladders} time={time} weather={weather} event={season}/><InteractiveProps onOpen={onExperience} secretOpen={open}/>
+      {!blanket&&<LoungeBlanket onClick={e=>{e.stopPropagation();onBlanket()}}/>}
       <InteriorDetails/><AtmosphereDetails time={time} weather={weather} event={season} secretOpen={open}/>
       <LibraryDetails/><MainRoomDetails layout={layout} time={decorTime} zone={localZone}/><HallDetails time={decorTime}/>
-      <SecretDetails open={open} time={decorTime}/><StudyRoom open={open} door={studyDoor} time={time} weather={weather} event={season} onNotes={onOpenNotes} onMusic={onMusic}/><PlacedBooks books={books} placements={placements} heldBook={heldBook} onPick={onPick}/>
+      <SecretDetails open={open} time={decorTime}/><StudyRoom open={open} prepare={localZone==='북쪽 복도'} door={studyDoor} time={time} weather={weather} event={season} onNotes={onOpenNotes} onMusic={onMusic}/><PlacedBooks books={books} placements={placements} heldBook={heldBook} onPick={onPick}/>
       {(nearAttic||atticLoaded)&&<group visible={nearAttic} position={[-11.45,0,0]} scale={[ATTIC_EXPANSION,1,1]}><group position={[11.45,0,0]}><Suspense fallback={null}><AtticGLB time={time} weather={weather} event={season}/></Suspense></group></group>}<PaperSpirits/>
     </>}
     </group>}</group><Weather weather={weather}/>
-    <WalkControl glassDoor={glassDoor} studyDoor={studyDoor} onMusic={onMusic} ladders={ladders} onExperience={onExperience} onCloseSecret={()=>{setOpen(false);setGateReady(false);studyDoor.open=false}} mode={mode} blocked={blocked} joy={joy} books={books} onZone={reportZone} teleport={teleport} character={character} heldBook={heldBook} keyHeld={keyHeld} layout={layout} entranceOpen={entranceOpen} gateReady={gateReady} onKey={unlock} onInteraction={onInteraction} onToggleEntrance={setEntranceOpen} onOpenNotes={onOpenNotes} onGenre={onGenre} onTravel={onDoor} onRead={onRead} canPlace={canPlace} onPlaceNearby={onPlaceNearby} onSeatStatus={onSeatStatus}/>
+    <WalkControl blanket={blanket} onBlanket={onBlanket} glassDoor={glassDoor} studyDoor={studyDoor} onMusic={onMusic} ladders={ladders} onExperience={onExperience} onCloseSecret={()=>{setOpen(false);setGateReady(false);studyDoor.open=false}} mode={mode} blocked={blocked} joy={joy} books={books} onZone={reportZone} teleport={teleport} character={character} heldBook={heldBook} keyHeld={keyHeld} layout={layout} entranceOpen={entranceOpen} gateReady={gateReady} onKey={unlock} onInteraction={onInteraction} onToggleEntrance={setEntranceOpen} onOpenNotes={onOpenNotes} onGenre={onGenre} onTravel={onDoor} onRead={onRead} canPlace={canPlace} onPlaceNearby={onPlaceNearby} onSeatStatus={onSeatStatus}/>
     {map&&<Overhead end={layout.end}/>}
   </Canvas>
 }

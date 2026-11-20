@@ -1,3 +1,5 @@
+import MiniGames from './MiniGames.jsx'
+import {GAME_SPOTS} from './miniGames'
 import {CoverImage} from './BookCover'
 import React,{useEffect,useRef,useState} from 'react'
 import {boardResult,playBoard} from './boardGame'
@@ -8,9 +10,9 @@ export default function Experiences({kind,onClose,book}){
  useEffect(()=>{if(kind!=='telescope'||!skyPlaying)return;const timer=setInterval(()=>setSkyClock(t=>t+.25),250);return()=>clearInterval(timer)},[kind,skyPlaying])
  const phaseOffset=moonPhase===null?132*Math.sin(skyClock*Math.PI/60):132*moonPhase
  const result=boardResult(board)
- return <div className="experience-backdrop"><section className="experience-dialog" role="dialog" aria-modal="true" aria-label={kind==='reader'?'독서 화면':kind==='telescope'?'다락 천문 관측':'벽난로 별자리 삼목'}>
+ return <div className="experience-backdrop"><section className="experience-dialog" role="dialog" aria-modal="true" aria-label={GAME_SPOTS.find(g=>g.id===kind)?.title||(kind==='reader'?'독서 화면':kind==='telescope'?'다락 천문 관측':'벽난로 별자리 삼목')}>
   <button ref={closeRef} onClick={onClose} className="experience-close">닫기 ×</button>
-  {kind==='reader'?<><h2>{book?.title||'읽을 책을 선택해 주세요'}</h2><p>{book?.author}</p>{book?.cover&&<div className="reading-large-cover"><CoverImage url={book.cover} title={book.title}/></div>}<p className="help-text">등록한 표지와 독서 기록을 펼쳐 봅니다.</p>{book?.quote&&<blockquote>{book.quote}</blockquote>}<p className="read-text">{book?.notes||'아직 작성한 독서 기록이 없습니다.'}</p><p>닫으면 같은 자세로 다락방 독서를 이어갑니다.</p></>:kind==='telescope'?<><h2>다락의 작은 천문대</h2><p>망원경으로 동화 속 밤하늘을 살펴보세요. 실제 천체 위치와는 다른 관측 연출입니다.</p>
+  {GAME_SPOTS.some(g=>g.id===kind)?<MiniGames key={kind} kind={kind}/>:kind==='reader'?<><h2>{book?.title||'읽을 책을 선택해 주세요'}</h2><p>{book?.author}</p>{book?.cover&&<div className="reading-large-cover"><CoverImage url={book.cover} title={book.title}/></div>}<p className="help-text">등록한 표지와 독서 기록을 펼쳐 봅니다.</p>{book?.quote&&<blockquote>{book.quote}</blockquote>}<p className="read-text">{book?.notes||'아직 작성한 독서 기록이 없습니다.'}</p><p>닫으면 같은 자세로 다락방 독서를 이어갑니다.</p></>:kind==='telescope'?<><h2>다락의 작은 천문대</h2><p>망원경으로 동화 속 밤하늘을 살펴보세요. 실제 천체 위치와는 다른 관측 연출입니다.</p>
    <svg viewBox="0 0 500 340" role="img" aria-label={target==='moon'?'달의 표면':'별자리와 별들'} className="telescope-sky">
     <defs><radialGradient id="sky-glow"><stop stopColor="#253958"/><stop offset="1" stopColor="#070e1c"/></radialGradient><clipPath id="scope-lens"><circle cx="250" cy="170" r="160"/></clipPath></defs>
     <rect width="500" height="340" fill="#100f19"/><circle cx="250" cy="170" r="163" fill="#ad8b56"/>

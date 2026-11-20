@@ -1,3 +1,4 @@
+import {advanceGate,gatePose} from './secretGate'
 import React, {useEffect,useMemo,useRef} from 'react'
 import {useFrame} from '@react-three/fiber'
 import * as THREE from 'three'
@@ -172,15 +173,15 @@ function Stacks({layout,onGenre,onPick,heldBook}) {
 }
 function SecretCabinet({x=0,half=0,moving,open,onKey,onReady}) {
   const ref=useRef()
-  const ready=useRef(false)
+  const ready=useRef(false),progress=useRef(0)
   useFrame((_,dt)=>{
     if(!moving||!ref.current)return
-    const dest=open?half*1.53:0
-    const next=THREE.MathUtils.damp(ref.current.position.x,dest,5,dt)
-    ref.current.position.x=Math.abs(next-dest)<.012?dest:next
-    ref.current.position.z=-Math.min(1,Math.abs(ref.current.position.x)*3)*.42
-    ref.current.rotation.y=half*THREE.MathUtils.smoothstep(Math.abs(ref.current.position.x),.4,1.53)*.65
-    if(open&&half===1&&!ready.current&&ref.current.position.x===dest){ready.current=true;onReady()}
+    progress.current=advanceGate(progress.current,open,dt)
+    const pose=gatePose(progress.current,half)
+    ref.current.position.set(pose.x,0,pose.z)
+    ref.current.rotation.y=pose.rotation
+    if(open&&half===1&&!ready.current&&progress.current===1){ready.current=true;onReady()}
+
   })
   useEffect(()=>{if(!open)ready.current=false},[open])
   const w=moving?1.48:2.72
