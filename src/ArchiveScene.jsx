@@ -1,87 +1,263 @@
-import React,{useEffect,useMemo,useRef,useState} from 'react'
+import {toggleGlassDoor} from './greenhouseLayout'
+import StudyRoom from './StudyRoom'
+import {toggleStudyDoor} from './studyLayout'
+import {movementVector,facingForMovement} from './cameraMovement'
+import {ATTIC_EXPANSION} from './atticLayout'
+import PaperSpirits from './PaperSpirits'
+import AtmosphereDetails from './AtmosphereDetails'
+import TallStacks from './TallStacks'
+import Greenhouse from './Greenhouse'
+import FacadeModel from './FacadeModel'
+import InteractiveProps from './InteractiveProps'
+import {makeLadders,advanceLadders,toggleLadder} from './ladderSystem'
+import React,{Suspense,useEffect,useMemo,useRef,useState} from 'react'
 import {Canvas,useFrame,useThree} from '@react-three/fiber'
-import {OrbitControls,Text} from '@react-three/drei'
+import {OrthographicCamera} from '@react-three/drei'
 import * as THREE from 'three'
+import Weather from './Weather'
+import SecretDetails from './SecretDetails'
+import {WORLD_HEIGHT_SCALE} from './worldScale'
 import AvatarModels from './AvatarModels'
-import RoomExpansion from './RoomExpansion'
+import GroundFloor from './GroundFloor'
+import AtticGLB from './AtticGLB'
+import WorldAdditions from './WorldAdditions'
+import InteriorDetails from './InteriorDetails'
+import Mezzanine from './Mezzanine'
+import {movePlayer,floorName} from './navigation'
+import {makeStacks,ROOM_SPOTS,zoneAt} from './layout'
+import {interactionAt} from './interactions'
+import PlacedBooks from './PlacedBooks'
+import LibraryDetails from './LibraryDetails'
+import MainRoomDetails from './MainRoomDetails'
+import {HallDetails} from './RoomDetails'
+import {startSitting,startStanding,advanceSeating} from './seating'
 
-// Unit scale: a 26 x 15 game-unit interior. Main hall, left reading room, right writing studio.
-const C={wood:'#a86b3b',woodDark:'#7b4528',woodLight:'#c88b50',cream:'#f2d7b4',wall:'#ecd5b4',paper:'#fff2d5',gold:'#d7a759',leaf:'#668a52',rug:'#bb7a64'}
-const BOOKS=['#aa6646','#c49055','#557e6b','#6b89a0','#c76d57','#e0bd72','#8f798e','#4b7785','#d9a586','#788d54']
-function Box({p=[0,0,0],s=[1,1,1],c=C.wood,rot=[0,0,0],onClick,metal=0,opacity=1}){return <mesh position={p} rotation={rot} castShadow receiveShadow onClick={onClick}><boxGeometry args={s}/><meshStandardMaterial color={c} roughness={.81} metalness={metal} transparent={opacity<1} opacity={opacity}/></mesh>}
-function Cyl({p,s=[.4,.4,.4],c=C.wood,rotation=[0,0,0],segments=16}){return <mesh position={p} rotation={rotation} castShadow><cylinderGeometry args={[s[0],s[1],s[2],segments]}/><meshStandardMaterial color={c} roughness={.8}/></mesh>}
-function Ball({p,r=.5,c=C.leaf}){return <mesh position={p} castShadow><sphereGeometry args={[r,12,10]}/><meshStandardMaterial color={c} roughness={.85}/></mesh>}
-function Sign({text,p,scale=.28,rotation=[0,0,0]}){return <Text position={p} rotation={rotation} fontSize={scale} color="#fff0cc" maxWidth={4.5} anchorX="center" anchorY="middle" outlineColor="#6b3c25" outlineWidth={.008}>{text}</Text>}
-function ArchTrim({x,z=0,span=3.5,onEnter}){const pts=[];for(let i=0;i<=24;i++){let t=Math.PI-(i/24)*Math.PI;pts.push(new THREE.Vector3(x,3.1+Math.sin(t)*1.42,z+Math.cos(t)*span/2))}const curve=new THREE.CatmullRomCurve3(pts);return <group onClick={onEnter?(e)=>{e.stopPropagation();onEnter()}:undefined}><mesh><tubeGeometry args={[curve,34,.145,8,false]}/><meshStandardMaterial color={C.woodLight}/></mesh>{[-1,1].map(a=><Box key={a} p={[x,1.65,z+a*span/2]} s={[.28,3.0,.28]} c={C.woodLight}/>)}</group>}
-function Surface({onDoor}){return <group>
- <Box p={[0,-.2,0]} s={[34,.36,16]} c="#c28b59"/>
- {Array.from({length:44},(_,i)=><Box key={i} p={[-16.5+i*.77,.003,0]} s={[.018,.015,15.7]} c={i%3===0?'#9f673e':'#d8a16c'}/>)}
- {/* cream wall with open connections at x +-8, z +-2 */}
- {[-8,8].map(x=><group key={x}>{[-4.8,4.8].map(z=><Box key={z} p={[x,2.55,z]} s={[.35,5.1,5.5]} c={C.wall}/>)}<Box p={[x,4.78,0]} s={[.35,.7,4.3]} c={C.wall}/><ArchTrim x={x} onEnter={x<0?()=>onDoor?.('lounge'):undefined}/>{x>0&&<Box p={[x,2,0]} s={[.35,4,3.5]} c={C.wall}/>}</group>)}
- <Box p={[0,2.5,-7.8]} s={[34,5,.26]} c={C.wall}/>
- <Box p={[0,2.5,7.8]} s={[34,5,.26]} c={C.wall}/>
- <Box p={[-17,2.5,0]} s={[.22,5,16]} c={C.wall}/>
- {/* right hand exterior window wall. multiple glass openings simulated by transparent panels */}
- <Box p={[17,1,0]} s={[.23,2,16]} c={C.wall}/><Box p={[17,4.65,0]} s={[.23,.7,16]} c={C.wall}/>
- {[-5.7,-2,2,5.7].map(z=><group key={z}><Box p={[17,2.95,z]} s={[.22,3.6,.22]} c={C.woodLight}/><Box p={[16.85,2.95,z+1.7]} s={[.07,3.5,.08]} c="#d9a770"/><Box p={[16.85,2.8,z+1.7]} s={[.07,.09,3.3]} c="#d9a770"/></group>)}
- {/* wainscoting trims */}
- {[-7.7,7.7].map(z=><group key={z}><Box p={[0,.9,z]} s={[33.8,1.7,.16]} c="#a77550"/><Box p={[0,1.76,z]} s={[33.9,.12,.23]} c={C.woodLight}/></group>)}
- {/* roof rafters intentionally open for overview, ceiling panels partially transparent */}
- {[-5,-1,3,7].map(z=><group key={z}><Box p={[0,5.35,z]} s={[34,.25,.26]} c={C.woodDark}/><Box p={[0,5.42,z]} s={[34,.09,.08]} c={C.woodLight}/></group>)}
- {[-12,-8,-4,0,4,8,12].map(x=><Box key={x} p={[x,5.4,0]} s={[.19,.22,15.6]} c={C.woodLight}/>)}
- </group>}
-function Rug({x,z,w=4,d=3,color='#b57964'}){return <group><mesh position={[x,.028,z]} rotation={[-Math.PI/2,0,0]}><planeGeometry args={[w,d]}/><meshStandardMaterial color={color} roughness={1}/></mesh><mesh position={[x,.032,z]} rotation={[-Math.PI/2,0,0]}><ringGeometry args={[Math.min(w,d)*.31,Math.min(w,d)*.35,64]}/><meshStandardMaterial color="#ead2a5"/></mesh></group>}
-function Plant({x,z,k=1}){return <group position={[x,0,z]}><Cyl p={[0,.36,0]} s={[.33,.27,.72]} c="#eac4a0"/><Cyl p={[0,1.13,0]} s={[.07,.08,.9]} c="#65844a"/>{[[-.2,1.42,.1],[.25,1.6,-.15],[0,1.8,0],[.26,1.27,.23],[-.34,1.8,-.12]].map((v,i)=><Ball key={i} p={v} r={k*(.3+(i%3)*.07)} c={i%2?'#6a944e':'#7ca85a'}/>)}</group>}
-function Lamp({x,y,z,type='hanging'}){const hanging=type==='hanging';return <group><Cyl p={[x,y,z]} s={[hanging?.15:.08,hanging?.15:.08,hanging?.5:.45]} c="#b57939"/>{hanging&&<Box p={[x,y+.5,z]} s={[.03,.75,.03]} c="#855634"/>}<mesh position={[x,y,z]}><sphereGeometry args={[hanging?.55:.28,16,12]}/><meshStandardMaterial color="#fff1cb" emissive="#ffc77d" emissiveIntensity={.75} roughness={.45}/></mesh><pointLight position={[x,y-.25,z]} intensity={hanging?3.1:1.55} color="#ffcc87" distance={hanging?11:5} decay={2}/></group>}
-function Shelf({x,z,w=3.3,h=4.4,seed=0,books=[],onPick,rot=0}){const levels=[.52,1.44,2.36,3.28];return <group position={[x,0,z]} rotation={[0,rot,0]}><Box p={[0,h/2,0]} s={[w,h,.66]} c={C.woodDark}/><Box p={[0,h/2,.37]} s={[w-.32,h-.3,.08]} c="#895531"/>{[-w/2+.08,w/2-.08].map((v,i)=><Box key={i} p={[v,h/2,.45]} s={[.23,h,.27]} c={C.woodLight}/>)}{levels.map((y,i)=><group key={i}><Box p={[0,y-.06,.42]} s={[w-.15,.15,.83]} c={C.woodLight}/>{Array.from({length:Math.floor((w-.43)/.23)},(_,j)=>{let bw=.125+((j*3+seed+i)%5)*.015,bh=.56+((j+seed*2+i*7)%6)*.045;const book=books.length?books[(i*13+j)%books.length]:null;const isReal=Boolean(book&&i===1&&j<Math.min(books.length,Math.floor(w/.23)));return <group key={j} position={[-w/2+.3+j*.225,y+bh/2,.42]} rotation={[0,0,j%11===0?-.07:0]} onClick={isReal?(e)=>{e.stopPropagation();onPick(book.id)}:undefined} onPointerOver={isReal?(e)=>{e.stopPropagation();document.body.style.cursor='pointer'}:undefined} onPointerOut={isReal?()=>{document.body.style.cursor='auto'}:undefined}><Box p={[0,0,0]} s={[bw,bh,.47]} c={isReal?book.color:BOOKS[(seed+i*3+j)%BOOKS.length]}/>{isReal?<><Box p={[0,bh*.23,.245]} s={[bw+.012,.037,.018]} c="#f5cd68" metal={.55}/><mesh position={[0,-bh*.20,.253]}><octahedronGeometry args={[.055,0]}/><meshStandardMaterial color="#ffdc81" emissive="#d6921b" emissiveIntensity={.7}/></mesh></>:<Box p={[0,bh*.23,.24]} s={[bw,.012,.012]} c="#9c7860"/>}{isReal&&<Text position={[0,0,.25]} fontSize={.065} color="#fff1d5" maxWidth={.16} rotation={[0,0,-Math.PI/2]}>{book.title.slice(0,9)}</Text>}</group>})}</group>)}<Box p={[0,h+.06,.05]} s={[w+.25,.17,.95]} c={C.woodLight}/></group>}
-function ArmChair({x,z,rotation=0}){return <group position={[x,0,z]} rotation={[0,rotation,0]}><Box p={[0,.55,0]} s={[1.35,.45,1.2]} c="#6b9677"/><Box p={[0,1.19,-.48]} s={[1.4,1.42,.3]} c="#527b65"/>{[-.62,.62].map(a=><Box key={a} p={[a,.86,.04]} s={[.24,.42,1.04]} c="#789b78"/>)}{[-.45,.45].map(a=><Box key={a} p={[a,.19,.33]} s={[.11,.37,.11]} c={C.woodDark}/>)}<Box p={[0,.79,-.22]} s={[.6,.27,.16]} c="#e6bd8b"/></group>}
-function Desk({x,z,scale=1}){return <group position={[x,0,z]} scale={scale}><Box p={[0,1.05,0]} s={[2.55,.17,1.15]} c={C.woodLight}/>{[-1.06,1.06].flatMap(a=>[-.41,.41].map(b=><Box key={`${a}${b}`} p={[a,.52,b]} s={[.13,1.03,.13]} c={C.woodDark}/>))}<Box p={[-.28,1.16,.07]} s={[.7,.055,.47]} c="#fff0d0"/><Box p={[-.21,1.18,.06]} s={[.012,.014,.42]} c="#d5a26d"/><Lamp x={.88} y={1.56} z={-.25} type="desk"/></group>}
-function FloralTable(){return <group><Rug x={0} z={1.6} w={5.5} d={4.3} color="#c4aa8d"/><Cyl p={[0,.52,1.6]} s={[.38,.44,1.04]} c={C.woodDark}/><Cyl p={[0,1.03,1.6]} s={[1.36,1.34,.18]} c={C.woodLight}/><Cyl p={[.55,1.23,1.35]} s={[.17,.13,.35]} c="#f5e8d5"/>{[[-.05,1.68,1.35],[.12,1.68,1.35],[-.1,1.72,1.48],[.08,1.85,1.45]].map((v,i)=><Ball key={i} p={v} r={.18} c={i%2?'#f9dca3':'#f6f4df'}/>)}<Box p={[-.55,1.16,1.75]} s={[.76,.15,.51]} c="#b87049"/><Box p={[-.52,1.31,1.71]} s={[.71,.12,.48]} c="#7e9878"/></group>}
-function StairRail(){return <group>{[-6.6,6.6].map(x=><group key={x}><Box p={[x,4.52,0]} s={[.22,.18,14.9]} c={C.woodLight}/>{Array.from({length:13},(_,i)=><Box key={i} p={[x,3.93,-6.7+i*1.1]} s={[.09,1.05,.09]} c={C.woodLight}/>)}</group>)}</group>}
-function Window({x,z,rot=0}){return <group position={[x,0,z]} rotation={[0,rot,0]}><Box p={[0,2.8,0]} s={[3.5,3.35,.09]} c="#a9d8de" opacity={.42}/><Box p={[0,2.8,.09]} s={[.12,3.35,.2]} c={C.woodLight}/><Box p={[0,2.8,.12]} s={[3.5,.1,.14]} c={C.woodLight}/>{[-1.73,1.73].map(q=><Box key={q} p={[q,2.8,.11]} s={[.13,3.55,.2]} c={C.woodLight}/>)}<Box p={[0,1.1,.25]} s={[3.8,.14,.5]} c={C.woodLight}/></group>}
-function Outside({weather,time}){return <group><mesh position={[19.8,2,0]} rotation={[0,Math.PI/2,0]}><planeGeometry args={[15,8]}/><meshStandardMaterial color={time==='evening'?'#678ca3':'#b6dfe9'}/></mesh>{Array.from({length:9},(_,i)=><group key={i}><Cyl p={[20.5,.95,-6.3+i*1.6]} s={[.16,.22,1.9]} c="#9d8d64"/><Ball p={[20.5,2.2,-6.3+i*1.6]} r={.9+(i%3)*.14} c={weather==='rain'?'#6c8e7a':'#81aa60'}/></group>)}{weather==='rain'&&Array.from({length:80},(_,i)=><Box key={i} p={[18.4+((i*13)%15)*.11,1+((i*11)%35)*.12,-7+((i*7)%70)*.2]} s={[.012,.15,.009]} c="#e5f4ff" opacity={.65}/>)}</group>}
-function Decoration(){return <group>{[[-5.4,-4.5],[-15,-5.3],[5.5,5.2],[13.6,5.5]].map(([x,z],i)=><Plant key={i} x={x} z={z} k={.85}/>)}{[-5,0,5].map(z=><Lamp key={z} x={0} y={4.6} z={z}/>)}<Lamp x={-12} y={4.5} z={0}/><Lamp x={12} y={4.5} z={0}/><StairRail/>
- {[-15.4,-11.8].map(x=><Shelf key={x} x={x} z={-6.55} w={3.1} h={4.45} seed={x}/>)}
- {[[11,-6.4],[14.5,-6.4]].map(([x,z],i)=><Shelf key={i} x={x} z={z} w={3} h={4.4} seed={i+7}/>)}
- <Window x={0} z={-7.59}/><Window x={13.6} z={7.5} rot={Math.PI}/>
- <Rug x={-12.5} z={1.5} w={5} d={4.3} color="#bfa78e"/><ArmChair x={-13.9} z={1.3} rotation={-.6}/><ArmChair x={-11.25} z={1.45} rotation={.5}/><Desk x={-12.5} z={3.7} scale={.75}/>
- <Rug x={12} z={1.5} w={5} d={4.4} color="#d2b38f"/><Desk x={12.2} z={1.4}/><Box p={[11.2,2.72,-7.49]} s={[3.6,1.8,.1]} c="#947655"/>{Array.from({length:8},(_,i)=><Box key={i} p={[9.8+(i%4)*.95,2.6+Math.floor(i/4)*.8,-7.35]} s={[.75,.56,.06]} c="#f7e5bd"/>)}
- <Box p={[15.1,.65,3.3]} s={[1.5,1.3,.7]} c={C.woodLight}/>{[0,1,2].map(i=><Box key={i} p={[15.1,.42+i*.36,3.67]} s={[1.3,.27,.05]} c={C.woodDark}/>)}
- {/* open wooden arch signage */}
- <Sign text="독 서 실" p={[-7.93,4.6,0]} scale={.26} rotation={[0,Math.PI/2,0]}/><Sign text="작 업 실" p={[7.93,4.6,0]} scale={.26} rotation={[0,-Math.PI/2,0]}/>
- </group>}
-function SecretBookcase({books,onPick,onDoor}){
- const [open,setOpen]=useState(false); const slider=useRef(); const latch=useRef();
- useFrame((_,dt)=>{if(slider.current)slider.current.position.x=THREE.MathUtils.damp(slider.current.position.x,open?3.25:0,3.6,dt); if(latch.current)latch.current.rotation.y=THREE.MathUtils.damp(latch.current.rotation.y,open?Math.PI/3:0,4,dt)});
- return <group position={[0,0,-6.15]}>
-   {/* A special brass-tipped book serves as the lock mechanism. */}
-   {!open&&<group onClick={e=>{e.stopPropagation();setOpen(true)}} onPointerOver={()=>document.body.style.cursor='pointer'} onPointerOut={()=>document.body.style.cursor='auto'}>
-    <Box p={[-1.08,1.87,.88]} s={[.24,.78,.4]} c="#476a5b"/><Box p={[-1.08,2.14,1.09]} s={[.26,.05,.025]} c="#eccb73"/>
-    <Text position={[-1.08,1.7,1.13]} fontSize={.10} color="#ffe5a0" rotation={[0,0,-Math.PI/2]}>✦</Text>
-   </group>}
-   <group ref={slider}>
-    <Shelf x={0} z={0} w={3.65} h={4.65} seed={3} books={books} onPick={onPick}/>
-   </group>
-   {/* The passage is a scene transition; the back wall is intentionally retained for now. */}
-   {open&&<group onClick={e=>{e.stopPropagation();onDoor('secret')}} onPointerOver={()=>document.body.style.cursor='pointer'} onPointerOut={()=>document.body.style.cursor='auto'}>
-    <Box p={[0,2,-.09]} s={[2.6,4,.11]} c="#4e3b34"/><Box p={[0,2,.08]} s={[2.2,3.7,.1]} c="#242e28"/>
-    <Text position={[0,2.2,.24]} fontSize={.25} color="#f6d48d" anchorX="center">비밀의 방으로 들어가기</Text>
-    <Text position={[0,1.77,.25]} fontSize={.18} color="#f0d4a4" anchorX="center">문을 클릭하세요</Text>
-   </group>}
-   {open&&<group ref={latch} onClick={e=>{e.stopPropagation();setOpen(false)}}><Box p={[-1.34,3.9,.4]} s={[.25,.25,.34]} c="#cfac70"/></group>}
-   {!open&&<Text position={[0,5.15,.8]} fontSize={.16} color="#fff0bd" anchorX="center">✦ 오래된 녹색 책을 찾아보세요</Text>}
- </group>
+const MOVE=['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight']
+function WalkControl({glassDoor,studyDoor,onMusic,ladders,onExperience,onCloseSecret,mode,blocked,joy,books,onZone,teleport,character,heldBook,keyHeld,layout,entranceOpen,gateReady,onKey,onInteraction,onToggleEntrance,onOpenNotes,onGenre,onTravel,onRead,canPlace,onPlaceNearby,onSeatStatus}) {
+  const {gl,scene}=useThree()
+  const ray=useMemo(()=>new THREE.Raycaster(),[])
+  const rayDirection=useMemo(()=>new THREE.Vector3(),[])
+  const eye=useMemo(()=>new THREE.Vector3(),[])
+  const cameraDistance=useRef(6)
+  const cameraYaw=useRef(0)
+  const avatar=useRef()
+  const moving=useRef(false)
+  const visitedSecret=useRef(false)
+  const pose=useRef({amount:0})
+  const lastSeatStatus=useRef('')
+  const currentZone=useRef('')
+  const lastHint=useRef('')
+  const state=useRef({x:0,z:23,level:0,yaw:0,bodyYaw:0,pitch:0,keys:new Set(),pointer:null,lx:0,ly:0,seated:false})
+  const status=useRef({})
+  const bookcases=useMemo(()=>layout.sections.flatMap(section=>section.cases.map(c=>({x:c.x,z:c.z,genre:section.genre.id,slot:(c.number-1)*24}))),[layout])
+  status.current={blocked,mode,onKey,gateReady,onToggleEntrance,onOpenNotes,onGenre,entranceOpen,onTravel,onRead,bookcases,heldBook,canPlace,onPlaceNearby,world:{end:layout.end,gateReady,entranceOpen,ladders,studyDoor,glassDoor}}
+  const look=useMemo(()=>new THREE.Vector3(),[])
+  const target=useMemo(()=>new THREE.Vector3(),[])
+  useEffect(()=>{
+    const room=teleport?.room||teleport
+    if(room==='secret')return
+    const spot=ROOM_SPOTS[room]
+    if(spot) {
+      const [x,z,level,yaw]=spot
+      const s=state.current
+      Object.assign(s,{x,z,level,yaw,bodyYaw:-yaw,pitch:0})
+      cameraYaw.current=yaw
+      s.keys.clear();s.seated=null;pose.current={amount:0}
+    }
+  },[teleport])
+  useEffect(()=>{
+    const s=state.current
+    if(s.level===0&&s.x>layout.end-.95){s.x=layout.end-1.2;s.z=0}
+  },[layout.end])
+  useEffect(()=>{
+    const s=state.current
+    const canvas=gl.domElement
+    const interact=()=>{
+      const ui=status.current
+      if(ui.blocked||ui.mode==='overview')return
+      const action=interactionAt(s,ui)
+      if(!action)return
+      s.keys.clear()
+      if(action.type==='place')ui.onPlaceNearby?.(action.target)
+      else if(action.type==='stand')s.seated=startStanding(s.seated,ui.world)
+      else if(action.type==='seat'){s.seated=startSitting(s,action.seat);s.yaw=-action.seat.turn-.4;s.pitch=0}
+      else if(action.type==='door'){
+        // Do not swing the door through a visitor standing in its sweep.
+        if(ui.entranceOpen&&s.z>10.1&&s.z<12.05&&Math.abs(s.x)<1.8)return
+        ui.onToggleEntrance?.(!ui.entranceOpen)
+      }
+      else if(action.type==='gardenWater')window.dispatchEvent(new Event('greenhouse-water-toggle'))
+      else if(action.type==='glassDoor')toggleGlassDoor(glassDoor,s)
+      else if(action.type==='studyDoor')toggleStudyDoor(studyDoor,s)
+      else if(action.type==='studyLamp')window.dispatchEvent(new Event('study-lamp-toggle'))
+      else if(action.type==='music')onMusic?.()
+      else if(action.type==='ladder')toggleLadder(action.ladder)
+      else if(action.type==='telescope'||action.type==='board')onExperience(action.type)
+      else if(action.type==='key')ui.onKey?.()
+      else if(action.type==='notes')ui.onOpenNotes?.()
+      else if(action.type==='shelf')ui.onGenre?.(action.genre)
+      else if(action.type==='travel')ui.onTravel?.(action.to)
+      else if(action.type==='read')ui.onRead?.(ui.heldBook)
+    }
+    const keyDown=e=>{
+      const ui=status.current
+      if(ui.blocked||ui.mode==='overview'||e.target?.matches?.('input,textarea,select,[contenteditable]'))return
+      if(MOVE.includes(e.code)){e.preventDefault();s.keys.add(e.code)}
+      if(e.code==='KeyE'&&!e.repeat){e.preventDefault();interact()}
+    }
+    const keyUp=e=>s.keys.delete(e.code)
+    const reset=()=>{s.keys.clear();s.pointer=null}
+    const down=e=>{
+      if(e.button!==0||status.current.blocked||status.current.mode==='overview')return
+      Object.assign(s,{pointer:e.pointerId,lx:e.clientX,ly:e.clientY})
+    }
+    const move=e=>{
+      if(s.pointer!==e.pointerId||status.current.blocked)return
+      s.yaw-=(e.clientX-s.lx)*.004
+      s.pitch=THREE.MathUtils.clamp(s.pitch-(e.clientY-s.ly)*.004,-.83,.83)
+      s.lx=e.clientX;s.ly=e.clientY
+    }
+    const up=e=>{if(s.pointer===e.pointerId)s.pointer=null}
+    const posture=e=>{if(s.seated?.phase==='seated'&&s.seated.seat.id==='attic-daybed'){s.seated={...s.seated,posture:e.detail==='lying'?'lying':'sitting'};s.yaw=e.detail==='lying'?0:-s.seated.seat.turn-.4;s.pitch=0}}
+    window.addEventListener('library-seat-pose',posture)
+    window.addEventListener('keydown',keyDown);window.addEventListener('keyup',keyUp)
+    window.addEventListener('blur',reset)
+    window.addEventListener('library-interact',interact)
+    canvas.addEventListener('pointerdown',down)
+    window.addEventListener('pointermove',move);window.addEventListener('pointerup',up);window.addEventListener('pointercancel',up)
+    return ()=>{
+      window.removeEventListener('library-seat-pose',posture)
+      window.removeEventListener('keydown',keyDown);window.removeEventListener('keyup',keyUp)
+      window.removeEventListener('blur',reset)
+      window.removeEventListener('library-interact',interact)
+      canvas.removeEventListener('pointerdown',down)
+      window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up);window.removeEventListener('pointercancel',up)
+    }
+  },[gl])
+  useEffect(()=>{
+    if(blocked){state.current.keys.clear();state.current.pointer=null}
+  },[blocked])
+  useFrame(({camera},dt)=>{
+    const s=state.current
+    const keys=s.keys
+    const active=mode!=='overview'
+    const direction=(positive,negative)=>Number(positive.some(key=>keys.has(key)))-Number(negative.some(key=>keys.has(key)))
+    const front=active&&!blocked?direction(['KeyW','ArrowUp'],['KeyS','ArrowDown'])+(joy.y||0):0
+    const side=active&&!blocked?direction(['KeyD','ArrowRight'],['KeyA','ArrowLeft'])+(joy.x||0):0
+    const world={end:layout.end,gateReady,entranceOpen,ladders,studyDoor,glassDoor}
+    advanceLadders(ladders,dt,s)
+    if(s.level===0&&s.z<-15.5)visitedSecret.current=true
+    if(visitedSecret.current&&s.z>-13.1){visitedSecret.current=false;onCloseSecret()}
+    const len=s.seated?0:Math.hypot(front,side)
+    const viewYaw=s.yaw+(s.seated&&mode==='first'?Math.PI:0)
+    const sin=Math.sin(viewYaw),cos=Math.cos(viewYaw)
+    moving.current=len>.1
+    if(moving.current) {
+      const step=3.6*Math.min(dt,.05),direction=movementVector(viewYaw,front,side)
+      const beforeX=s.x,beforeZ=s.z
+      Object.assign(s,movePlayer(s,direction.x*step,direction.z*step,world))
+      s.bodyYaw=facingForMovement(s.bodyYaw,s.x-beforeX,s.z-beforeZ,dt)
+    }
+    const action=interactionAt(s,status.current)
+    const hint=active&&!blocked?(action?.label||''):''
+    if(hint!==lastHint.current){lastHint.current=hint;onInteraction?.(hint,action?.type||null)}
+    let visualY=s.level
+    if(s.seated){
+      const oldSeat=s.seated
+      const result=advanceSeating(oldSeat,dt)
+      pose.current=result.pose
+      s.x=result.pose.x;s.z=result.pose.z;visualY=result.pose.y
+      avatar.current.rotation.y=result.pose.rotation
+      s.seated=result.seating
+      s.bodyYaw=result.pose.rotation
+      if(!s.seated){s.keys.clear()}
+    }else{
+      pose.current={amount:0}
+      avatar.current.rotation.y=mode==='first'?-s.yaw:s.bodyYaw
+    }
+    avatar.current.rotation.order='YXZ'
+    avatar.current.rotation.x=pose.current.recline||0
+    avatar.current.position.set(s.x,visualY*WORLD_HEIGHT_SCALE,s.z)
+    const seatText=s.seated?`${s.seated.seat.label} · ${s.seated.phase==='entering'?'앉는 중':s.seated.phase==='leaving'?'일어나는 중':s.seated.posture==='lying'?'누워 읽기':heldBook?'독서 중':'휴식 중'}`:''
+    if(seatText!==lastSeatStatus.current){lastSeatStatus.current=seatText;onSeatStatus?.(seatText)}
+    const zone=floorName(s.x,s.z,s.level)||zoneAt(s.x,s.z)
+    if(zone!==currentZone.current){currentZone.current=zone;onZone(zone)}
+    if(!active){avatar.current.visible=false;return}
+    let follow=0
+    const desiredYaw=s.yaw+(s.seated&&mode==='first'?Math.PI:0)
+    cameraYaw.current+=Math.atan2(Math.sin(desiredYaw-cameraYaw.current),Math.cos(desiredYaw-cameraYaw.current))*(1-Math.exp(-7*Math.min(dt,.1)))
+    const cameraSin=Math.sin(cameraYaw.current),cameraCos=Math.cos(cameraYaw.current)
+    eye.set(s.x,visualY*WORLD_HEIGHT_SCALE+1.65-.65*pose.current.amount-.65*(pose.current.recline||0)/(Math.PI/2),s.z)
+    if(mode==='third'){
+      rayDirection.set(-cameraSin,pose.current.recline>.1?1:.32,cameraCos).normalize()
+      ray.set(eye,rayDirection);ray.far=6.15;ray.near=.12
+      const hits=ray.intersectObjects(scene.children,true)
+      const hit=hits.find(({object})=>{
+        let node=object
+        while(node){if(!node.visible||node.userData.player)return false;node=node.parent}
+        return object.isMesh&&!object.material?.transparent
+      })
+      const safe=hit?Math.max(0,hit.distance-.35):6
+      cameraDistance.current=safe<cameraDistance.current?safe:THREE.MathUtils.damp(cameraDistance.current,safe,8,dt)
+      follow=cameraDistance.current
+    }
+    avatar.current.visible=mode==='third'&&follow>1.05
+    camera.position.copy(eye).addScaledVector(rayDirection,follow)
+
+    look.set(s.x+cameraSin*5,eye.y+s.pitch*5,s.z-cameraCos*5)
+    if(mode==='third')look.lerp(target.set(s.x,visualY*WORLD_HEIGHT_SCALE+.8+s.pitch,s.z),pose.current.amount)
+    if(mode==='third'&&pose.current.recline>.1)look.copy(eye)
+    const desiredFov=mode==='third'?73:69
+    if(Math.abs(camera.fov-desiredFov)>.05){camera.fov=THREE.MathUtils.damp(camera.fov,desiredFov,7,dt);camera.updateProjectionMatrix()}
+    camera.lookAt(look)
+  })
+  return <group ref={avatar} userData={{player:true}} visible={mode==='third'}>
+    <Suspense fallback={null}><AvatarModels character={character} moving={moving} pose={pose} book={books.find(b=>b.id===heldBook) || (keyHeld ? {color:'#94704b',isKey:true} : null)}/></Suspense>
+  </group>
 }
-function MainShelf({books,onPick,onDoor}){return <group>
- <Shelf x={-4.4} z={-6.15} w={3.65} h={4.65} seed={2} books={books.slice(0,10)} onPick={onPick}/>
- <SecretBookcase books={books.slice(10,20)} onPick={onPick} onDoor={onDoor}/>
- <Shelf x={4.4} z={-6.15} w={3.65} h={4.65} seed={4} books={books.slice(20,30)} onPick={onPick}/>
- {[-4.4,0,4.4].map((x,i)=><Sign key={i} text={['LITERATURE','SECRET ARCHIVE','COLLECTION'][i]} p={[x,4.98,-5.67]} scale={.2}/>)}
- <FloralTable/><Rug x={0} z={5.4} w={3.6} d={2.1} color="#d0b69a"/>
- </group>}
-function BookInHand({book}){return <group position={[0,1.05,-.61]} rotation={[.24,-.2,.16]}><Box p={[0,0,0]} s={[.34,.47,.07]} c={book.color||'#8b694a'}/><Box p={[0,0,-.05]} s={[.30,.43,.025]} c="#fff0d7"/><Box p={[-.17,0,0]} s={[.035,.47,.1]} c="#d7ac67"/></group>}
-const OBSTACLES=[{x:-12.5,z:3.7,w:3.0,d:1.6},{x:12.2,z:1.4,w:3,d:1.6},{x:0,z:1.6,w:3,d:3}, ...[-4.4,0,4.4].map(x=>({x,z:-6.15,w:3.85,d:1.2}))]
-function canWalk(x,z){if(x < -16.5||x>16.5||z < -7.25||z>7.25)return false;if((Math.abs(x-8)<.45||Math.abs(x+8)<.45)&&Math.abs(z)>1.65)return false;return !OBSTACLES.some(o=>Math.abs(x-o.x)<o.w/2+.33&&Math.abs(z-o.z)<o.d/2+.33)}
-function WalkControl({mode,blocked,joy,onPick,books,onZone,onNear,teleport,character,heldBook}){const {camera,gl}=useThree();const body=useRef();const moving=useRef(false);const st=useRef({x:0,z:5.7,level:0,yaw:0,pitch:0,keys:new Set(),drag:false,lx:0,ly:0});const handlers=useRef({onPick,onZone,onNear});useEffect(()=>{handlers.current={onPick,onZone,onNear}},[onPick,onZone,onNear]);useEffect(()=>{const s=st.current;if(!teleport)return; const room=typeof teleport==='string'?teleport:teleport.room;const p={main:[0,5.5,0],lounge:[-12.5,5.1,0],secret:[12,5.2,0],attic:[-1,4.7,6.4],reading:[-12,5.5,0],office:[12,5.5,0]}[room];if(p){s.x=p[0];s.z=p[1];s.level=p[2];s.yaw=0;}},[teleport]);useEffect(()=>{let s=st.current;const kd=e=>{if(['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','KeyE'].includes(e.code)){if(document.activeElement?.matches('input,textarea,select'))return;if(!blocked)e.preventDefault();s.keys.add(e.code);if(e.code==='KeyE'&&!blocked){const near=books.find(b=>Math.hypot(s.x-(Number(books.indexOf(b)/10)|0)*4.4+4.4,s.z+5)<3);if(near)handlers.current.onPick(near.id)}}};const ku=e=>s.keys.delete(e.code);const down=e=>{if(e.button===0||e.pointerType==='touch'){s.drag=true;s.lx=e.clientX;s.ly=e.clientY;try{gl.domElement.setPointerCapture(e.pointerId)}catch{}}};const move=e=>{if(s.drag&&!blocked){s.yaw-=(e.clientX-s.lx)*.004;s.pitch=THREE.MathUtils.clamp(s.pitch-(e.clientY-s.ly)*.003,-.5,.5);s.lx=e.clientX;s.ly=e.clientY}};const up=()=>s.drag=false;window.addEventListener('keydown',kd);window.addEventListener('keyup',ku);gl.domElement.addEventListener('pointerdown',down);window.addEventListener('pointerup',up);window.addEventListener('pointercancel',up);gl.domElement.addEventListener('pointermove',move);return()=>{window.removeEventListener('keydown',kd);window.removeEventListener('keyup',ku);gl.domElement.removeEventListener('pointerdown',down);window.removeEventListener('pointerup',up);window.removeEventListener('pointercancel',up);gl.domElement.removeEventListener('pointermove',move)}},[gl,blocked,books]);const lastZone=useRef(''),lastNear=useRef(null);useFrame((_,dt)=>{let s=st.current;if(!body.current)return;let front=(s.keys.has('KeyW')||s.keys.has('ArrowUp')?1:0)-(s.keys.has('KeyS')||s.keys.has('ArrowDown')?1:0)+(joy?.y||0);let side=(s.keys.has('KeyD')||s.keys.has('ArrowRight')?1:0)-(s.keys.has('KeyA')||s.keys.has('ArrowLeft')?1:0)+(joy?.x||0);if(blocked)front=side=0;let len=Math.hypot(front,side);moving.current=len>.1;if(len>.1){let step=3*Math.min(dt,.05)/Math.max(1,len);let dx=(Math.sin(s.yaw)*front+Math.cos(s.yaw)*side)*step;let dz=(-Math.cos(s.yaw)*front+Math.sin(s.yaw)*side)*step;const allowed=(x,z)=>s.level>0?(x>-6.55&&x<4.55&&z>-6.75&&z<6.75):canWalk(x,z);if(allowed(s.x+dx,s.z))s.x+=dx;if(allowed(s.x,s.z+dz))s.z+=dz}body.current.position.set(s.x,s.level,s.z);body.current.rotation.y=s.yaw;body.current.visible=mode!=='first';let zone=s.level>0?'다락방':s.x< -8.5?'벽난로 휴게실':s.x>8.5?'비밀의 방':'중앙 서재';if(zone!==lastZone.current){lastZone.current=zone;handlers.current.onZone(zone)}const desired=mode==='first'?new THREE.Vector3(s.x,s.level+1.65,s.z):new THREE.Vector3(s.x-Math.sin(s.yaw)*3,s.level+2.6,s.z+Math.cos(s.yaw)*3);if(mode!=='first'&&s.level===0){for(let a=1;a<=15;a++){let k=a/15;if(!canWalk(s.x+(desired.x-s.x)*k,s.z+(desired.z-s.z)*k)){let ok=(a-1)/15;desired.x=s.x+(desired.x-s.x)*ok;desired.z=s.z+(desired.z-s.z)*ok;break}}}camera.position.lerp(desired,mode==='first'?1:Math.min(1,dt*12));camera.lookAt(s.x+Math.sin(s.yaw)*5,s.level+1.75+Math.sin(s.pitch)*3,s.z-Math.cos(s.yaw)*5);let near=s.level===0&&books.length&&Math.abs(s.z+5.2)<2.4&&Math.abs(s.x)<6?books[Math.max(0,Math.min(books.length-1,Math.round((s.x+4.4)/4.4)*10))]:null;if(lastNear.current!==(near?.title||null)){lastNear.current=near?.title||null;handlers.current.onNear(lastNear.current)}});return <group ref={body}><AvatarModels moving={moving} character={character}/>{heldBook&&<BookInHand book={books.find(b=>b.id===heldBook)||{}}/>}</group>}
-function SceneCamera({mode}){const {camera}=useThree();useEffect(()=>{if(mode==='first'||mode==='third')return;camera.position.set(0,10.5,17);camera.lookAt(0,1.8,0)},[mode,camera]);return null}
-export default function ArchiveScene({books=[],onPick=()=>{},mode='third',weather='sunny',time='afternoon',blocked=false,joy={x:0,y:0},onZone=()=>{},onNear=()=>{},teleport='main',onDoor=()=>{},character='fox',heldBook=null}){const controls=useRef();const walk=mode==='third'||mode==='first';return <Canvas camera={{fov:65,near:.08,far:130,position:[0,10.5,17]}} shadows dpr={[1,Math.min(typeof window!=='undefined'&&window.devicePixelRatio||1,1.5)]}><color attach="background" args={[time==='evening'?'#9387a0':'#dce9df']}/><ambientLight intensity={time==='evening'?1.15:2.1}/><hemisphereLight args={['#fff2db','#997f63',time==='evening'?1.2:2]}/><directionalLight position={[9,14,4]} intensity={time==='evening'?1.45:3.4} castShadow shadow-mapSize-width={1024} shadow-mapSize-height={1024}/><fog attach="fog" args={[time==='evening'?'#a59998':'#f5dfc3',25,88]}/><Surface onDoor={onDoor}/><Outside weather={weather} time={time}/><MainShelf books={books} onPick={onPick} onDoor={onDoor}/><Decoration/><RoomExpansion onEnter={onDoor}/><OrbitControls ref={controls} makeDefault enabled={!walk} minDistance={5} maxDistance={39} maxPolarAngle={1.54}/><SceneCamera mode={mode}/><WalkControl mode={mode} blocked={blocked} joy={joy} onPick={onPick} books={books} onZone={onZone} onNear={onNear} teleport={teleport} character={character} heldBook={heldBook}/></Canvas>}
+function Overhead({end}) {
+  const {size}=useThree()
+  const ref=useRef()
+  useEffect(()=>{
+    ref.current.up.set(0,0,-1)
+    ref.current.lookAt((end-19)/2,0,-6)
+  },[end,size.width,size.height])
+  const zoom=Math.min(size.width/(end+23),size.height/41)
+  return <OrthographicCamera ref={ref} makeDefault position={[(end-19)/2,65,-6]} zoom={zoom} near={.1} far={180}/>
+}
+export default function ArchiveScene({onMusic,onExperience,books=[],placements={},canPlace=false,onPlaceNearby,onPick,onGenre,mode='third',weather,time,blocked,joy,onZone,teleport,onDoor,character,heldBook,season,onOpenNotes,onKeyHeld,keyHeld,onInteraction,onRead,onSeatStatus}) {
+  const glassDoor=useMemo(()=>({open:false,amount:0}),[])
+  const studyDoor=useMemo(()=>({open:false,amount:0}),[])
+  const [localZone,setLocalZone]=useState('')
+  const reportZone=zone=>{setLocalZone(zone);onZone(zone)}
+  const outside=['저택 정원','현관'].includes(localZone)
+  const inGreenhouse=localZone==='실내 온실'
+  const inLounge=['벽난로 라운지','열람실','다락방'].includes(localZone)
+  const [open,setOpen]=useState(false)
+  const [gateReady,setGateReady]=useState(false)
+  const [entranceOpen,setEntranceOpen]=useState(false)
+  const layout=useMemo(()=>makeStacks(books,placements),[books,placements])
+  const ladders=useMemo(()=>makeLadders(layout),[layout])
+  const decorTime=['evening','night'].includes(time)?'evening':'afternoon'
+  const map=mode==='overview'
+  const unlock=()=>{if(!open){setOpen(true);onKeyHeld()}}
+  return <Canvas camera={{fov:69,near:.065,far:190,position:[0,2,25]}} shadows dpr={[1,1.35]}>
+    <color attach="background" args={[({morning:'#b9ced0',afternoon:'#becbc0',evening:'#708097',night:'#182438'})[time]]}/>
+    {!map&&<fog attach="fog" args={[decorTime==='evening'?'#928b84':'#cbbfa7',31,105]}/>}
+    <ambientLight color={time==='night'?'#829bc2':time==='morning'?'#fff1d5':'#ffffff'} intensity={inGreenhouse?(time==='night'?.12:weather==='sunny'?.25:.4):inLounge?(decorTime==='evening'?.22:.4):(decorTime==='evening'?(outside?.27:.65):.97)}/>
+    <hemisphereLight args={['#fff1d8','#7a6655',inGreenhouse?(time==='night'?.18:.45):inLounge?(decorTime==='evening'?.38:.7):(decorTime==='evening'?(outside?.48:1.05):1.68)]}/>
+    <directionalLight color={time==='night'?'#95afd8':time==='morning'?'#ffe5bc':'#ffffff'} position={time==='morning'?[12,12,8]:[-10,18,9]} intensity={inGreenhouse?0:inLounge?.65:(decorTime==='evening'?(outside?.45:1):2.15)}/>
+    <group scale={[1,WORLD_HEIGHT_SCALE,1]}><GroundFloor event={season} sceneTime={time} heldBook={heldBook} map={map} layout={layout} weather={weather} time={decorTime} open={open} onKey={unlock} onReady={()=>setGateReady(true)} onGenre={onGenre} onPick={onPick} onNote={onOpenNotes}/>
+    {!map&&<>
+      <WorldAdditions weather={weather} time={decorTime} entranceOpen={entranceOpen} onEntranceToggle={setEntranceOpen} season={season}/>
+      <Mezzanine time={decorTime}/><Greenhouse active={localZone==='실내 온실'} door={glassDoor} time={time} weather={weather} event={season}/><TallStacks layout={layout} ladders={ladders} time={time} weather={weather} event={season}/><Suspense fallback={null}><FacadeModel visible={outside}/></Suspense><InteractiveProps onOpen={onExperience}/>
+      <InteriorDetails/><AtmosphereDetails time={time} weather={weather} event={season} secretOpen={open}/>
+      <LibraryDetails/><MainRoomDetails layout={layout} time={decorTime} zone={localZone}/><HallDetails time={decorTime}/>
+      <SecretDetails open={open} time={decorTime}/><StudyRoom open={open} door={studyDoor} time={time} weather={weather} event={season} onNotes={onOpenNotes} onMusic={onMusic}/><PlacedBooks books={books} placements={placements} heldBook={heldBook} onPick={onPick}/>
+      <group position={[-11.45,0,0]} scale={[ATTIC_EXPANSION,1,1]}><group position={[11.45,0,0]}><Suspense fallback={null}><AtticGLB time={time} weather={weather} event={season}/></Suspense></group></group><PaperSpirits/>
+    </>}
+    </group><Weather weather={weather}/>
+    <WalkControl glassDoor={glassDoor} studyDoor={studyDoor} onMusic={onMusic} ladders={ladders} onExperience={onExperience} onCloseSecret={()=>{setOpen(false);setGateReady(false);studyDoor.open=false}} mode={mode} blocked={blocked} joy={joy} books={books} onZone={reportZone} teleport={teleport} character={character} heldBook={heldBook} keyHeld={keyHeld} layout={layout} entranceOpen={entranceOpen} gateReady={gateReady} onKey={unlock} onInteraction={onInteraction} onToggleEntrance={setEntranceOpen} onOpenNotes={onOpenNotes} onGenre={onGenre} onTravel={onDoor} onRead={onRead} canPlace={canPlace} onPlaceNearby={onPlaceNearby} onSeatStatus={onSeatStatus}/>
+    {map&&<Overhead end={layout.end}/>}
+  </Canvas>
+}

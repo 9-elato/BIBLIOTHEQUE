@@ -30,3 +30,108 @@
 .book-extra b{font-size:11px;color:#a57d5c}.book-extra span{font-size:13px;margin-top:5px}
 .top-tools .gear-button{box-shadow:0 0 0 2px #e3bc81aa,0 5px 18px #4c2a174d}
 @media(max-width:700px){.holding-hud{bottom:108px;left:50%;font-size:10px;padding:6px 9px}.book-extra{gap:5px}.book-extra>div{padding:8px}}
+
+/* v2.2: full-world exploration overlays */
+.welcome{z-index:4}.welcome-collapsed{padding:11px 14px;width:auto;min-width:175px}.welcome-head,.world-map-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.welcome-head button,.world-map-head button{border:0;background:transparent;color:inherit;display:grid;place-items:center;padding:4px}
+.world-map{position:absolute;z-index:6;top:93px;right:27px;width:min(350px,calc(100vw - 22px));padding:18px;color:#764b34}.world-map p{font-size:12px;line-height:1.65}.world-map-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.world-map-grid button{padding:10px 8px;border:1px solid #d9b28d;border-radius:10px;background:#fff9ed;color:#75503a;font-weight:650}.world-map-grid button:hover{background:#efd5b5}.world-map .map-hidden{color:#9c704d;padding-top:7px;border-top:1px solid #dfc4a1}
+.playlist-frame{width:100%;aspect-ratio:16/9;border:0;border-radius:14px;margin-top:18px;background:#2a2724}.world-note{width:100%;min-height:260px;resize:vertical;background:#fffaf0;color:#593c2e;border:1px solid #d8b793;border-radius:13px;padding:18px;line-height:1.75}
+@media(max-width:700px){.world-map{top:68px;right:6px;padding:13px}.world-map-grid{gap:5px}.world-map-grid button{font-size:11px;padding:8px 4px}.welcome-collapsed{top:145px;min-width:135px;padding:9px 10px}.welcome-collapsed .welcome-head strong{font-size:11px}}
+
+.floor-plan { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; margin-top:10px; }
+.floor-plan button { min-width:0; min-height:42px; padding:4px; font-size:.79rem; white-space:normal; }
+.plan-corridor { grid-area:1/2; }
+.plan-lounge { grid-area:2/1; }
+.plan-main { grid-area:2/2; }
+.plan-stacks { grid-area:2/3; }
+.plan-estate { grid-area:3/2; }
+canvas { touch-action:none; }
+
+/* v3.1 — Focused in-world HUD: quiet top-right utilities, uncluttered central view. */
+.site-header{
+  position:absolute;top:15px;right:18px;left:auto;width:auto;height:auto;
+  display:block;z-index:7;pointer-events:none;
+}
+.site-header .top-tools{
+  position:relative;display:flex;top:auto;right:auto;left:auto;
+  gap:9px;align-items:center;pointer-events:auto;
+}
+.site-header .top-tools .gear-button{
+  width:43px;height:43px;padding:0;display:grid;place-items:center;
+  background:rgba(77,52,37,.84);border:1px solid rgba(241,214,167,.77);
+  color:#fff1dc;box-shadow:0 4px 14px rgba(44,23,13,.30);
+}
+.room-nav{top:18px;left:50%;width:min(720px,calc(100vw - 225px));max-width:calc(100vw - 225px);z-index:4}
+.room-signs{max-width:calc(100% - 100px)}
+.room-signs button{font-size:11px;padding:9px 10px}
+.welcome{top:94px;left:20px}
+.interaction-hint{
+  position:absolute;z-index:5;left:50%;bottom:92px;transform:translateX(-50%);
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  border:1px solid #c8a879;border-radius:24px;
+  background:rgba(42,37,29,.89);color:#ffebcc;
+  box-shadow:0 8px 22px #2b1b1b48;padding:9px 17px;
+  font-weight:650;font-size:13px;white-space:nowrap;
+}
+.interaction-hint kbd{background:#e9d0a8;color:#563924;padding:4px 8px;border-radius:7px;font-family:inherit;font-weight:750}
+@media(max-width:1050px){
+  .room-nav{top:65px;width:calc(100vw - 24px);max-width:calc(100vw - 24px)}
+  .welcome{top:115px}
+}
+@media(max-width:700px){
+  .site-header{top:9px;right:10px}
+  .site-header .top-tools .gear-button{width:38px;height:38px}
+  .room-nav{top:57px;width:calc(100vw - 16px);max-width:calc(100vw - 16px)}
+  .room-signs{max-width:calc(100% - 90px)}
+  .welcome{top:109px;left:8px}
+  .interaction-hint{bottom:106px;font-size:11px;padding:7px 11px}
+}
+
+.scene-error{position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);width:min(90%,480px);padding:24px;border-radius:16px;background:#f5ead8;color:#483327;text-align:center;z-index:1}
+.map-tabs{display:flex;gap:7px;margin-top:14px}
+.map-tabs button{flex:1;border:1px solid #bd9368;border-radius:8px;padding:8px;background:#fff7e8;color:#67482e}
+.map-tabs button[aria-selected=true]{background:#67482e;color:#fff7e8}
+.floor-plan button{border:1px solid #c8a87d;border-radius:8px;background:#f8ead4;color:#67482e;padding:10px 5px}
+.floor-plan button[aria-current=location]{outline:2px solid #8a623b;background:#e6cd9e}
+.floor-plan small{display:block;margin-top:5px;font-size:10px}
+.plan-mezzanine{grid-area:1/1/3/2}.plan-reading{grid-area:1/3/3/4}.plan-attic{grid-area:1/1/2/4}
+.map-atrium{grid-area:1/2/3/3;display:grid;place-content:center;border:1px dashed #bca489;border-radius:6px;text-align:center;font-size:11px;color:#967c61;min-height:100px}
+.holding-hud{max-width:calc(100vw - 24px);white-space:normal;flex-wrap:wrap;justify-content:center;bottom:142px}
+.holding-hud button{white-space:nowrap}
+@media(max-width:700px){.holding-hud{bottom:150px;width:max-content;max-width:calc(100vw - 24px)}.world-map{max-height:calc(100dvh - 90px);overflow:auto}}
+
+.placement-editor{margin:18px 0;padding:16px;background:#f4e5cf;border:1px solid #d0b18b;border-radius:12px}
+.placement-editor label{display:flex;flex-direction:column;gap:6px;margin:10px 0;font-size:12px}
+.placement-editor select{width:100%;padding:9px;background:#fff8ec;color:#67482e;border:1px solid #bea17e;border-radius:7px}
+.placement-notice{position:absolute;top:82px;left:50%;transform:translateX(-50%);z-index:12;max-width:min(90vw,520px);padding:12px 18px;border-radius:12px;background:#3e493d;color:#fff4dc;font-size:12px;box-shadow:0 3px 12px #0003}
+.placement-notice button{background:transparent;border:0;color:inherit;margin-left:12px;font-size:18px}
+.placement-editor button:disabled{opacity:.45;cursor:not-allowed}
+
+.seat-status{position:fixed;left:50%;bottom:190px;transform:translateX(-50%);z-index:12;background:rgba(37,28,23,.88);border:1px solid #b69b6d66;color:#f1e4c7;border-radius:16px;padding:10px 16px;font-size:12px;text-align:center;backdrop-filter:blur(12px);max-width:90vw;width:max-content}.seat-status span{color:#bfae8f;margin-left:12px}.seat-status button{display:block;margin:8px auto 0;background:#67523b;color:#fff0d3;border:1px solid #a78c61;border-radius:8px;padding:6px 12px;cursor:pointer}
+
+.cover-preview{display:flex;gap:16px;align-items:center}.cover-preview img{width:110px;max-height:165px;object-fit:contain;border-radius:4px}.cover-preview p{font-size:12px;color:#785e45}.cover-fallback{display:grid;place-items:center;min-height:60px;padding:8px;white-space:normal}
+
+/* Compact record menu disclosure. */
+.side-menu{justify-items:end}.side-menu .record-menu-toggle{min-width:38px;width:38px;height:42px;justify-content:center;padding:0;border-radius:16px}.record-menu-items{display:grid;gap:8px}.side-menu .record-menu-items button span{display:inline}.side-menu .record-menu-items button{min-width:143px}.record-menu-items{animation:record-reveal .18s ease-out}@keyframes record-reveal{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:translateX(0)}}@media(prefers-reduced-motion:reduce){.record-menu-items{animation:none}}
+
+/* Navigation lives in the map, keeping the world unobstructed. */
+.welcome,.welcome-collapsed{top:85px}
+.detailed-map{width:min(510px,calc(100vw - 22px));max-height:calc(100dvh - 110px);overflow:auto}
+.detailed-map .map-location{margin:9px 0;color:#726344;font-size:12px}
+.estate-plan{position:relative;height:400px;margin-top:12px;border:1px solid #dac8a8;border-radius:14px;background:repeating-linear-gradient(0deg,transparent,transparent 19px,#9b805308 20px),#f4ead7}
+.estate-plan svg{position:absolute;width:100%;height:100%;inset:0;pointer-events:none}
+.estate-plan path{stroke:#aa8d66;stroke-width:1.2;fill:none}
+.estate-plan button{position:absolute;padding:5px;border:1px solid #bca27c;border-radius:9px;color:#654c34;background:#fff8e9;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px}
+.estate-plan button:hover{background:#eddfc3;border-color:#856647}
+.estate-plan button[aria-current=location]{background:#e0e6cd;outline:2px solid #74825a}
+.estate-plan b{font-size:12px}.estate-plan small{font-size:10px;white-space:pre-line;line-height:1.5}.estate-plan em{font-size:10px;color:#596b3b;font-style:normal}
+.plan-void{position:absolute;left:36%;top:38%;width:25%;height:34%;border:1px dashed #b6a990;display:grid;place-content:center;text-align:center;font-size:11px;color:#948568;background:#e1dacb}
+.map-legend{display:flex;justify-content:space-between;font-size:11px;margin-top:12px;color:#8a714e}.detailed-map .map-help{color:#93826b;font-size:11px}
+@media(max-width:700px){.welcome,.welcome-collapsed{top:64px}.detailed-map{top:64px;max-height:calc(100dvh - 76px)}.estate-plan{height:365px}.estate-plan b{font-size:11px}.estate-plan small{font-size:9px}}
+
+.rooms-visible .welcome{top:135px}.choice-row button[aria-pressed=true]{background:#9b633c;color:white}
+
+.experience-backdrop{position:absolute;inset:0;z-index:20;background:#171522b8;display:grid;place-items:center;padding:15px;backdrop-filter:blur(5px)}
+.experience-dialog{position:relative;width:min(620px,100%);max-height:94dvh;overflow:auto;padding:24px;border:1px solid #c4a56c;border-radius:20px;background:#f4e8cf;color:#634934;box-shadow:0 18px 70px #0006}
+.experience-dialog p{font-size:13px;line-height:1.7}.experience-dialog button{border:1px solid #c4a56c;background:#fff8e6;color:#634934;border-radius:9px;padding:9px 13px}.experience-close{float:right}.telescope-sky{width:100%;border-radius:18px}.experience-dialog label{display:block;margin-top:15px}.game-board{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:320px;margin:25px auto}.game-board button{height:88px;font-size:42px;background:#d9c39c}.game-board button:disabled{color:#634934;opacity:1}
+
+.reading-large-cover{height:min(52vh,480px);display:flex;justify-content:center;margin:20px auto}.reading-large-cover img{max-height:100%;max-width:100%;object-fit:contain}.seat-status{max-width:calc(100vw - 32px);flex-wrap:wrap}.seat-status button{margin:4px}

@@ -9,5 +9,5 @@ export const DEMO_BOOKS=[
  {id:'b7',title:'코스모스',author:'칼 세이건',category:'과학',status:'읽는 중',rating:0,year:2026,completed:'',color:'#536387',notes:'우주의 스케일 속 인간의 자리를 생각한다.',quote:'',cover:''},
  {id:'b8',title:'죽음의 수용소에서',author:'빅터 프랭클',category:'철학',status:'읽고 싶음',rating:0,year:2026,completed:'',color:'#8b7f70',notes:'',quote:'',cover:''}
 ]
-export const CATEGORIES=['전체','소설','인문·사회','철학','과학','시·에세이','기타']
+export const CATEGORIES=['전체','소설','인문·사회','철학','과학','시·에세이','희곡','시','에세이','인문학','역사','예술','외국어','영어','프랑스어','기타 외국어','기타']
 export const STATUSES=['완독','읽는 중','읽고 싶음']

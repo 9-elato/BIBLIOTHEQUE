@@ -3,3 +3,10 @@ dist/
 .env
 .env.local
 .DS_Store
+
+*.bak
+
+# Local environment files and Blender autosave backups
+.env.*
+!.env.example
+*.blend[0-9]

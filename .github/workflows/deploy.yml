@@ -1,4 +1,4 @@
-name: Deploy My Little Library to GitHub Pages
+name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
@@ -11,25 +11,27 @@ concurrency:
   group: github-pages
   cancel-in-progress: true
 jobs:
-  build:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: npm install
+          cache: 'npm'
+      - run: npm ci --no-audit --no-fund
+      - run: npm test
       - run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+          VITE_OWNER_UID: ${{ vars.VITE_OWNER_UID }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
       - id: deployment
         uses: actions/deploy-pages@v4
