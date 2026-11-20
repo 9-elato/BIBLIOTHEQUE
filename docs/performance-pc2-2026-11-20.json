@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-20",
+  "baselineCommit": "3952448",
+  "source": "User PC2 screenshots, 829x713, fox",
+  "pc2Baseline": {
+    "estate": {
+      "fps": 60,
+      "calls": 167
+    },
+    "main": {
+      "fps": 0.4,
+      "calls": 1701,
+      "renderP50": 844.1,
+      "invalidTriangles": true
+    },
+    "lounge": {
+      "fps": 49.5,
+      "calls": 184
+    },
+    "reading": {
+      "fps": 20.3,
+      "calls": 1732
+    },
+    "corridor": {
+      "fps": 50.1,
+      "calls": 782
+    },
+    "greenhouse": {
+      "fps": 6.1,
+      "calls": 2345
+    },
+    "attic": {
+      "fps": 32.1,
+      "calls": 641
+    }
+  },
+  "changes": [
+    "Batch greenhouse architecture, furniture, flowers and leaves; preserve wind parent, glass doors and water animation",
+    "Batch tall shelves while excluding movable ladders, window landscapes and existing GPU instances",
+    "Keep six permanent point-light shader slots; remove point-light shadow cubemap rendering",
+    "Report long frames and invalid geometry counters instead of assuming background throttling"
+  ],
+  "verification": {
+    "automatedTests": 59,
+    "productionBuild": "passed",
+    "browserErrors": 0,
+    "greenhouseIntermediate": {
+      "width": 829,
+      "height": 713,
+      "avatar": "ghost",
+      "calls": 576,
+      "renderP50": 6.2
+    },
+    "limits": "IAB is limited to approximately 1 FPS. CPU timing and call counts are diagnostic only. PC2 2x FPS improvement and the original central-hall stall are not yet verified."
+  }
+}

@@ -11,7 +11,7 @@ export function batchStaticMeshes(root){
  collect(root)
  for(const object of staticObjects){
   const m=object.material,g=object.geometry
-  if(!object.isMesh||object.isInstancedMesh||object.isSkinnedMesh||object.isTroikaText||!m?.isMeshStandardMaterial||m.isMeshPhysicalMaterial||m.transparent||m.normalMap||!g?.attributes.normal||g.morphAttributes.position?.length)continue
+  if(!object.isMesh||object.isInstancedMesh||object.isSkinnedMesh||object.isTroikaText||g?.isInstancedBufferGeometry||!m?.isMeshStandardMaterial||m.isMeshPhysicalMaterial||m.transparent||m.normalMap||!g?.attributes.normal||g.morphAttributes.position?.length)continue
   matrix.multiplyMatrices(inverse,object.matrixWorld);center.setFromMatrixPosition(matrix)
   const key=[Math.floor(center.x/8),Math.floor(center.y/6),Math.floor(center.z/8),m.roughness,m.metalness,m.map?.uuid,m.bumpMap?.uuid,m.bumpScale,m.emissive.getHex(),m.emissiveIntensity,m.side,m.alphaTest,m.depthWrite,object.castShadow,object.receiveShadow].join('|')
   if(!groups.has(key))groups.set(key,{material:m,objects:[],geometries:[]})

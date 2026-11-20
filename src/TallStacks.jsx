@@ -1,3 +1,4 @@
+import StaticBatch from './StaticBatch'
 import * as THREE from 'three'
 import React,{useRef,useLayoutEffect} from 'react'
 import {useFrame} from '@react-three/fiber'
@@ -22,7 +23,7 @@ function BookRows({offset=0,rows=6}){
  return <instancedMesh ref={ref} args={[null,null,rows*12]}><boxGeometry args={[1,1,1]}/><meshStandardMaterial roughness={.85}/></instancedMesh>
 }
 export default function TallStacks({layout,ladders,time,weather,event}){
- return <group>
+ return <StaticBatch revision={layout}>
  {[-3.25,0,3.25].map(z=><group key={z} position={[layout.end-.25,0,z]} rotation={[0,-Math.PI/2,0]}>
   <B p={[0,4.4,-.2]} s={[3.1,8.8,.22]} c="#654632"/>
   {Array.from({length:12},(_,k)=><B key={k} p={[0,.35+k*.75,.06]} s={[3.2,.1,.7]} c="#aa8757"/>)}
@@ -40,9 +41,9 @@ export default function TallStacks({layout,ladders,time,weather,event}){
    {/* Decorative folios fill unused lower shelves; real records keep their slots. */}
    {Array.from({length:24},(_,i)=>!c.books[i]&&<B key={i} p={[(i%6-2.5)*.373,.9+Math.floor(i/6)*.65,.1]} s={[.23,.4,.3]} c={colors[(i+j)%5]}/>)}
   </group>)}
-  {j<layout.sections.length-1&&[-1,1].map(a=><StoryWindow key={a} position={[Math.max(...cases.map(c=>c.x))+2.5,4.6,a*5.65]} rotation={[0,a>0?Math.PI:0,0]} width={1.35} height={6.4} time={time} weather={weather} event={event} curtain={j%2?'#582d3a':'#294b3d'}/>)}
+  {j<layout.sections.length-1&&[-1,1].map(a=><group key={a} userData={{noBatch:true}}><StoryWindow position={[Math.max(...cases.map(c=>c.x))+2.5,4.6,a*5.65]} rotation={[0,a>0?Math.PI:0,0]} width={1.35} height={6.4} time={time} weather={weather} event={event} curtain={j%2?'#582d3a':'#294b3d'}/></group>)}
   <mesh position={[(ladders[j].min+ladders[j].max)/2,7.25,-4.7]} rotation={[0,0,Math.PI/2]}><cylinderGeometry args={[.045,.045,ladders[j].max-ladders[j].min+1,12]}/><meshStandardMaterial color="#b4975b" metalness={.75}/></mesh>
-  <Ladder item={ladders[j]}/>
+  <group userData={{noBatch:true}}><Ladder item={ladders[j]}/></group>
  </group>)}
- </group>
+ </StaticBatch>
 }

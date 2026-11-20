@@ -1,3 +1,4 @@
+import StaticBatch from './StaticBatch'
 import GreenhouseAtmosphere from './GreenhouseAtmosphere'
 import {useGreenhouseRain} from './greenhouseRainAudio'
 import {MeshReflectorMaterial} from '@react-three/drei'
@@ -20,9 +21,9 @@ function Plant({type='monstera',scale=1}){
  const ref=useRef();const palm=type==='palm',fern=type==='fern',banana=type==='banana';const height=palm?2.8:banana?2.1:fern?.65:1.15
  const shape=useMemo(()=>{const s=new THREE.Shape();s.moveTo(0,0);s.bezierCurveTo(-.38,.22,-.45,.7,0,1);s.bezierCurveTo(.45,.7,.38,.22,0,0);if(type==='monstera')for(const side of [-1,1])for(let i=0;i<3;i++){const h=new THREE.Path();h.absellipse(side*.13,.32+i*.16,.055,.045,0,Math.PI*2,true);s.holes.push(h)}return s},[type])
  useFrame(({clock})=>{if(ref.current)ref.current.rotation.y=Math.sin(clock.elapsedTime*.35)*.018})
- return <group scale={scale}><Tube p={[0,.26,0]} r={.46} top={.55} h={.52} c={palm||banana?'#b37c59':'#476550'}/><Tube p={[0,.535,0]} r={.48} h={.025} c="#4e4833"/><group ref={ref}><Tube p={[0,.5+height/2,0]} r={palm?.075:.035} top={.025} h={height} c="#66714b"/>{Array.from({length:palm||fern?9:8},(_,i)=>{const a=i*2.4;return <group key={i} position={[0,.55+height*(palm?1:(.3+(i%4)*.18)),0]} rotation={[palm?1.35:fern?1.1:.8+(i%3)*.23,a,0]}>
+ return <group scale={scale}><Tube p={[0,.26,0]} r={.46} top={.55} h={.52} c={palm||banana?'#b37c59':'#476550'}/><Tube p={[0,.535,0]} r={.48} h={.025} c="#4e4833"/><group ref={ref} userData={{noBatch:true}}><StaticBatch><Tube p={[0,.5+height/2,0]} r={palm?.075:.035} top={.025} h={height} c="#66714b"/>{Array.from({length:palm||fern?9:8},(_,i)=>{const a=i*2.4;return <group key={i} position={[0,.55+height*(palm?1:(.3+(i%4)*.18)),0]} rotation={[palm?1.35:fern?1.1:.8+(i%3)*.23,a,0]}>
  <B p={[0,.42,0]} s={[.025,.84,.025]} c="#7e8a52"/>{palm||fern?Array.from({length:8},(_,j)=>[-1,1].map(side=><mesh key={j+':'+side} position={[side*.14,.12+j*.12,0]} rotation={[0,0,-side*.7]} scale={[fern?.45:.6,palm?.65:.45,1]}><shapeGeometry args={[shape]}/><meshStandardMaterial color={j%2?'#477650':'#6c9259'} side={THREE.DoubleSide}/></mesh>)):<mesh scale={[banana?1.25:1.2,banana?1.65:1.05,1]}><shapeGeometry args={[shape]}/><meshStandardMaterial color={i%2?'#427655':'#72965e'} side={THREE.DoubleSide} roughness={.8}/></mesh>}
- </group>})}</group></group>
+ </group>})}</StaticBatch></group></group>
 }
 function Flowers({type,herb=false,name}){const colors={rose:'#dab4b1',hydrangea:'#b5b4cf',fuchsia:'#c58da4',begonia:'#e5c8ad',geranium:'#e0b3b1',daisy:'#f4e9ca',lavender:'#b3a2cd'};return <group><Tube p={[0,.23,0]} r={herb?.25:.4} top={herb?.32:.46} h={.46} c="#b48263"/><Tube p={[0,.47,0]} r={herb?.28:.41} h={.02} c="#554b36"/>{Array.from({length:herb?7:9},(_,i)=>{const a=i*2.4,x=Math.sin(a)*.22,z=Math.cos(a)*.22,y=.67+(i%3)*.12;return <group key={i}><B p={[x,y-.1,z]} s={[.018,.5,.018]} c="#60825b"/><Ball p={[x,y-.12,z]} s={[.13,.19,.1]} c={i%2?'#799468':'#4b7054'}/>{(!herb||type==='lavender')&&<group position={[x,y+.13,z]}>{[0,1,2,3,4].map(j=><Ball key={j} p={[Math.sin(j*1.257)*.07,0,Math.cos(j*1.257)*.07]} s={[.065,.04,.065]} c={colors[type]||'#ded3b2'}/>)}<Ball p={[0,.02,0]} s={[.04,.035,.04]} c="#c9aa62"/></group>}</group>})}{name&&<Label text={name}/>}</group>}
 function Vine({x,z}){return <group position={[x,0,z]}>{Array.from({length:16},(_,i)=><group key={i} position={[Math.sin(i*.8)*.16,1+i*.21,Math.cos(i*.8)*.1]}><B p={[0,0,0]} s={[.018,.3,.018]} c="#66794b" rot={[0,0,.25*Math.cos(i)]}/><Ball p={[.09*(i%2?1:-1),.07,0]} s={[.14,.07,.11]} c={i%2?'#5a8255':'#7e9965'}/></group>)}</group>}
@@ -41,7 +42,7 @@ function Water({pond=false,active=false}){const rings=useRef();useFrame(({clock}
 function FlowersSmall(){return <group>{[0,1,2,3,4,5].map(i=><Ball key={i} p={[Math.sin(i)*.07,.045,Math.cos(i)*.07]} s={[.08,.055,.04]} c="#f0d4cd"/>)}</group>}
 function Glazing({x,z,w=2.2,turn=0,time,weather,event}){return <group position={[x,0,z]} rotation={[0,turn,0]}>
  <B p={[0,.45,0]} s={[w,.9,.18]} c={stone}/><B p={[0,.94,0]} s={[w+.06,.12,.3]} c="#ece5d2"/>
- <group position={[0,2.65,-.04]}><WindowLandscape width={w-.1} height={3.25} celestial={x===0&&z<-24} time={time} weather={weather} event={event}/></group>
+ <group position={[0,2.65,-.04]} userData={{noBatch:true}}><WindowLandscape width={w-.1} height={3.25} celestial={x===0&&z<-24} time={time} weather={weather} event={event}/></group>
  {[-1,0,1].map(a=><B key={a} p={[a*w/2,2.65,.04]} s={[.06,3.5,.09]} c={iron}/>)}{[1,2.3,4.4].map(y=><B key={y} p={[0,y,.05]} s={[w,.06,.1]} c={iron}/>)}<B p={[0,2.7,.06]} s={[w,.025,.025]} c={brass}/>
  </group>}
 export default function Greenhouse({time,weather,event,door,active}){
@@ -51,7 +52,7 @@ export default function Greenhouse({time,weather,event,door,active}){
  useEffect(()=>{shell.current?.traverse(o=>{if(o.isMesh&&o.material&&!o.material.transparent){o.castShadow=true;o.receiveShadow=true}})},[])
  const left=useRef(),right=useRef();useFrame((_,dt)=>{if(!door)return;door.amount+=(Number(door.open)-door.amount)*(1-Math.exp(-4*dt));if(left.current)left.current.rotation.y=door.amount*Math.PI/2;if(right.current)right.current.rotation.y=-door.amount*Math.PI/2})
  return <group ref={shell} position={[0,GARDEN_LEVEL,0]}>
- <GreenhouseAtmosphere time={time} weather={weather} active={active}/>
+ <GreenhouseAtmosphere time={time} weather={weather} active={active}/><StaticBatch revision={`${time}:${weather}:${event}`}>
  <B p={[0,-.12,-15.55]} s={[10.8,.24,17.7]} c={stone}/>{[-1,1].map(a=><B key={a} p={[a*6.9,-.12,-14.05]} s={[3.3,.24,6.5]} c={stone}/>)}
  {Array.from({length:17},(_,j)=>Array.from({length:10},(_,i)=><B key={j+':'+i} p={[-4.78+i*1.06,.005,-7.3-j]} s={[1.03,.015,.97]} c={(i+j)%3?'#d5d5c7':'#bec4bb'}/>))}
  {[-1,1].map(a=><group key={a}>{Array.from({length:6},(_,i)=><Glazing key={i} x={a*5.35} z={i<2?-8-i*2:-18-i%4*1.7} w={i<2?2:1.7} turn={-a*Math.PI/2} time={time} weather={weather} event={event}/>)}
@@ -69,10 +70,10 @@ export default function Greenhouse({time,weather,event,door,active}){
  <B p={[0,6.46,-15.55]} s={[.12,.13,17.7]} c={brass}/>
  <mesh position={[0,6.43,-14]} scale={[1.3,.8,1.8]}><sphereGeometry args={[1,24,12,0,Math.PI*2,0,Math.PI/2]}/><meshStandardMaterial color="#badbd2" transparent opacity={.28} side={THREE.DoubleSide}/></mesh>
  <Ring p={[0,6.45,-14]} r={1.3} c={brass}/>
- {[-1,1].map(a=><group key={a} position={[a*1.4,0,-6.95]}><B p={[0,1.35,0]} s={[.1,2.7,.15]} c={iron}/><group ref={a<0?left:right}><B p={[-a*.7,1.3,0]} s={[1.34,2.55,.055]} c="#c9e4d7" opacity={.23}/>{[0,.7,1.4].map(x=><B key={x} p={[-a*x,1.3,0]} s={[.04,2.6,.08]} c={iron}/>)}{[.1,1.2,2.6].map(y=><B key={y} p={[-a*.7,y,0]} s={[1.4,.045,.08]} c={iron}/>)}<B p={[-a*1.2,1.18,.09]} s={[.04,.28,.06]} c={brass}/></group></group>)}
+ {[-1,1].map(a=><group key={a} position={[a*1.4,0,-6.95]}><B p={[0,1.35,0]} s={[.1,2.7,.15]} c={iron}/><group ref={a<0?left:right} userData={{noBatch:true}}><B p={[-a*.7,1.3,0]} s={[1.34,2.55,.055]} c="#c9e4d7" opacity={.23}/>{[0,.7,1.4].map(x=><B key={x} p={[-a*x,1.3,0]} s={[.04,2.6,.08]} c={iron}/>)}{[.1,1.2,2.6].map(y=><B key={y} p={[-a*.7,y,0]} s={[1.4,.045,.08]} c={iron}/>)}<B p={[-a*1.2,1.18,.09]} s={[.04,.28,.06]} c={brass}/></group></group>)}
  <Ring p={[0,2.05,-6.95]} r={1.4} rot={[0,0,0]} arc={Math.PI}/>
  <Ring p={[0,.04,-14]} r={2.05} t={.08} c="#7b8d7b"/>{Array.from({length:12},(_,i)=><B key={i} p={[Math.sin(i*Math.PI/6)*1.85,.03,-14+Math.cos(i*Math.PI/6)*1.85]} s={[.18,.025,.18]} rot={[0,i*Math.PI/6,0]} c={brass}/>)}
- <Water active={active}/><Water pond active={active}/>
+ <group userData={{noBatch:true}}><Water active={active}/><Water pond active={active}/></group>
  {[-1,1].map(a=><group key={'path'+a}>{[-12,-13,-14,-15,-16].map((z,i)=><mesh key={z} position={[a*(2.05+(i%2)*.1),.03,z]} rotation={[-Math.PI/2,0,i*.4]}><circleGeometry args={[.42,6]}/><meshStandardMaterial color={i%2?'#c4c3b4':'#ded9c8'}/></mesh>)}</group>)}
  {FLOWERS.map(([x,z],i)=><group key={'moss'+i}>{[0,1,2,3].map(j=><Ball key={j} p={[x+Math.sin(j*2)*.48,.045,z+Math.cos(j*2)*.5]} s={[.2,.04,.16]} c={j%2?'#7d8d68':'#adb09a'}/>)}</group>)}
  {TROPICALS.map(p=><group key={p.name} position={[p.x,0,p.z]}><Plant {...p}/></group>)}
@@ -82,5 +83,5 @@ export default function Greenhouse({time,weather,event,door,active}){
  <Tube p={[6.7,.025,-13]} r={1.35} h={.03} c="#9aab90"/>
  <group position={[5.75,0,-15.7]}><Tube p={[0,.34,0]} r={.08} h={.68} c="#796548"/><Tube p={[0,.7,0]} r={.55} h={.1} c="#9b8463"/><Tube p={[0,.76,0]} r={.51} h={.02} c="#e9e0c8"/>{Array.from({length:24},(_,i)=><Ball key={i} p={[Math.sin(i*Math.PI/12)*.5,.75,Math.cos(i*Math.PI/12)*.5]} s={[.06,.02,.06]} c="#ece6d4"/>)}<Ball p={[0,.9,0]} s={[.16,.13,.14]} c="#ebe5d4"/><Tube p={[0,1.03,0]} r={.07} h={.03} c={brass}/>{[-1,1].map(a=><group key={a}><Tube p={[a*.31,.79,.13]} r={.12} h={.02} c="#f0eadb"/><Tube p={[a*.31,.85,.13]} r={.065} top={.085} h={.1} c="#e9e3d1"/></group>)}</group>
 
- </group>
+ </StaticBatch></group>
 }

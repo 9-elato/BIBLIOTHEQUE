@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {BoxGeometry,Group,Mesh,MeshStandardMaterial,Raycaster,Vector3} from 'three'
+import {BoxGeometry,InstancedBufferGeometry,Group,Mesh,MeshStandardMaterial,Raycaster,Vector3} from 'three'
 import {batchStaticMeshes} from '../src/staticMeshBatch.js'
 
 test('batch preserves transformed surfaces, per-object colors and camera collision',()=>{
@@ -39,4 +39,22 @@ test('animated and interactive subtrees explicitly opt out of batching',()=>{
  const batch=batchStaticMeshes(root)
  assert.equal(batch.sourceCount,0);assert.ok(animated.children.every(m=>m.visible))
  batch.dispose()
+})
+
+test('custom instanced geometry is never flattened or stripped of shader attributes',()=>{
+ const root=new Group(),g=new InstancedBufferGeometry().copy(new BoxGeometry())
+ g.instanceCount=7
+ const a=new Mesh(g,new MeshStandardMaterial()),b=new Mesh(g,new MeshStandardMaterial());root.add(a,b)
+ const batch=batchStaticMeshes(root)
+ assert.equal(batch.sourceCount,0);assert.equal(a.visible,true);assert.equal(g.instanceCount,7)
+ batch.dispose()
+})
+test('batched plant geometry follows its animated parent without changing local surfaces',()=>{
+ const wind=new Group(),root=new Group();wind.add(root)
+ for(let i=0;i<8;i++){const leaf=new Mesh(new BoxGeometry(.1,.5,.01),new MeshStandardMaterial());leaf.position.x=i*.1;root.add(leaf)}
+ const batch=batchStaticMeshes(root),merged=root.children.find(m=>m.name==='Static decoration batch')
+ assert.equal(batch.batchCount,1)
+ wind.rotation.y=.2;wind.updateWorldMatrix(true,true)
+ assert.equal(merged.matrixWorld.elements[0],Math.cos(.2))
+ batch.dispose();assert.equal(root.children.length,8)
 })
