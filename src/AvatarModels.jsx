@@ -1,4 +1,4 @@
-import React from 'react'
+import React,{lazy} from 'react'
 import GhostGLB from './GhostGLB'
-import FoxAvatar from './FoxAvatar'
+const FoxAvatar=lazy(()=>import('./FoxAvatar'))
 export default function AvatarModels(props){return props.character==='fox'?<FoxAvatar {...props}/>:<GhostGLB {...props}/>}

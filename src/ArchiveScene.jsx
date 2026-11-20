@@ -1,3 +1,6 @@
+import StaticBatch from './StaticBatch'
+import SceneBudget from './SceneBudget'
+import {profiling,FrameProfiler} from './PerformancePanel'
 import LoungeBlanket from './LoungeBlanket'
 import {toggleGlassDoor} from './greenhouseLayout'
 import StudyRoom from './StudyRoom'
@@ -243,6 +246,7 @@ export default function ArchiveScene({blanket,onBlanket,onMusic,onExperience,boo
   const outside=['저택 정원','현관'].includes(localZone)
   const inGreenhouse=localZone==='실내 온실'
   const inLounge=['벽난로 라운지','열람실','다락방'].includes(localZone)
+  const upperVisible=['중앙 계단','2층 갤러리','열람실','실내 온실','다락 계단'].includes(localZone)
   const nearAttic=['중앙 계단','2층 갤러리','열람실','실내 온실','다락 계단','다락방'].includes(localZone)
   const [atticLoaded,setAtticLoaded]=useState(false)
   useEffect(()=>{if(nearAttic)setAtticLoaded(true)},[nearAttic])
@@ -268,15 +272,17 @@ export default function ArchiveScene({blanket,onBlanket,onMusic,onExperience,boo
     {(showInterior||interiorLoaded)&&<group visible={showInterior}>
     <GroundFloor event={season} sceneTime={time} heldBook={heldBook} map={map} layout={layout} weather={weather} time={decorTime} open={open} onKey={unlock} onReady={()=>setGateReady(true)} onGenre={onGenre} onPick={onPick} onNote={onOpenNotes}/>
     {!map&&<>
-      <Mezzanine time={decorTime}/><Greenhouse active={localZone==='실내 온실'} door={glassDoor} time={time} weather={weather} event={season}/><TallStacks layout={layout} ladders={ladders} time={time} weather={weather} event={season}/><InteractiveProps onOpen={onExperience} secretOpen={open}/>
+      <StaticBatch revision={decorTime}><Mezzanine time={decorTime}/></StaticBatch><group visible={upperVisible}><Greenhouse active={localZone==='실내 온실'} door={glassDoor} time={time} weather={weather} event={season}/></group><TallStacks layout={layout} ladders={ladders} time={time} weather={weather} event={season}/><InteractiveProps onOpen={onExperience} secretOpen={open}/>
       {!blanket&&<LoungeBlanket onClick={e=>{e.stopPropagation();onBlanket()}}/>}
-      <InteriorDetails/><AtmosphereDetails time={time} weather={weather} event={season} secretOpen={open}/>
-      <LibraryDetails/><MainRoomDetails layout={layout} time={decorTime} zone={localZone}/><HallDetails time={decorTime}/>
+      <StaticBatch><InteriorDetails/></StaticBatch><AtmosphereDetails time={time} weather={weather} event={season} secretOpen={open}/>
+      <StaticBatch><LibraryDetails/></StaticBatch><MainRoomDetails layout={layout} time={decorTime} zone={localZone}/><StaticBatch revision={decorTime}><HallDetails time={decorTime}/></StaticBatch>
       <SecretDetails open={open} time={decorTime}/><StudyRoom open={open} prepare={localZone==='북쪽 복도'} door={studyDoor} time={time} weather={weather} event={season} onNotes={onOpenNotes} onMusic={onMusic}/><PlacedBooks books={books} placements={placements} heldBook={heldBook} onPick={onPick}/>
       {(nearAttic||atticLoaded)&&<group visible={nearAttic} position={[-11.45,0,0]} scale={[ATTIC_EXPANSION,1,1]}><group position={[11.45,0,0]}><Suspense fallback={null}><AtticGLB time={time} weather={weather} event={season}/></Suspense></group></group>}<PaperSpirits/>
     </>}
     </group>}</group><Weather weather={weather}/>
     <WalkControl blanket={blanket} onBlanket={onBlanket} glassDoor={glassDoor} studyDoor={studyDoor} onMusic={onMusic} ladders={ladders} onExperience={onExperience} onCloseSecret={()=>{setOpen(false);setGateReady(false);studyDoor.open=false}} mode={mode} blocked={blocked} joy={joy} books={books} onZone={reportZone} teleport={teleport} character={character} heldBook={heldBook} keyHeld={keyHeld} layout={layout} entranceOpen={entranceOpen} gateReady={gateReady} onKey={unlock} onInteraction={onInteraction} onToggleEntrance={setEntranceOpen} onOpenNotes={onOpenNotes} onGenre={onGenre} onTravel={onDoor} onRead={onRead} canPlace={canPlace} onPlaceNearby={onPlaceNearby} onSeatStatus={onSeatStatus}/>
+    <SceneBudget/>
+    {profiling&&<FrameProfiler/>}
     {map&&<Overhead end={layout.end}/>}
   </Canvas>
 }

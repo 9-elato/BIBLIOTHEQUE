@@ -1,0 +1,39 @@
+{
+  "baseline_commit": "dfff975",
+  "environment": {
+    "browser": "Codex in-app Chromium on PC1",
+    "viewport": [1280, 720],
+    "camera": "third person; unchanged room entry spots",
+    "time": "afternoon",
+    "weather": "sunny",
+    "warmup_seconds": 2,
+    "sample_seconds": 6,
+    "frames_per_sample": 6,
+    "limitation": "Browser throttled animation to approximately 1 FPS. CPU render submission samples are indicative only. These results do not establish live FPS, GPU frame time, walking performance, or PC2 speed. PC2 must run its own foreground measurement."
+  },
+  "samples": [
+    {"room": "garden", "before_render_cpu_p50_ms": 2.3, "after_render_cpu_p50_ms": 1.4, "before_draw_calls": 366, "after_draw_calls": 142},
+    {"room": "main_hall", "before_render_cpu_p50_ms": 36.5, "after_render_cpu_p50_ms": 9.4, "before_draw_calls": 3682, "after_draw_calls": 924},
+    {"room": "lounge", "before_render_cpu_p50_ms": 18.8, "after_render_cpu_p50_ms": 6.3, "before_draw_calls": 607, "after_draw_calls": 166}
+  ],
+  "initial_default_ghost_model_payload": {
+    "before_bytes": 3457148,
+    "after_bytes": 522196,
+    "before_models": ["manor_estate.glb", "ghost_avatar.glb", "fox_librarian.glb (unused preload)"],
+    "after_models": ["manor_estate.glb.gz", "ghost_avatar.glb.gz"],
+    "note": "Model payload only; excludes application JS/CSS, HTTP overhead and caching. Byte reduction is not a measurement of elapsed loading time. Compressed files were round-trip verified against originals."
+  },
+  "changes": [
+    "Spatially batch explicitly static decorations while preserving colors, materials and collision surfaces",
+    "Keep animated fire, windows, doors, avatars and interactive objects outside static batches",
+    "Limit active point lights to six ranked by intensity and camera distance; retain visible lamp meshes",
+    "Update shadow maps at up to 8 Hz instead of every rendered frame",
+    "Hide greenhouse rendering on floors from which it is not visible",
+    "Load the fox only when selected",
+    "Lossless gzip model delivery with native streaming decompression and original GLB fallback",
+    "Asset URLs include the build version to prevent old model caches",
+    "Add opt-in performance panel at ?perf=1 with room selection and insufficient-sample warning"
+  ],
+  "validation": {"tests_passed": 57, "production_build": "passed", "compressed_model_http_round_trips": 4},
+  "remaining_acceptance": "Compare foreground PC2 FPS and frame-time distributions against the prior version under identical resolution, room, lighting, weather and walking conditions before claiming at least 2x end-to-end performance."
+}

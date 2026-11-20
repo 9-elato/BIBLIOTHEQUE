@@ -1,11 +1,11 @@
 import React,{useMemo,useRef} from 'react'
-import {useGLTF} from '@react-three/drei'
+import {useLibraryModel} from './useLibraryModel'
 import {useFrame} from '@react-three/fiber'
 import * as THREE from 'three'
 import {FloatingBook} from './GhostGLB'
 const url=import.meta.env.BASE_URL+'models/fox_librarian.glb'
 export default function FoxAvatar({moving,book,pose}){
- const {scene}=useGLTF(url),root=useRef()
+ const {scene}=useLibraryModel(url),root=useRef()
  const model=useMemo(()=>{
   const copy=scene.clone(true),box=new THREE.Box3().setFromObject(copy),scale=1.7/(box.max.y-box.min.y)
   const parts=[];copy.traverse(o=>{if(o.isMesh){o.castShadow=true;if(/Boot|forepaw|Plume/.test(o.name))parts.push({o,p:o.position.clone(),r:o.rotation.clone()})}})
@@ -26,4 +26,3 @@ export default function FoxAvatar({moving,book,pose}){
  })
  return <group ref={root} rotation={[0,Math.PI,0]}><primitive object={model.copy}/>{book&&<FloatingBook book={book} pose={pose}/>}</group>
 }
-useGLTF.preload(url)

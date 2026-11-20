@@ -1,3 +1,4 @@
+import StaticBatch from './StaticBatch'
 import {WindowLandscape} from './WindowLandscape'
 import React,{useMemo,useEffect,useRef} from 'react'
 import {useFrame} from '@react-three/fiber'
@@ -102,7 +103,7 @@ function Fireplace({maps,time}){
    <Box p={[x,3.34,.06]} s={[.09,.22,.09]} c="#dac9a7"/>
    <Ball p={[x,3.48,.06]} s={[.027,.055,.027]} c="#ffd89a"/>
   </group>)}
-  <Fire time={time}/>
+  <group userData={{noBatch:true}}><Fire time={time}/></group>
   {[-.9,.9].map(x=><Box key={x} p={[x,.34,.56]} s={[.06,.58,.06]} c="#38322b"/>)}
   <Box p={[0,.34,.56]} s={[1.9,.035,.035]} c="#38322b"/>
  </group>
@@ -120,7 +121,7 @@ function Lamp({x,z,time}){
 export default function LoungeRoom({weather,time,event}){
  const maps=useMemo(textures,[])
  useEffect(()=>()=>Object.values(maps).forEach(t=>t.dispose()),[maps])
- return <group>
+ return <StaticBatch revision={time+weather+event}>
   <Box p={[-14.05,-.12,0]} s={[13.1,.24,13.5]} c="#8b6849" map={maps.grain}/>
   {Array.from({length:25},(_,i)=><Box key={i} p={[-13.15,.005,-6.5+i*.54]} s={[11.23,.007,.014]} c="#5d4431"/>)}
   <Box p={[-14.05,5.15,0]} s={[13.1,.18,13.5]} c="#d3c1a2"/>
@@ -136,7 +137,7 @@ export default function LoungeRoom({weather,time,event}){
    <Box p={[-20.33,.78,-5.9+i*1.3]} s={[.055,.92,.88]} c="#59402f"/>
   </group>)}
   {[-17.1,-14.46,-11.82,-9.18].map(x=><group key={x}>
-   <group position={[x,3.08,6.64]} rotation={[0,Math.PI,0]}><WindowLandscape width={2.48} height={3.65} time={time} weather={weather} event={event}/></group>
+   <group position={[x,3.08,6.64]} rotation={[0,Math.PI,0]}><group userData={{noBatch:true}}><WindowLandscape width={2.48} height={3.65} time={time} weather={weather} event={event}/></group></group>
    <Box p={[x,3.08,6.7]} s={[2.54,3.7,.07]} c={time==='evening'?'#566d81':weather==='rain'?'#91a9a9':'#b9ccc1'}/>
    <Box p={[x-1.29,3.08,6.59]} s={[.12,3.9,.2]} c={wood}/>
    <Box p={[x,3.1,6.56]} s={[2.6,.09,.2]} c={wood}/>
@@ -155,5 +156,5 @@ export default function LoungeRoom({weather,time,event}){
   {[-.66,.66].flatMap(x=>[-.24,.24].map(z=><Foot key={`${x}/${z}`} x={-13.4+x} z={.15+z} map={maps.grain}/>))}
   <Lamp x={-17.9} z={-3.3} time={time}/><Lamp x={-8.25} z={4.9} time={time}/>
   {[0,1,2,3,4,5].map(i=><mesh key={i} position={[-16.35+(i%3-1)*.29,.15+Math.floor(i/3)*.25,-5.8]} rotation={[Math.PI/2,0,0]} castShadow><cylinderGeometry args={[.123,.15,.67,12]}/><meshStandardMaterial color={i%2?'#624431':'#926c46'} roughness={1}/></mesh>)}
- </group>
+ </StaticBatch>
 }

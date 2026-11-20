@@ -9,6 +9,7 @@
     "preview": "vite preview --host 0.0.0.0",
     "check:assets": "node scripts/check-assets.mjs",
     "prebuild": "npm run check:assets",
+    "postbuild": "node scripts/compress-models.mjs",
     "test": "node --test scripts/*.test.mjs"
   },
   "dependencies": {

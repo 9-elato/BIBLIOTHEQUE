@@ -1,7 +1,7 @@
 import {BookCoverMesh} from './BookCover'
 import React,{useMemo,useRef,useEffect} from 'react'
 import {useFrame} from '@react-three/fiber'
-import {useGLTF} from '@react-three/drei'
+import {useLibraryModel} from './useLibraryModel'
 import {Box3,Vector3,MathUtils,DoubleSide} from 'three'
 const url=`${import.meta.env.BASE_URL}models/ghost_avatar.glb`
 
@@ -34,7 +34,7 @@ export function FloatingBook({book,pose}){
 }
 
 export default function GhostGLB({moving,book=null,pose}){
- const {scene}=useGLTF(url)
+ const {scene}=useLibraryModel(url)
  const model=useMemo(()=>{
   const copy=scene.clone(true),bounds=new Box3().setFromObject(copy)
   const size=bounds.getSize(new Vector3()),center=bounds.getCenter(new Vector3())
@@ -79,4 +79,3 @@ export default function GhostGLB({moving,book=null,pose}){
   {book&&<FloatingBook key={book.id||'key'} book={book} pose={pose}/>}
  </group>
 }
-useGLTF.preload(url)

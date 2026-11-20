@@ -1,3 +1,4 @@
+import StaticBatch from './StaticBatch'
 import React, {useRef} from 'react'
 import {useFrame} from '@react-three/fiber'
 import {Text} from '@react-three/drei'
@@ -78,7 +79,7 @@ function Vestibule({evening}){return <group>
 export default function ManorEntrance({open=false,onToggle=()=>{},season='spring',time='afternoon'}){
  const evening=time==='evening';
  const snow=season==='winter'||season==='christmas', autumn=season==='autumn'||season==='halloween';
- return <group>
+ return <group><FrontDoor open={open} onToggle={onToggle}/><StaticBatch revision={season+evening}>
   {/* A level garden ground and a continuous stone footpath. The starting position is z=23. */}
   <MeshBox p={[0,-.26,21.5]} s={[27,.32,25]} c="#788c65"/>
   <MeshBox p={[0,-.025,20.5]} s={[3.8,.1,17]} c="#c7b7a1"/>
@@ -87,7 +88,6 @@ export default function ManorEntrance({open=false,onToggle=()=>{},season='spring
     {Array.from({length:7},(_,i)=><group key={i}><Round p={[side*(3.4+(i%3)*.55),.24,17.7+i*1.55]} r={.29} c={i%3===0?'#a48862':i%3===1?'#809469':'#9da873'}/></group>)}
   </group>)}
   {/* The Blender estate supplies the masonry and roofs; keep the live door and lamps. */}
-  <FrontDoor open={open} onToggle={onToggle}/>
   {[-1.9,1.9].map(x=><WallLamp key={x} x={x} y={3.0} z={12.15} evening={evening}/>)}
   {/* Ivy, porch, garden details */}
   <Ivy x={-9.1} z={12.15}/><Ivy x={9.1} z={12.15}/>
@@ -98,5 +98,5 @@ export default function ManorEntrance({open=false,onToggle=()=>{},season='spring
   <Vestibule evening={evening}/><GardenDetails season={season} evening={evening}/>
   {snow&&[-6.2,6.2].map(x=><MeshBox key={x} p={[x,.011,19.5]} s={[4,.025,9]} c="#eff0e8"/>)}
   {autumn&&[-7,7].map(x=><Round key={x} p={[x,.2,14.2]} r={.22} c="#ba7744"/>)}
- </group>
+ </StaticBatch></group>
 }

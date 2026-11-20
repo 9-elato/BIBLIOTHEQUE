@@ -5,13 +5,13 @@ import {makeAtticTexture,makeRoofPlanks,makeChalkboard} from './atticTextures'
 import * as THREE from 'three'
 import {WindowLandscape} from './WindowLandscape'
 import React,{useMemo,useEffect} from 'react'
-import {useGLTF} from '@react-three/drei'
+import {useLibraryModel} from './useLibraryModel'
 import {AtticDetails} from './RoomDetails'
 import {ATTIC_ORIGIN} from './navigation'
 
 const modelUrl=`${import.meta.env.BASE_URL}models/starlight_attic.glb`
 export default function AtticGLB({time,weather,event}){
- const {scene}=useGLTF(modelUrl)
+ const {scene}=useLibraryModel(modelUrl)
  const textures=useMemo(()=>({wood:makeAtticTexture('wood'),fabric:makeAtticTexture('fabric'),wallpaper:makeAtticTexture('wallpaper'),roof:makeRoofPlanks(),chalk:makeChalkboard()}),[])
  useEffect(()=>()=>Object.values(textures).forEach(t=>t.dispose()),[textures])
  const model=useMemo(()=>{
@@ -66,4 +66,3 @@ export default function AtticGLB({time,weather,event}){
   {panel([4.02,.14,-.92],[.12,.24,11.44],'#795337')}
  </group></group>
 }
-useGLTF.preload(modelUrl)
