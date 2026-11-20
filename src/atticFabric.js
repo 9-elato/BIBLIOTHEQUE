@@ -3,9 +3,14 @@ import * as THREE from 'three'
 export function paddedCloth(width,length,thickness=.16,chair=false){
  const nx=32,nz=28,positions=[],uvs=[],indices=[]
  for(let layer=0;layer<2;layer++)for(let j=0;j<=nz;j++)for(let i=0;i<=nx;i++){
-  const u=i/nx,v=j/nz,x=(u-.5)*width
+  const u=i/nx,v=j/nz;let x=(u-.5)*width
   let y,z
-  if(chair){z=-.33+Math.min(v/.7,1)*.9;y=v<.4?1.7-v/.4*.85:v<.7?.85-(v-.4)/.3*.14:.71-(v-.7)/.3*.45}
+  if(chair){
+   // Wrap across the left arm cap, then hang outside its outer face (x=-.625).
+   z=.10+u*.34
+   if(v<.38){const t=v/.38;x=-.37-.29*t;y=1.14+.015*Math.sin(Math.PI*t)}
+   else {const t=(v-.38)/.62;x=-.66-.075*Math.sin(t*Math.PI/2);y=1.14-.86*t}
+  }
   else {z=(v-.5)*length;y=.09*Math.sin(Math.PI*u)*Math.sin(Math.PI*v)-.17*Math.pow(Math.abs(2*u-1),8)}
   const folds=Math.sin(u*28+v*4)*.018+Math.sin(v*19+u*5)*.015
   const quilting=chair?0:.025*Math.sin(u*Math.PI*6)**2*Math.sin(v*Math.PI*7)**2

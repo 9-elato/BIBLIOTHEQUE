@@ -1,19 +1,14 @@
-import React from 'react'
+import React,{useEffect} from 'react'
+import {paintLandscape} from './storyLandscape'
 // Reusable exterior view. Its inputs remain independent of the window frame.
+const paintedViews=new Map()
 export function WindowLandscape({time='afternoon',weather='sunny',event='none',season,celestial=true,width=1.5,height=4}){
  const shape=useMemoShape(width,height)
- const dark=['evening','night'].includes(time),snow=weather==='snow'
- const sky=dark?'#223751':weather==='rain'?'#798b94':time==='morning'?'#c4d9d7':'#9dbfc5'
- return <group>
-  <mesh geometry={shape}><meshBasicMaterial color={sky}/></mesh>
-  {celestial&&<mesh position={[width*.22,height*.26,.012]}><circleGeometry args={[width*.13,24]}/><meshBasicMaterial color={dark?'#f1e6bd':'#f8ddb0'}/></mesh>}
-  {[-.35,0,.35].map((a,i)=><group key={a} position={[width*a,-height*.28,.025]}>
-   <mesh position={[0,.4,0]}><coneGeometry args={[width*.14,height*.35,7]}/><meshBasicMaterial color={snow?'#dfe7df':dark?'#183b39':season==='winter'?'#b7c3bb':season==='autumn'?'#a7794c':season==='spring'?'#7e9c6a':'#4e705b'}/></mesh>
-   {event==='christmas'&&<mesh position={[0,.5,.03]}><sphereGeometry args={[.04,8,6]}/><meshBasicMaterial color="#ffc675"/></mesh>}
-  </group>)}
-  {weather!=='sunny'&&Array.from({length:22},(_,i)=><mesh key={i} position={[((i*13%23)/23-.5)*width,((i*7%23)/23-.5)*height,.06]}><planeGeometry args={[snow?.035:.012,snow?.035:.18]}/><meshBasicMaterial color={snow?'#ffffff':'#c6d9e5'} transparent opacity={.75}/></mesh>)}
-  {event==='halloween'&&<mesh position={[0,-height*.38,.06]}><sphereGeometry args={[width*.13,12,8]}/><meshBasicMaterial color="#df913f"/></mesh>}
- </group>
+ const variant=Math.round(width*13+height*7)%5
+ const key=[time,weather,event,season,celestial,variant].join(':')
+ const map=useMemo(()=>{let entry=paintedViews.get(key);if(!entry){entry={map:paintLandscape({time,weather,event,season,celestial,variant}),users:0};paintedViews.set(key,entry)}return entry},[key])
+ useEffect(()=>{map.users++;return()=>{if(--map.users===0){map.map.dispose();paintedViews.delete(key)}}},[map,key])
+ return <mesh geometry={shape}><meshBasicMaterial map={map.map}/></mesh>
 }
 export default function StoryWindow({position,rotation=[0,0,0],width=1.5,height=5,time,weather,event,season,curtain='#294b3d',curtainFinish}){
  const r=width/2,base=height/2-r
@@ -34,4 +29,4 @@ export default function StoryWindow({position,rotation=[0,0,0],width=1.5,height=
 }
 import * as THREE from 'three'
 import {useMemo} from 'react'
-function useMemoShape(w,h){return useMemo(()=>{const s=new THREE.Shape();s.moveTo(-w/2,-h/2);s.lineTo(w/2,-h/2);s.lineTo(w/2,h/2-w/2);s.absarc(0,h/2-w/2,w/2,0,Math.PI,false);s.closePath();return new THREE.ShapeGeometry(s)},[w,h])}
+function useMemoShape(w,h){const geometry=useMemo(()=>{const s=new THREE.Shape();s.moveTo(-w/2,-h/2);s.lineTo(w/2,-h/2);s.lineTo(w/2,h/2-w/2);s.absarc(0,h/2-w/2,w/2,0,Math.PI,false);s.closePath();const g=new THREE.ShapeGeometry(s),p=g.attributes.position,uv=g.attributes.uv;for(let i=0;i<p.count;i++)uv.setXY(i,p.getX(i)/w+.5,p.getY(i)/h+.5);return g},[w,h]);useEffect(()=>()=>geometry.dispose(),[geometry]);return geometry}

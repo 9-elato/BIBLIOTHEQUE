@@ -3,7 +3,7 @@ import * as THREE from 'three'
 import {paddedCloth,pillowGeometry} from './atticFabric'
 export default function AtticTextiles({fabric}){
  const objects=useMemo(()=>{
-  const quilt=paddedCloth(2.35,1.7,.19),drape=paddedCloth(.43,1.2,.055,true),pillow=pillowGeometry()
+  const quilt=paddedCloth(2.35,1.7,.19),drape=paddedCloth(.43,1.2,.035,true),pillow=pillowGeometry()
   const points=Array.from({length:65},(_,i)=>{const a=i/64*Math.PI*2;return new THREE.Vector3(Math.sign(Math.cos(a))*Math.abs(Math.cos(a))**.4*.46,0,Math.sign(Math.sin(a))*Math.abs(Math.sin(a))**.4*.34)})
   const piping=new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points,true),80,.008,5,true)
   return {quilt,drape,pillow,piping}
@@ -14,6 +14,6 @@ export default function AtticTextiles({fabric}){
   <mesh geometry={objects.quilt} position={[-1.95,1.03,-.43]} castShadow receiveShadow>{cloth('#8d5267')}</mesh>
   {/* Unequal pillows, slightly tilted and indented, with sewn perimeter piping. */}
   {[[-2.76,1.02,.81,1,'#eee1c8',-.13],[-1.77,1.01,.86,.88,'#dfd1bd',.13],[-2.3,1.15,1.02,.66,'#9ca78c',-.23]].map(([x,y,z,s,c,r],i)=><group key={i} position={[x,y,z]} scale={[s,1,s]} rotation={[.12, r, .035*(i-1)]}><mesh geometry={objects.pillow} castShadow receiveShadow>{cloth(c)}</mesh><mesh geometry={objects.piping}><meshStandardMaterial color="#c5b18e" roughness={1}/></mesh></group>)}
-  {[[1.1,-2.7,'#e1d3b9'],[2.7,-3.7,'#a09b81']].map(([x,z,c])=><group key={x} position={[x-.43,0,z]}><mesh geometry={objects.drape} castShadow receiveShadow>{cloth(c)}</mesh>{Array.from({length:12},(_,i)=><mesh key={i} position={[(i/11-.5)*.4,.22+(i%3)*.012,.58]} rotation={[.12,0,Math.sin(i)*.12]}><cylinderGeometry args={[.005,.004,.085,5]}/><meshStandardMaterial color="#d8c7aa" roughness={1}/></mesh>)}</group>)}
+  {[[1.1,-2.7,'#e1d3b9'],[2.7,-3.7,'#a09b81']].map(([x,z,c])=><group key={x} position={[x,0,z]}><mesh geometry={objects.drape} castShadow receiveShadow>{cloth(c)}</mesh></group>)}
  </group>
 }
