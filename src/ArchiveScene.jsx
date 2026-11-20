@@ -10,7 +10,8 @@ import Greenhouse from './Greenhouse'
 import FacadeModel from './FacadeModel'
 import InteractiveProps from './InteractiveProps'
 import {makeLadders,advanceLadders,toggleLadder} from './ladderSystem'
-import React,{Suspense,useEffect,useMemo,useRef,useState} from 'react'
+import React,{lazy,Suspense,useEffect,useMemo,useRef,useState} from 'react'
+import {collectCameraObstacles} from './cameraOcclusion'
 import {Canvas,useFrame,useThree} from '@react-three/fiber'
 import {OrthographicCamera} from '@react-three/drei'
 import * as THREE from 'three'
@@ -19,7 +20,6 @@ import SecretDetails from './SecretDetails'
 import {WORLD_HEIGHT_SCALE} from './worldScale'
 import AvatarModels from './AvatarModels'
 import GroundFloor from './GroundFloor'
-import AtticGLB from './AtticGLB'
 import WorldAdditions from './WorldAdditions'
 import InteriorDetails from './InteriorDetails'
 import Mezzanine from './Mezzanine'
@@ -33,12 +33,14 @@ import {HallDetails} from './RoomDetails'
 import {startSitting,startStanding,advanceSeating} from './seating'
 
 const MOVE=['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight']
+const AtticGLB=lazy(()=>import('./AtticGLB'))
 function WalkControl({glassDoor,studyDoor,onMusic,ladders,onExperience,onCloseSecret,mode,blocked,joy,books,onZone,teleport,character,heldBook,keyHeld,layout,entranceOpen,gateReady,onKey,onInteraction,onToggleEntrance,onOpenNotes,onGenre,onTravel,onRead,canPlace,onPlaceNearby,onSeatStatus}) {
   const {gl,scene}=useThree()
   const ray=useMemo(()=>new THREE.Raycaster(),[])
   const rayDirection=useMemo(()=>new THREE.Vector3(),[])
   const eye=useMemo(()=>new THREE.Vector3(),[])
   const cameraDistance=useRef(6)
+  const occlusion=useRef({elapsed:1,safe:6,objects:[],hits:[]})
   const cameraYaw=useRef(0)
   const avatar=useRef()
   const moving=useRef(false)
@@ -191,13 +193,17 @@ function WalkControl({glassDoor,studyDoor,onMusic,ladders,onExperience,onCloseSe
     if(mode==='third'){
       rayDirection.set(-cameraSin,pose.current.recline>.1?1:.32,cameraCos).normalize()
       ray.set(eye,rayDirection);ray.far=6.15;ray.near=.12
-      const hits=ray.intersectObjects(scene.children,true)
-      const hit=hits.find(({object})=>{
-        let node=object
-        while(node){if(!node.visible||node.userData.player)return false;node=node.parent}
-        return object.isMesh&&!object.material?.transparent
-      })
-      const safe=hit?Math.max(0,hit.distance-.35):6
+      const check=occlusion.current
+      check.elapsed+=dt
+      // Keep camera interpolation at display rate, expensive mesh checks at 30 Hz.
+      if(check.elapsed>=1/30){
+        check.elapsed=0
+        check.hits.length=0
+        ray.intersectObjects(collectCameraObstacles(scene,check.objects),false,check.hits)
+        const hit=check.hits[0]
+        check.safe=hit?Math.max(0,hit.distance-.35):6
+      }
+      const safe=check.safe
       cameraDistance.current=safe<cameraDistance.current?safe:THREE.MathUtils.damp(cameraDistance.current,safe,8,dt)
       follow=cameraDistance.current
     }
@@ -228,11 +234,14 @@ function Overhead({end}) {
 export default function ArchiveScene({onMusic,onExperience,books=[],placements={},canPlace=false,onPlaceNearby,onPick,onGenre,mode='third',weather,time,blocked,joy,onZone,teleport,onDoor,character,heldBook,season,onOpenNotes,onKeyHeld,keyHeld,onInteraction,onRead,onSeatStatus}) {
   const glassDoor=useMemo(()=>({open:false,amount:0}),[])
   const studyDoor=useMemo(()=>({open:false,amount:0}),[])
-  const [localZone,setLocalZone]=useState('')
+  const [localZone,setLocalZone]=useState('저택 정원')
   const reportZone=zone=>{setLocalZone(zone);onZone(zone)}
   const outside=['저택 정원','현관'].includes(localZone)
   const inGreenhouse=localZone==='실내 온실'
   const inLounge=['벽난로 라운지','열람실','다락방'].includes(localZone)
+  const nearAttic=['중앙 계단','2층 갤러리','열람실','실내 온실','다락 계단','다락방'].includes(localZone)
+  const [atticLoaded,setAtticLoaded]=useState(false)
+  useEffect(()=>{if(nearAttic)setAtticLoaded(true)},[nearAttic])
   const [open,setOpen]=useState(false)
   const [gateReady,setGateReady]=useState(false)
   const [entranceOpen,setEntranceOpen]=useState(false)
@@ -241,7 +250,7 @@ export default function ArchiveScene({onMusic,onExperience,books=[],placements={
   const decorTime=['evening','night'].includes(time)?'evening':'afternoon'
   const map=mode==='overview'
   const unlock=()=>{if(!open){setOpen(true);onKeyHeld()}}
-  return <Canvas camera={{fov:69,near:.065,far:190,position:[0,2,25]}} shadows dpr={[1,1.35]}>
+  return <Canvas camera={{fov:69,near:.065,far:190,position:[0,2,25]}} shadows dpr={1} gl={{powerPreference:'high-performance'}}>
     <color attach="background" args={[({morning:'#b9ced0',afternoon:'#becbc0',evening:'#708097',night:'#182438'})[time]]}/>
     {!map&&<fog attach="fog" args={[decorTime==='evening'?'#928b84':'#cbbfa7',31,105]}/>}
     <ambientLight color={time==='night'?'#829bc2':time==='morning'?'#fff1d5':'#ffffff'} intensity={inGreenhouse?(time==='night'?.12:weather==='sunny'?.25:.4):inLounge?(decorTime==='evening'?.22:.4):(decorTime==='evening'?(outside?.27:.65):.97)}/>
@@ -254,7 +263,7 @@ export default function ArchiveScene({onMusic,onExperience,books=[],placements={
       <InteriorDetails/><AtmosphereDetails time={time} weather={weather} event={season} secretOpen={open}/>
       <LibraryDetails/><MainRoomDetails layout={layout} time={decorTime} zone={localZone}/><HallDetails time={decorTime}/>
       <SecretDetails open={open} time={decorTime}/><StudyRoom open={open} door={studyDoor} time={time} weather={weather} event={season} onNotes={onOpenNotes} onMusic={onMusic}/><PlacedBooks books={books} placements={placements} heldBook={heldBook} onPick={onPick}/>
-      <group position={[-11.45,0,0]} scale={[ATTIC_EXPANSION,1,1]}><group position={[11.45,0,0]}><Suspense fallback={null}><AtticGLB time={time} weather={weather} event={season}/></Suspense></group></group><PaperSpirits/>
+      {(nearAttic||atticLoaded)&&<group visible={nearAttic} position={[-11.45,0,0]} scale={[ATTIC_EXPANSION,1,1]}><group position={[11.45,0,0]}><Suspense fallback={null}><AtticGLB time={time} weather={weather} event={season}/></Suspense></group></group>}<PaperSpirits/>
     </>}
     </group><Weather weather={weather}/>
     <WalkControl glassDoor={glassDoor} studyDoor={studyDoor} onMusic={onMusic} ladders={ladders} onExperience={onExperience} onCloseSecret={()=>{setOpen(false);setGateReady(false);studyDoor.open=false}} mode={mode} blocked={blocked} joy={joy} books={books} onZone={reportZone} teleport={teleport} character={character} heldBook={heldBook} keyHeld={keyHeld} layout={layout} entranceOpen={entranceOpen} gateReady={gateReady} onKey={unlock} onInteraction={onInteraction} onToggleEntrance={setEntranceOpen} onOpenNotes={onOpenNotes} onGenre={onGenre} onTravel={onDoor} onRead={onRead} canPlace={canPlace} onPlaceNearby={onPlaceNearby} onSeatStatus={onSeatStatus}/>
