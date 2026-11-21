@@ -104,8 +104,8 @@ test('daybed torso clears thick quilt and sits upright before a slow dismount',(
 
 test('attic beanbags preserve a wide aisle to the shelves and clear cabinet fronts',()=>{
  const a=SEATS.find(s=>s.id==='attic-0'),b=SEATS.find(s=>s.id==='attic-1')
- assert.equal(a.height,.48);assert.equal(b.height,.48)
- const gap=b.anchor.x-a.anchor.x-1.28
+ assert.equal(a.height,.53);assert.equal(b.height,.53)
+ const gap=b.anchor.x-a.anchor.x-1.60
  assert.ok(gap>=.9,'at least 90cm between conservative furniture bounds')
  const x=(a.anchor.x+b.anchor.x)/2
  let p={x,z:3,level:10.6,yaw:0}

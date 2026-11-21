@@ -1,10 +1,21 @@
-import React,{useMemo,useEffect} from 'react'
+import {paintOcean} from './oceanLandscape'
+import {useFrame} from '@react-three/fiber'
+import React,{useMemo,useEffect,useRef} from 'react'
 import * as THREE from 'three'
 import {CarvedBox as B} from './StorybookDecor'
+function OceanGlints({w,h,time,weather}){
+ const material=useRef()
+ const positions=useMemo(()=>new Float32Array(Array.from({length:96},(_,i)=>[(i*1.618%1-.5)*w,-(.04+(i*.371%1)*.44)*h,.025]).flat()),[w,h])
+ const uniforms=useMemo(()=>({clock:{value:0},strength:{value:1}}),[])
+ useFrame(({clock})=>{if(material.current){material.current.uniforms.clock.value=clock.elapsedTime;material.current.uniforms.strength.value=weather==='sunny'?(time==='afternoon'?.85:.25):.08}})
+ return <points userData={{noBatch:true}}><bufferGeometry><bufferAttribute attach="attributes-position" args={[positions,3]}/></bufferGeometry><shaderMaterial ref={material} uniforms={uniforms} transparent depthWrite={false}
+ vertexShader={`uniform float clock; varying float glow; void main(){glow=pow(max(0.0,sin(clock*1.6+position.x*13.0+position.y*27.0)),8.0);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);gl_PointSize=2.0+glow*3.0;}`}
+ fragmentShader={`uniform float strength; varying float glow; void main(){vec2 p=gl_PointCoord-.5;float a=max(0.0,1.0-length(p)*2.0);gl_FragColor=vec4(.92,.98,1.0,a*glow*strength);}`}/></points>
+}
 export function OceanWindow({p,turn=0,w,h=5.2,time,weather}){
- const map=useMemo(()=>{const c=document.createElement('canvas');c.width=1024;c.height=512;const x=c.getContext('2d'),night=['night','evening'].includes(time),rain=weather==='rain';const g=x.createLinearGradient(0,0,0,512);g.addColorStop(0,night?'#172c4c':rain?'#708899':'#8dbed3');g.addColorStop(.48,night?'#bd9c9c':'#efe5ce');g.addColorStop(.49,night?'#324b66':'#659fae');g.addColorStop(1,night?'#173342':'#396f7d');x.fillStyle=g;x.fillRect(0,0,1024,512);x.fillStyle=night?'#f1e7ca':'#fff0c6';x.beginPath();x.arc(680,160,27,0,7);x.fill();for(let i=0;i<260;i++){const a=(i*137.7)%1024,b=260+(i*31.3)%250;x.strokeStyle=i%3?'#a8c4c3':'#d7d9c3';x.globalAlpha=.16+(i%5)*.035;x.lineWidth=1+(b-250)/170;x.beginPath();x.moveTo(a,b);x.quadraticCurveTo(a+17,b-3,a+35+(b-250)/5,b);x.stroke()}x.globalAlpha=1;x.fillStyle=night?'#263a48':'#8aacae';x.beginPath();x.moveTo(0,255);x.lineTo(70,223);x.lineTo(140,238);x.lineTo(240,252);x.fill();if(weather==='snow'||rain){x.strokeStyle='#dfebed';x.globalAlpha=.35;for(let i=0;i<100;i++){const a=(i*113)%1024,b=(i*73)%512;x.beginPath();x.moveTo(a,b);x.lineTo(a-2,b+(rain?12:2));x.stroke()}}const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t},[time,weather])
+ const map=useMemo(()=>paintOcean(time,weather),[time,weather])
  useEffect(()=>()=>map.dispose(),[map])
- return <group position={p} rotation={[0,turn,0]}><mesh><planeGeometry args={[w,h]}/><meshBasicMaterial map={map}/></mesh>{[-1,1].map(a=><group key={a}><B p={[a*w/2,0,.055]} s={[.12,h+.2,.16]} c="#3d332c"/><B p={[0,a*h/2,.055]} s={[w,.12,.16]} c="#3d332c"/></group>)}<mesh position={[0,0,.07]}><planeGeometry args={[w-.05,h-.05]}/><meshStandardMaterial color="#b7d6db" transparent opacity={.035} roughness={.15} metalness={.15} depthWrite={false}/></mesh></group>
+ return <group position={p} rotation={[0,turn,0]} userData={{noBatch:true}}><OceanGlints w={w} h={h} time={time} weather={weather}/><mesh><planeGeometry args={[w,h]}/><meshBasicMaterial map={map}/></mesh>{[-1,1].map(a=><group key={a}><B p={[a*w/2,0,.055]} s={[.12,h+.2,.16]} c="#3d332c"/><B p={[0,a*h/2,.055]} s={[w,.12,.16]} c="#3d332c"/></group>)}<mesh position={[0,0,.07]}><planeGeometry args={[w-.05,h-.05]}/><meshStandardMaterial color="#b7d6db" transparent opacity={.035} roughness={.15} metalness={.15} depthWrite={false}/></mesh></group>
 }
 export default function CoastalStudy({time,weather,onMusic}){return <group>
  <OceanWindow p={[0,4.10,-29.30]} w={13.7} time={time} weather={weather}/>

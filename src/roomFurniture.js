@@ -3,7 +3,7 @@ import {atticX} from './atticLayout.js'
 export const READING_CHAIRS=[
  {id:'upper-0',label:'열람실 세이지 안락의자',x:10.2,z:-2.65,level:7.2,turn:0,color:'#526957'},
  {id:'upper-1',label:'열람실 버건디 안락의자',x:10.2,z:2.65,level:7.2,turn:Math.PI,color:'#795251'},
- {id:'attic-0',label:'다락 별빛 빈백',x:atticX(-14.9),z:-2.4,level:10.6,turn:0,color:'#637482'},
+ {id:'attic-0',label:'다락 별빛 빈백',x:atticX(-15.15),z:-2.4,level:10.6,turn:0,color:'#637482'},
  {id:'attic-1',label:'다락 코냑 가죽 빈백',x:atticX(-12.9),z:-3.3,level:10.6,turn:0,color:'#98714f'},
 ]
 export const CHAIR_HEIGHT=.62

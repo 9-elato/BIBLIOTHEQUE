@@ -41,7 +41,7 @@ import {startSitting,startStanding,advanceSeating} from './seating'
 
 const MOVE=['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight']
 const AtticGLB=lazy(()=>import('./AtticGLB'))
-function WalkControl({verandaDoor,blanket,onBlanket,glassDoor,studyDoor,onMusic,ladders,onExperience,onCloseSecret,mode,blocked,joy,books,onZone,teleport,character,heldBook,layout,entranceOpen,gateReady,gateOpening,onKey,onInteraction,onToggleEntrance,onOpenNotes,onGenre,onTravel,onRead,canPlace,onPlaceNearby,onSeatStatus}) {
+function WalkControl({playerPosition,verandaDoor,blanket,onBlanket,glassDoor,studyDoor,onMusic,ladders,onExperience,onCloseSecret,mode,blocked,joy,books,onZone,teleport,character,heldBook,layout,entranceOpen,gateReady,gateOpening,onKey,onInteraction,onToggleEntrance,onOpenNotes,onGenre,onTravel,onRead,canPlace,onPlaceNearby,onSeatStatus}) {
   const {gl,scene}=useThree()
   const ray=useMemo(()=>new THREE.Raycaster(),[])
   const rayDirection=useMemo(()=>new THREE.Vector3(),[])
@@ -212,6 +212,7 @@ function WalkControl({verandaDoor,blanket,onBlanket,glassDoor,studyDoor,onMusic,
     avatar.current.rotation.order='YXZ'
     avatar.current.rotation.x=pose.current.recline||0
     avatar.current.position.set(s.x,visualY*WORLD_HEIGHT_SCALE,s.z)
+    Object.assign(playerPosition.current,{x:s.x,z:s.z,level:s.level})
     const seatText=s.seated?`${s.seated.seat.label} · ${s.seated.phase==='entering'?'앉는 중':s.seated.phase==='leaving'?'일어나는 중':s.seated.posture==='lying'?'누워 읽기':heldBook?'독서 중':'휴식 중'}`:''
     if(seatText!==lastSeatStatus.current){lastSeatStatus.current=seatText;onSeatStatus?.(seatText)}
     const zone=floorName(s.x,s.z,s.level)||zoneAt(s.x,s.z)
@@ -264,7 +265,8 @@ function Overhead({end}) {
   const zoom=Math.min(size.width/(end+23),size.height/41)
   return <OrthographicCamera ref={ref} makeDefault position={[(end-19)/2,65,-6]} zoom={zoom} near={.1} far={180}/>
 }
-export default function ArchiveScene({blanket,onBlanket,onMusic,onExperience,books=[],placements={},canPlace=false,onPlaceNearby,onPick,onGenre,mode='third',weather,time,blocked,joy,onZone,teleport,onDoor,character,heldBook,season,onOpenNotes,onInteraction,onRead,onSeatStatus}) {
+function ArchiveScene({blanket,onBlanket,onMusic,onExperience,books=[],placements={},canPlace=false,onPlaceNearby,onPick,onGenre,mode='third',weather,time,blocked,joy,onZone,teleport,onDoor,character,heldBook,season,onOpenNotes,onInteraction,onRead,onSeatStatus}) {
+  const playerPosition=useRef({x:0,z:23,level:0})
   const verandaDoor=useMemo(()=>({open:false,amount:0}),[])
   const glassDoor=useMemo(()=>({open:false,amount:0}),[])
   const studyDoor=useMemo(()=>({open:false,amount:0}),[])
@@ -304,12 +306,21 @@ export default function ArchiveScene({blanket,onBlanket,onMusic,onExperience,boo
       <StaticBatch><InteriorDetails/></StaticBatch><AtmosphereDetails time={time} weather={weather} event={season} secretOpen={open}/>
       <StaticBatch><LibraryDetails/></StaticBatch><MainRoomDetails layout={layout} time={decorTime} zone={localZone}/><StaticBatch revision={decorTime}><HallDetails time={decorTime}/></StaticBatch>
       <SecretDetails open={open} prepare={localZone==='북쪽 복도'} time={decorTime}/><StudyRoom open={open} prepare={localZone==='북쪽 복도'} door={studyDoor} time={time} weather={weather} event={season} onNotes={onOpenNotes} onMusic={onMusic}/><PlacedBooks books={books} placements={placements} heldBook={heldBook} onPick={onPick}/>
-      {(nearAttic||atticLoaded)&&<group visible={nearAttic} position={[-11.45,0,0]} scale={[ATTIC_EXPANSION,1,1]}><group position={[11.45,0,0]}><Suspense fallback={null}><AtticGLB time={time} weather={weather} event={season}/></Suspense></group></group>}<PaperSpirits/>
+      {(nearAttic||atticLoaded)&&<group visible={nearAttic} position={[-11.45,0,0]} scale={[ATTIC_EXPANSION,1,1]}><group position={[11.45,0,0]}><Suspense fallback={null}><AtticGLB time={time} weather={weather} event={season}/></Suspense></group></group>}<PaperSpirits playerPosition={playerPosition}/>
     </>}
     </group>}</group><Weather weather={weather}/>
-    <WalkControl verandaDoor={verandaDoor} blanket={blanket} onBlanket={onBlanket} glassDoor={glassDoor} studyDoor={studyDoor} onMusic={onMusic} ladders={ladders} onExperience={onExperience} onCloseSecret={()=>{setOpen(false);setGateReady(false);studyDoor.open=false}} mode={mode} blocked={blocked} joy={joy} books={books} onZone={reportZone} teleport={teleport} character={character} heldBook={heldBook} layout={layout} entranceOpen={entranceOpen} gateReady={gateReady} gateOpening={open&&!gateReady} onKey={unlock} onInteraction={onInteraction} onToggleEntrance={setEntranceOpen} onOpenNotes={onOpenNotes} onGenre={onGenre} onTravel={onDoor} onRead={onRead} canPlace={canPlace} onPlaceNearby={onPlaceNearby} onSeatStatus={onSeatStatus}/>
+    <WalkControl playerPosition={playerPosition} verandaDoor={verandaDoor} blanket={blanket} onBlanket={onBlanket} glassDoor={glassDoor} studyDoor={studyDoor} onMusic={onMusic} ladders={ladders} onExperience={onExperience} onCloseSecret={()=>{setOpen(false);setGateReady(false);studyDoor.open=false}} mode={mode} blocked={blocked} joy={joy} books={books} onZone={reportZone} teleport={teleport} character={character} heldBook={heldBook} layout={layout} entranceOpen={entranceOpen} gateReady={gateReady} gateOpening={open&&!gateReady} onKey={unlock} onInteraction={onInteraction} onToggleEntrance={setEntranceOpen} onOpenNotes={onOpenNotes} onGenre={onGenre} onTravel={onDoor} onRead={onRead} canPlace={canPlace} onPlaceNearby={onPlaceNearby} onSeatStatus={onSeatStatus}/>
     <SceneBudget/>
     {profiling&&<FrameProfiler/>}
     {map&&<Overhead end={layout.end}/>}
   </Canvas>
+}
+
+// HUD updates (including E/seat labels) must not reconcile the whole manor.
+// Stable delegates always call the latest handler without freezing its closure.
+const MemoArchiveScene=React.memo(ArchiveScene)
+export default function StableArchiveScene(props){
+ const latest=useRef(props);latest.current=props
+ const handlers=useMemo(()=>Object.fromEntries(Object.keys(props).filter(k=>k.startsWith('on')).map(k=>[k,(...args)=>latest.current[k]?.(...args)])),[])
+ return <MemoArchiveScene {...props} {...handlers}/>
 }

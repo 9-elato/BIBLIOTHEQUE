@@ -42,9 +42,9 @@ ADD_UFC_CAP = True
 ADD_YELLOW_FX = False
 
 # 모델 디자인 색상: 6자리 sRGB HEX
-FUR_HEX   = "C5A47F"   # 깊고 차분한 베이지색 털
+FUR_HEX   = "E2C39E"   # Brighter warm beige; preserve the plush surface.
 EAR_HEX   = "F9DFBD"   # 귀 안쪽보다 살짝 어두운 털
-RED_HEX   = "88525A"   # 채도를 낮춘 붉은 직물
+RED_HEX   = "B31226"   # Reference red fabric.
 WHITE_HEX = "FFF9F1"
 BLACK_HEX = "24252B"
 
@@ -82,9 +82,9 @@ nose_mat    = mat('Nose / espresso', '3D3431', .34)
 smile_mat   = mat('Smile / soft dark line', '3C302C', .48)
 jersey_red  = mat('Uniform / red fabric', RED_HEX, .83, sheen=.18)
 jersey_wht  = mat('Uniform / white details', WHITE_HEX, .86, sheen=.12)
-scarf_red   = mat('Scarf / red knit', '915B60', .93, sheen=.20)
+scarf_red   = mat('Scarf / red knit', 'B91425', .93, sheen=.20)
 scarf_cream = mat('Scarf / cream knit', 'F8F0E6', .92, sheen=.21)
-cap_red     = mat('Cap / red fabric', '824D56', .9, sheen=.14)
+cap_red     = mat('Cap / red fabric', 'AB091C', .9, sheen=.14)
 cap_black   = mat('Cap / adjustable strap', '3A373B', .62)
 glove_black = mat('Gloves / matte charcoal', BLACK_HEX, .71)
 glove_pad   = mat('Gloves / protective cushion', '34353C', .69)

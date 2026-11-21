@@ -10,7 +10,7 @@ export default function AtticTextiles({fabric}){
  },[])
  useEffect(()=>()=>Object.values(objects).forEach(g=>g.dispose()),[objects])
  const cloth=(color)=><meshPhysicalMaterial color={color} map={fabric} bumpMap={fabric} bumpScale={.012} roughness={1} sheen={.65} sheenColor="#e5d5c4" sheenRoughness={.9}/>
- return <group>
+ return <group position={[.234,0,0]} scale={[1.12,1,1.15]}>
   <mesh geometry={objects.quilt} position={[-1.95,1.03,-.43]} castShadow receiveShadow>{cloth('#8d5267')}</mesh>
   {/* Unequal pillows, slightly tilted and indented, with sewn perimeter piping. */}
   {[[-2.76,1.02,.81,1,'#eee1c8',-.13],[-1.77,1.01,.86,.88,'#dfd1bd',.13],[-2.3,1.15,1.02,.66,'#9ca78c',-.23]].map(([x,y,z,s,c,r],i)=><group key={i} position={[x,y,z]} scale={[s,1,s]} rotation={[.12, r, .035*(i-1)]}><mesh geometry={objects.pillow} castShadow receiveShadow>{cloth(c)}</mesh><mesh geometry={objects.piping}><meshStandardMaterial color="#c5b18e" roughness={1}/></mesh></group>)}

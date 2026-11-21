@@ -1,3 +1,4 @@
+import SolarMobile from './SolarMobile'
 import {Beanbag,CreamRugs,SofaBed,DetailedTelescope} from './AtticComfort'
 import {originalAtticX} from './atticLayout'
 import React from 'react'
@@ -68,13 +69,7 @@ export function AtticDetails({time}){return <group>
   </group>
   <WallSconce p={[3.98,2.1,4.3]} turn={-Math.PI/2} time={time}/>
   <WallSconce p={[-3.96,2.1,2.7]} turn={Math.PI/2} time={time}/>
-  {/* A brass orrery hangs above head height without narrowing circulation. */}
-  <group position={[.4,3.35,-1.5]}>
-   <B p={[0,.62,0]} s={[.025,1.24,.025]} c="#ad8b56"/>
-   {[0,.7,-.7].map((a,i)=><mesh key={a} rotation={[Math.PI/2,a,.35]}><torusGeometry args={[.57+i*.07,.014,6,48]}/><meshStandardMaterial color="#b59458" metalness={.6} roughness={.4}/></mesh>)}
-   <mesh><sphereGeometry args={[.11,16,12]}/><meshStandardMaterial color="#d0b16a" emissive="#b18a46" emissiveIntensity={.3}/></mesh>
-   {[0,1,2,3,4].map(i=><mesh key={i} position={[Math.cos(i*1.3)*.63,Math.sin(i*2)*.19,Math.sin(i*1.3)*.63]}><sphereGeometry args={[.045+i*.008,12,8]}/><meshStandardMaterial color={['#a7b8b3','#c1a178','#8d7391','#cfb880','#a07c65'][i]}/></mesh>)}
-  </group>
+  <SolarMobile/>
   <pointLight position={[-1.4,4.4,3.5]} color={time==='evening'?'#aebfe1':'#dbe2db'} intensity={time==='evening'?7:11} distance={10}/>
  </group>
  </group>}

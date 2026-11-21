@@ -3,7 +3,7 @@ import * as THREE from 'three'
 import {CarvedBox as B} from './StorybookDecor'
 function Cushion({p,s,c='#cdbfa5',rotation=[0,0,0]}){return <mesh position={p} scale={s} rotation={rotation} castShadow receiveShadow><sphereGeometry args={[1,24,16]}/><meshStandardMaterial color={c} roughness={1}/></mesh>}
 export function Beanbag({item}){
- return <group position={[item.x,item.level,item.z]} rotation={[0,item.turn,0]}>
+ return <group position={[item.x,item.level,item.z]} rotation={[0,item.turn,0]} scale={[1.25,1.1,1.25]}>
   <Cushion p={[0,.27,0]} s={[.59,.28,.49]} c={item.color}/>
   <Cushion p={[0,.39,.10]} s={[.48,.12,.35]} c={item.color}/>
   <Cushion p={[0,.57,-.24]} s={[.54,.43,.27]} c={item.color} rotation={[-.2,0,0]}/>
@@ -17,7 +17,7 @@ export function CreamRugs(){
  useEffect(()=>()=>map.dispose(),[map])
  return <group>{[[.4,-1.3,5.5,5.9],[-2.3,4.35,2.5,2.7]].map(([x,z,w,h])=><group key={z} position={[x,.055,z]}><B s={[w,.055,h]} c="#d8cbb3" r={.07}/><mesh rotation={[-Math.PI/2,0,0]} position={[0,.032,0]}><planeGeometry args={[w-.06,h-.06]}/><meshStandardMaterial map={map} bumpMap={map} bumpScale={.024} color="#fff5df" roughness={1}/></mesh></group>)}</group>
 }
-export function SofaBed(){return <group>
+export function SofaBed(){return <group position={[.234,0,0]} scale={[1.12,1,1.15]}>
  <B p={[-1.95,.43,0]} s={[2.45,.43,2.65]} c="#80684f" r={.11}/>
  <B p={[-1.95,.75,0]} s={[2.40,.35,2.55]} c="#d6c8af" r={.16}/>
  <B p={[-3.08,1.05,0]} s={[.28,1.08,2.65]} c="#b5a68c" r={.13}/>

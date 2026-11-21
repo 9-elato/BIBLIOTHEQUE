@@ -2,6 +2,7 @@ import React,{useRef} from 'react'
 import {useFrame} from '@react-three/fiber'
 import * as THREE from 'three'
 import {movePlayer} from './navigation'
+import {steerSpirit,spiritClearance} from './spiritAvoidance'
 import {atticX} from './atticLayout'
 
 // Appearance is intentionally replaceable when the user's reference arrives.
@@ -21,14 +22,18 @@ const paths=[
  {floor:7.2,points:[[8.2,3.8],[12.6,3.8],[12.6,-3.8]],bookmark:false},
  {floor:10.6,points:[[atticX(-15.6),3.5],[atticX(-15.6),-.8],[atticX(-13.6),-.8]],bookmark:true},
 ]
-function Wanderer({route,index}){
+function Wanderer({route,index,playerPosition}){
  const ref=useRef(),state=useRef({x:route.points[0][0],z:route.points[0][1],level:route.floor,target:1,pause:0})
  useFrame(({clock},dt)=>{
   const s=state.current,[x,z]=route.points[s.target],distance=Math.hypot(x-s.x,z-s.z),step=Math.min(.48*Math.min(dt,.05),distance)
-  if(s.pause>0)s.pause-=dt
+  const player=playerPosition?.current,nearPlayer=player&&Math.abs(player.level-s.level)<.7&&Math.hypot(s.x-player.x,s.z-player.z)<1.5
+  if(s.pause>0&&!nearPlayer)s.pause-=dt
   else if(distance<.08){s.target=(s.target+1)%route.points.length;s.pause=2.5}
   else{
-   const next=movePlayer(s,(x-s.x)/distance*step,(z-s.z)/distance*step,{end:45,gateReady:false,entranceOpen:false})
+   const velocity=steerSpirit(s,[x,z],player,dt,index)
+   const next=movePlayer(s,velocity.x,velocity.z,{end:45,gateReady:false,entranceOpen:false})
+   const previousDistance=player?Math.hypot(s.x-player.x,s.z-player.z):Infinity
+   if(!spiritClearance(next,player)&&Math.hypot(next.x-player.x,next.z-player.z)<=previousDistance)return
    if(Math.hypot(next.x-s.x,next.z-s.z)<step*.1){s.target=(s.target+1)%route.points.length;s.pause=.5}
    else {s.x=next.x;s.z=next.z}
   }
@@ -37,4 +42,4 @@ function Wanderer({route,index}){
  })
  return <group ref={ref} userData={{player:true}}><PaperSpiritAppearance bookmark={route.bookmark}/></group>
 }
-export default function PaperSpirits(){return <group>{paths.map((route,i)=><Wanderer key={i} route={route} index={i}/>)}</group>}
+export default function PaperSpirits({playerPosition}){return <group>{paths.map((route,i)=><Wanderer key={i} route={route} index={i} playerPosition={playerPosition}/>)}</group>}
