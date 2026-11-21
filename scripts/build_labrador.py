@@ -42,8 +42,8 @@ ADD_UFC_CAP = True
 ADD_YELLOW_FX = False
 
 # 모델 디자인 색상: 6자리 sRGB HEX
-FUR_HEX   = "FFEACD"   # 크림 래브라도
-EAR_HEX   = "F3DBB8"   # 귀 안쪽보다 살짝 어두운 털
+FUR_HEX   = "FFE5C2"   # 크림 래브라도
+EAR_HEX   = "F9DFBD"   # 귀 안쪽보다 살짝 어두운 털
 RED_HEX   = "AC0920"   # 붉은 유니폼
 WHITE_HEX = "FFF9F1"
 BLACK_HEX = "24252B"
