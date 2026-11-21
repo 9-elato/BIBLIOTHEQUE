@@ -1,4 +1,4 @@
-# Fuse the cheek and ear roots into a single softly blended plush surface.
+# Separate overlapping ears and a broad, softly flattened round head.
 head=bpy.data.objects.get('Giant round Labrador head')
 ears=[o for o in root.children_recursive if o.name.startswith('Sculpted floppy ear')]
 # Give the lower face a full, rounded cheek/jaw rather than a wide flat oval.
@@ -23,34 +23,18 @@ for ear in ears:
         center=math.copysign(1.04,vertex.co.x)
         vertex.co.x=center+(vertex.co.x-center)*(1-.03*fall)
         vertex.co.x+=math.copysign(.07*sin(pi*fall)-.055*fall,vertex.co.x)
+# Keep each ear independent: its narrow root overlaps the cheek, its lobe stays free.
+for ear in ears:
+    ear.data.materials.clear();ear.data.materials.append(fur)
+    for polygon in ear.data.polygons:polygon.material_index=0;polygon.use_smooth=True
 bpy.ops.object.select_all(action='DESELECT')
-for obj in [head]+ears:
-    bpy.context.view_layer.objects.active=obj
-    for modifier in list(obj.modifiers):bpy.ops.object.modifier_apply(modifier=modifier.name)
-    obj.select_set(True)
-bpy.context.view_layer.objects.active=head;bpy.ops.object.join()
+head.select_set(True);bpy.context.view_layer.objects.active=head
 bpy.ops.object.transform_apply(location=False,rotation=False,scale=True)
-remesh=head.modifiers.new('Blend cheek and floppy ear roots','REMESH');remesh.mode='VOXEL';remesh.voxel_size=.033
-bpy.ops.object.modifier_apply(modifier=remesh.name)
-soft=head.modifiers.new('Plush root smoothing','SMOOTH');soft.factor=.65;soft.iterations=4
-bpy.ops.object.modifier_apply(modifier=soft.name)
+# The head remains an uninterrupted broad rounded surface with a gently flat chin.
+for vertex in head.data.vertices:
+    if vertex.co.z<-.68:vertex.co.z=-.68+(vertex.co.z+.68)*.45
 head.data.materials.clear();head.data.materials.append(fur)
 for polygon in head.data.polygons:polygon.material_index=0;polygon.use_smooth=True
-# A shallow sculpted valley separates each hanging ear from its cheek.
-# The root remains fused; no dark painted outline or disconnected ear sphere.
-for vertex in head.data.vertices:
-    world=head.matrix_world@vertex.co;x,y,z=world
-    if y<-.22 and 2.00<z<2.80:
-        t=(z-2.00)/.8;edge=.88+.12*(1-t)
-        valley=math.exp(-((abs(x)-edge)/.085)**2)*(sin(pi*t)**.9)
-        vertex.co.y+=.09*valley
-        if abs(x)>1.08:vertex.co.y-=.035*sin(pi*t)
-# Sculpt on the dense surface before reduction so the cheek fold cannot form
-# sharp wedges by moving only a few already-decimated vertices.
-soft=head.modifiers.new('Soften cheek and ear fold transitions','SMOOTH');soft.factor=.5;soft.iterations=3
-bpy.ops.object.modifier_apply(modifier=soft.name)
-dec=head.modifiers.new('Preserve silhouette web budget','DECIMATE');dec.ratio=.28
-bpy.ops.object.modifier_apply(modifier=dec.name)
 # Short, sparse plush fibres add a soft silhouette without a costly hair system.
 head.data.update();rng=random.Random(81);fv=[];ffib=[]
 for face in rng.sample(list(head.data.polygons),min(650,len(head.data.polygons))):
@@ -154,5 +138,9 @@ for obj in root.children_recursive:
             p=vertex.co;weight=max(0,min(1,(-p.y-.25)/.50))
             target=ball_center+(p-ball_center)*1.35+ball_shift
             p+=weight*(target-p)
+            # Flatten the contact patch against the ball's upper hemisphere.
+            offset=p-(ball_center+ball_shift)
+            if weight>.5 and p.z>1.05 and offset.length<.50:
+                p[:]=tuple(ball_center+ball_shift+offset.normalized()*.493)
     elif obj.name.startswith('Left soft hand finger crease'):
         obj.matrix_world=ball_transform @ obj.matrix_world

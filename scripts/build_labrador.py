@@ -768,6 +768,7 @@ for name,objects in regions.items():
         for modifier in list(obj.modifiers):
             bpy.ops.object.modifier_apply(modifier=modifier.name)
         key=tuple(m.name for m in obj.data.materials)
+        if obj.name.startswith('Sculpted floppy ear'):key=key+(obj.name,)
         batches.setdefault(key,[]).append(obj)
     for index,objects in enumerate(batches.values()):
         bpy.ops.object.select_all(action='DESELECT')

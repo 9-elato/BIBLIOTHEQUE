@@ -50,8 +50,10 @@ box('UFC glove black strap',(.98,-.43,1.46),(.36,.29,.045),glove_black,.015)
 limb('Black glove thumb',[(.77,-.42,1.76,.08,.08),(.74,-.53,1.69,.085,.075),(.81,-.61,1.64,.075,.06),(.86,-.60,1.65,.025,.025)],glove_black,16)
 for i in range(3):
     x=.84+i*.09
+    sphere('Glove finger padded segment '+str(i),(x,-.525,1.83-i*.012),(.068,.125,.105),glove_black,16,10)
     line('Glove finger crease '+str(i),[(x,-.57,1.87),(x,-.62,1.83),(x,-.64,1.78)],.006,glove_pad)
-label_obj=bpy.data.objects.get('UFC lettering on glove');label_obj.location=(.98,-.705,1.70)
+sphere('Black glove separate back pad',(.98,-.665,1.70),(.205,.055,.15),glove_black,20,12)
+label_obj=bpy.data.objects.get('UFC lettering on glove');label_obj.location=(.98,-.750,1.70)
 # Subtle crease lines lie on the fingers that curl over the ball.
 for i in [-1,1]:
     line('Left soft hand finger crease '+str(i),[(-1.20+i*.035,-.99,1.075),(-1.21+i*.035,-.98,1.13)],.0035,ear_fur)
@@ -74,19 +76,25 @@ for a in [-2.8,-2.2,-.85,.2,1.4]:
 # Rear visor: every vertex stays behind the forehead (positive Blender Y).
 # Its crescent wraps around the back of the head and curls down at the outer rim.
 v=[];f=[];rows=6;columns=32
+def visor_point(t,j):
+    a=pi*.12+j*pi*.76/columns;spread=sin(pi*j/columns)**.65
+    x=(.85+.25*t*spread)*cos(a)
+    y=.04+(.57+.54*t*spread)*sin(a)
+    z=2.89-.08*t-.17*t*t*spread
+    turn=-.22
+    return (x*cos(turn)-y*sin(turn),x*sin(turn)+y*cos(turn),z)
 for row in range(rows+1):
     t=row/rows
     for j in range(columns+1):
-        a=pi*.12+j*pi*.76/columns;spread=sin(pi*j/columns)**.65
-        x=(.93+.17*t*spread)*cos(a)
-        y=.04+(.65+.46*t*spread)*sin(a)
-        z=2.89-.08*t-.17*t*t*spread
-        v.append((x,y,z))
+        v.append(visor_point(t,j))
 for row in range(rows):
     for j in range(columns):
         k=row*(columns+1)+j;f.append((k,k+1,k+columns+2,k+columns+1))
 brim=geometry('Sideways red cap brim',v,f,[cap_red],subsurf=1)
 solid=brim.modifiers.new('Rounded rear visor thickness','SOLIDIFY');solid.thickness=.035
+for row in [.62,.80,.94]:
+    stitch=line('Cap panel seam visor '+str(row),[(x,y,z+.009) for x,y,z in [visor_point(row,j) for j in range(1,columns)]],.0025,cap_red)
+    stitch.data.resolution_u=2;stitch.data.bevel_resolution=0
 cap_text=label('Cap UFC lettering','UFC',.45,-.60,3.13,.25,letter_mat)
 bpy.ops.object.select_all(action='DESELECT');cap_text.select_set(True);bpy.context.view_layer.objects.active=cap_text
 bpy.ops.object.convert(target='MESH');cap_text=bpy.context.object
