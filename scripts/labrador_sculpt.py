@@ -160,7 +160,7 @@ for kind,mats in [('plush',[fur,ear_fur]),('twill',[jersey_red,jersey_wht,cap_re
     for material in mats:
         nodes=material.node_tree.nodes
         uv=nodes.new('ShaderNodeTexCoord');mapping=nodes.new('ShaderNodeMapping')
-        repeat=3 if kind=='knit' else 7
+        repeat=3 if kind=='knit' else 2 if kind=='plush' else 7
         mapping.inputs['Scale'].default_value=(repeat,repeat,1)
         material.node_tree.links.new(uv.outputs['UV'],mapping.inputs['Vector'])
         for node in list(nodes):
@@ -168,7 +168,7 @@ for kind,mats in [('plush',[fur,ear_fur]),('twill',[jersey_red,jersey_wht,cap_re
                 node.image=texture;material.node_tree.links.new(mapping.outputs['Vector'],node.inputs['Vector'])
             if node.type=='NORMAL_MAP':node.inputs['Strength'].default_value=.85 if kind=='knit' else .65 if kind=='plush' else .48
         bsdf=nodes.get('Principled BSDF');bsdf.inputs['Roughness'].default_value=.96 if kind=='knit' else .86 if kind=='plush' else .78
-        bsdf.inputs['Sheen Weight'].default_value=.15 if kind=='knit' else .05
+        bsdf.inputs['Sheen Weight'].default_value=.25 if kind in ('knit','plush') else .05
         bsdf.inputs['Specular IOR Level'].default_value=.12 if kind=='knit' else .18 if kind=='twill' else .25
         # Embedded albedo grain survives GLB export, unlike Blender-only noise nodes.
         # Gentle yarn/fibre shading also remains visible under broad, soft lights.
