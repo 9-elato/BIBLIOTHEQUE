@@ -42,8 +42,8 @@ ADD_UFC_CAP = True
 ADD_YELLOW_FX = False
 
 # 모델 디자인 색상: 6자리 sRGB HEX
-FUR_HEX   = "FFE8C4"   # 크림 래브라도
-EAR_HEX   = "F4D7B3"   # 귀 안쪽보다 살짝 어두운 털
+FUR_HEX   = "FFE0B5"   # 크림 래브라도
+EAR_HEX   = "F1CFA6"   # 귀 안쪽보다 살짝 어두운 털
 RED_HEX   = "AC0920"   # 붉은 유니폼
 WHITE_HEX = "FFF9F1"
 BLACK_HEX = "24252B"
@@ -585,6 +585,79 @@ for material in [fur,ear_fur,jersey_red,jersey_wht,scarf_red,scarf_cream,cap_red
     normal=nodes.new('ShaderNodeNormalMap');normal.inputs['Strength'].default_value=.12
     links.new(tex.outputs['Color'],normal.inputs['Color']);links.new(normal.outputs['Normal'],nodes.get('Principled BSDF').inputs['Normal'])
 # Less washed-out lighting keeps the jersey crimson and the fur warm cream.
+
+# Match the fox's sculpted, continuous silhouettes while retaining Labrador anatomy.
+remove_named('Soft floppy hanging ear')
+for side,sign in [('L',-1),('R',1)]:
+    profiles=[(2.86,.77,-.04,.025,.025),(2.75,.94,-.12,.20,.16),(2.53,1.055,-.22,.27,.21),(2.28,1.07,-.29,.255,.215),(2.06,1.02,-.32,.18,.17),(1.96,.99,-.31,.035,.04)]
+    vertices=[];faces=[];segments=24
+    for z,cx,cy,rx,ry in profiles:
+        for j in range(segments):
+            a=j*2*pi/segments
+            vertices.append((sign*cx+rx*cos(a),cy+ry*sin(a),z))
+    for i in range(len(profiles)-1):
+        for j in range(segments):
+            k=i*segments+j;n=i*segments+(j+1)%segments
+            faces.append((k,k+segments,n+segments,n))
+    faces.append(tuple(reversed(range(segments))))
+    faces.append(tuple(range((len(profiles)-1)*segments,len(vertices))))
+    geometry('Sculpted floppy ear '+side,vertices,faces,[ear_fur],subsurf=1)
+    line('Soft inner ear fold '+side,[(sign*.89,-.29,2.64),(sign*.92,-.43,2.38),(sign*.94,-.44,2.16)],.009,fur)
+# Keep the shoulder stripes on the white sleeve, following its curved surface.
+remove_named('Shoulder accent')
+for sign,side in [(-1,'L'),(1,'R')]:
+    for j in range(3):
+        sleeve=bpy.data.objects.get('White uniform sleeve '+side)
+        bpy.context.view_layer.update()
+        u=(j-1)*.23;r=math.sqrt(1-u*u)
+        points=[tuple(sleeve.matrix_world@Vector((u,-r*cos(a)*1.012,r*sin(a)*1.012))) for a in [.15,.4,.65]]
+        line('Inset shoulder stripe '+side+str(j),points,.008,jersey_red)
+# Replace stacked rectangular scarf blocks with a padded, striped continuous drape.
+for prefix in ['Hanging scarf','Ivory scarf','Knitted white fringe','Scarf emblem']:remove_named(prefix)
+vertices=[];faces=[];ids=[];rows=32;cols=8
+for back in [False,True]:
+    for i in range(rows+1):
+        t=i/rows;cx=.46+.18*t;cy=-.40-.30*sin(t*pi*.6);z=1.74-1.07*t
+        for j in range(cols+1):
+            u=2*j/cols-1
+            y=cy+(.055 if back else -.055-.025*(1-u*u))
+            vertices.append((cx+u*.175,y,z+.02*u*sin(t*pi)))
+stride=cols+1;layer=(rows+1)*stride
+for back in [False,True]:
+    offset=layer if back else 0
+    for i in range(rows):
+        for j in range(cols):
+            k=offset+i*stride+j
+            faces.append((k+stride,k+stride+1,k+1,k) if not back else (k,k+1,k+stride+1,k+stride));ids.append((i//5)%2)
+for i in range(rows):
+    for j in [0,cols]:
+        k=i*stride+j;faces.append((k,k+stride,k+stride+layer,k+layer));ids.append((i//5)%2)
+for i in [0,rows]:
+    for j in range(cols):
+        k=i*stride+j;faces.append((k,k+layer,k+layer+1,k+1));ids.append((i//5)%2)
+geometry('Hanging scarf sculpted striped drape',vertices,faces,[scarf_red,scarf_cream],ids,subsurf=1)
+for j in range(5):
+    fringe=sphere('Knitted white fringe rounded '+str(j),(.50+j*.067,-.69,.61),(.035,.065,.105),scarf_cream,16,10)
+    fringe.rotation_euler[1]=-.10
+cannon_symbol('Scarf emblem woven',.59,-.78,1.0,.16,scarf_cream)
+# Short ribbed knit rows add relief without a dense strand simulation.
+for i in range(16):
+    t=(i+.5)/16;cx=.46+.18*t;cy=-.40-.30*sin(t*pi*.6)-.082;z=1.74-1.07*t
+    line('Scarf knit rib '+str(i),[(cx-.14,cy+.012,z),(cx,cy,z+.005),(cx+.14,cy+.012,z)],.0025,scarf_red if int(t*32)//5%2==0 else scarf_cream)
+# Slightly oval eyes and discreet nostrils, matching the example's small features.
+for obj in root.children_recursive:
+    if obj.name.startswith('Shiny black oval'):obj.scale=(.125,.068,.172)
+    if obj.name.startswith('Black glove right fist'):
+        for v in obj.data.vertices:
+            v.co.x=math.copysign(abs(v.co.x)**.82,v.co.x)
+            v.co.z=math.copysign(abs(v.co.z)**.86,v.co.z)
+for sign in [-1,1]:sphere('Nose nostril '+str(sign),(sign*.075,-.88,2.285),(.018,.009,.012),smile_mat,12,8)
+# Newly sculpted surfaces need their own UVs for the shared grain texture.
+for obj in root.children_recursive:
+    if obj.type=='MESH' and not obj.data.uv_layers:
+        uv=obj.data.uv_layers.new(name='SurfaceUV')
+        for loop in obj.data.loops:
+            v=obj.data.vertices[loop.vertex_index].co;uv.data[loop.index].uv=(v.x*.5+.5,v.z*.5+.5)
 
 # 10. 노란 응원 표시 (렌더 소품, GLB 내보내기에서는 제외) -----------
 fx_objects=[]
