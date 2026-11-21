@@ -9,6 +9,7 @@ import {nearbySeat} from './seating.js'
 export function interactionAt(s, {entranceOpen, gateReady, gateOpening=false, bookcases=[], heldBook, canPlace=false,world}) {
   const near = (x,z,r=1.8) => Math.hypot(s.x-x,s.z-z)<r
   if (s.seated) return s.seated.phase&&s.seated.phase!=='seated'?null:{type:'stand',label:heldBook?'책을 들고 일어나기':'일어나기'}
+  if(s.level===0&&world?.verandaDoor&&near(-10.2,-6.7,2))return {type:'verandaDoor',label:world.verandaDoor.open?'바다 마루 문 닫기':'바다 마루 문 열기'}
   const seat=nearbySeat(s,world)
   if(seat)return {type:'seat',seat,label:seat.label+(heldBook?'에 앉아 읽기':'에 앉기')}
   if(Math.abs(s.level-7.2)<.1&&world?.glassDoor&&near(0,-6.95,2.65))return {type:'glassDoor',label:Math.abs(s.x)<1.7&&s.z<-6.5&&s.z>-8.8?'유리문에서 한 걸음 물러나기':world.glassDoor.open?'온실 유리문 닫기':'온실 유리문 열기'}

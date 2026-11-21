@@ -13,7 +13,7 @@ export function genreOf(category) {
 }
 
 export const ROOM_SPOTS = {
-  greenhouse:[0,-6,7.2,0], vestibule:[0,9.3,0,0], 'garden-west':[-5.6,17.75,0,Math.PI], 'garden-east':[5.6,23.75,0,Math.PI],
+  veranda:[-10.2,-8.5,0,0], greenhouse:[0,-6,7.2,0], vestibule:[0,9.3,0,0], 'garden-west':[-5.6,17.75,0,Math.PI], 'garden-east':[5.6,23.75,0,Math.PI],
   estate:[0,23,0,0], main:[0,5.5,0,0], lounge:[-8.8,0,0,-Math.PI/2],
   stacks:[8.4,0,0,Math.PI/2], corridor:[0,-9,0,0], secret:[0,-20,0,0],
   mezzanine:[-6.35,-5.7,7.2,Math.PI], reading:[8.2,0,7.2,Math.PI/2], attic:[-15.6,4.4,10.6,0], atticbed:[atticX(-15.6),-.4,10.6,0], stairs:[-6.35,6.1,0,0]
@@ -68,7 +68,12 @@ const SOLIDS = [
   [0,-28.75,13.7,.9],[-6.45,-24.8,.92,7.9]
 ]
 
-export function canWalk(x,z,{end,gateReady,entranceOpen}) {
+export function canWalk(x,z,{end,gateReady,entranceOpen,verandaDoor}) {
+  if(x < -8.8 && z < -6.35){
+    if(z > -7.15)return Math.abs(x+10.2)<.64 && verandaDoor?.open && (verandaDoor?.amount??0)>.85
+    if(x<=-20.25||x>=-9.05||z<=-13.7)return false
+    return !(Math.abs(x+15)<1.1&&Math.abs(z+11)<.8)
+  }
   const ax = Math.abs(x)
   if (z > 11.3) {
     if (z < 12.25) return entranceOpen && ax < 1.23
@@ -94,6 +99,7 @@ export function canWalk(x,z,{end,gateReady,entranceOpen}) {
 export function zoneAt(x,z) {
   if (z > 12.2) return '저택 정원'
   if (z > 7.1) return '현관'
+  if (x < -8.8 && z < -6.7) return '바다 마루'
   if (x < -7.5) return '벽난로 라운지'
   if (x > 7.5) return '서가'
   if (z < -19) return '개인 작업실'

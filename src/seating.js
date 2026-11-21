@@ -13,6 +13,8 @@ function seat(id,label,x,z,turn,level,height,side=0,front=.24,approach=1.12){
 }
 const sofaNames=['버건디 긴 소파','딥그린 소파','가죽 소파','독서 안락의자']
 export const SEATS=[
+ seat('veranda-west','바다 마루 서쪽 방석',-17.5,-11.8,Math.PI,0,.24,0,0,1.12),
+ seat('veranda-east','바다 마루 동쪽 방석',-12.5,-11.8,Math.PI,0,.24,0,0,1.12),
  ...GARDEN_SEATING.map(s=>seat(s.id,s.label,s.x,s.z,s.turn,GARDEN_LEVEL,s.height,s.side||0,.1,1.15)),
  seat('study-window','작업실 창가 벤치',6.25,-21.3,-Math.PI/2,0,.67,0,.10,1.13),
  {...seat('study-desk','작업실 집필 의자',0,-27.3,Math.PI,0,.62,0,.1,1.13),entry:{x:1.5,z:-26.17}},

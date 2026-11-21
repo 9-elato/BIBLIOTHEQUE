@@ -36,16 +36,18 @@ export default function LibraryDetails(){
    <pointLight position={[0,1.48,-.98]} color="#ffe0a1" intensity={1.8} distance={3.5}/>
   </group>
   {/* Close the hall above the ground-floor openings; layered cornices frame the atrium. */}
+  {[-6.95,7.35].map(z=><Piece key={'extension'+z} p={[0,13.9,z]} s={[15.7,4.6,.25]} c="#d8c6aa"/>)}
+  {[-7.75,7.75].map(x=><Piece key={x} p={[x,13.4,.1]} s={[.25,5.6,14.6]} c="#d8c6aa"/>)}
   {[-6.95,7.35].map(z=><group key={z}>
    {z<0?<><Piece p={[-4.65,8.5,z]} s={[6.3,6.4,.23]} c="#d8c6aa"/><Piece p={[4.65,8.5,z]} s={[6.3,6.4,.23]} c="#d8c6aa"/><Piece p={[0,11.2,z]} s={[3,1,.23]} c="#d8c6aa"/><Piece p={[0,6.1,z]} s={[3,2,.23]} c="#d8c6aa"/></>:<Piece p={[0,8.5,z]} s={[15.6,6.4,.23]} c="#d8c6aa"/>}
    {[7.1,11.3,11.5].map(y=><Piece key={y} p={[0,y,z+(z<0?.15:-.15)]} s={[15.5,.16,.25]} c={y<6?'#795334':'#c1a477'}/>)}
    {(z<0?[-5,-2.5,2.5,5]:[-5,-2.5,0,2.5,5]).map(x=><Piece key={x} p={[x,7.6,z+(z<0?.14:-.14)]} s={[.095,3.9,.12]} c="#bd9a70"/>)}
   </group>)}
   <Piece p={[-7.75,8,-.95]} s={[.2,5.4,11.6]} c="#d8c6aa"/>
-  <Piece p={[0,11.75,.1]} s={[15.7,.2,14.6]} c="#e4d3b8"/>
+  <Piece p={[0,16.2,.1]} s={[15.7,.2,14.6]} c="#e4d3b8"/>
   {[-5,-2.5,0,2.5,5].map(z=><group key={z}>
-   <Piece p={[0,11.53,z]} s={[15.5,.28,.22]} c="#67472e" map={wood}/>
-   <Piece p={[0,11.35,z]} s={[15.5,.08,.32]} c="#b59056"/>
+   <Piece p={[0,15.98,z]} s={[15.5,.28,.22]} c="#67472e" map={wood}/>
+   <Piece p={[0,15.8,z]} s={[15.5,.08,.32]} c="#b59056"/>
   </group>)}
  </group>
 }

@@ -50,12 +50,12 @@ export function AtticDetails({time}){return <group>
   <pointLight position={[-2,1.55,-4.1]} color="#ffd29b" intensity={time==='evening'?9:6} distance={7}/>
   <AntiqueLamp p={[2.3,1.25,-5.4]} time={time}/>
   <Folios p={[3.1,1.28,-5.4]}/>
-  <B p={[0,1.7,-6.38]} s={[8.3,3.4,.13]} c="#c5b697"/>
-  <mesh position={[0,3.4,-6.38]}>
+  <B p={[0,2.13,-6.38]} s={[8.72,4.26,.13]} c="#c5b697"/>
+  <mesh position={[0,4.26,-6.38]}>
    <bufferGeometry>
-    <bufferAttribute attach="attributes-position" args={[new Float32Array([-4.15,0,0,4.15,0,0,0,2.9,0]),3]}/>
+    <bufferAttribute attach="attributes-position" args={[new Float32Array([-4.36,0,0,4.36,0,0,0,3.36,0]),3]}/>
    </bufferGeometry>
-   <meshBasicMaterial color="#bcad91"/>
+   <meshBasicMaterial color="#bcad91" side={2}/>
   </mesh>
   {[.17,1.16,3.35].map(h=><B key={h} p={[0,h,-6.28]} s={[8.25,.10,.11]} c="#896846"/>)}
   <B p={[3.99,.6,-.77]} s={[.11,1.2,11.25]} c="#795d46"/>
