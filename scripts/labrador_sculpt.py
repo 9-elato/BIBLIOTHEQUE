@@ -148,6 +148,18 @@ for obj in root.children_recursive:
             vertex.co.x+=.012*sin(t*pi*2)
     if obj.name.startswith(('Scarf emblem','Knitted white fringe')):obj.location.y-=.03
 # Separate embedded surface maps: plush grain, fine twill, and larger knit loops.
+import numpy as np
+# A tile of short, gently curved fibres: no evenly spaced grooves or coarse grains.
+fy,fx=np.mgrid[0:128,0:128];fibre_height=np.zeros((128,128))
+fibre_rng=np.random.default_rng(81)
+for _ in range(480):
+    cx,cy=fibre_rng.uniform(0,128,2);angle=fibre_rng.uniform(-.5,.5)
+    dx=(fx-cx+64)%128-64;dy=(fy-cy+64)%128-64
+    along=dy*np.cos(angle)+dx*np.sin(angle)
+    across=dx*np.cos(angle)-dy*np.sin(angle)-.035*along*along
+    fibre_height+=np.exp(-(across/.48)**2-(along/fibre_rng.uniform(2,5))**4)*.35
+fibre_height=np.clip(fibre_height,0,1)
+fibre_dy,fibre_dx=np.gradient(fibre_height)
 for kind,mats in [('plush',[fur,ear_fur]),('twill',[jersey_red,jersey_wht,cap_red]),('knit',[scarf_red,scarf_cream])]:
     texture=bpy.data.images.new('Labrador '+kind+' normal',width=128,height=128)
     texture.colorspace_settings.name='Non-Color';pixels=[]
@@ -166,8 +178,8 @@ for kind,mats in [('plush',[fur,ear_fur]),('twill',[jersey_red,jersey_wht,cap_re
             elif kind=='twill':nx=.09*sin((x+y)*pi/3);ny=.07*cos((x-y)*pi/3)
             else:
                 # Fine directional nap, with less speckled relief than random grains.
-                nx=(random.random()-.5)*.12
-                ny=(random.random()-.5)*.12
+                nx=-float(fibre_dx[y,x])*.55
+                ny=-float(fibre_dy[y,x])*.55
             pixels.extend((.5+nx,.5+ny,1,1))
     texture.pixels=pixels;texture.pack()
     for material in mats:
@@ -191,7 +203,7 @@ for kind,mats in [('plush',[fur,ear_fur]),('twill',[jersey_red,jersey_wht,cap_re
         rng=random.Random(47)
         for py in range(128):
             for px in range(128):
-                detail=(stitch_height(px,py)-.35)*.19 if kind=='knit' else .035*sin((px+py)*pi/3) if kind=='twill' else 0
+                detail=(stitch_height(px,py)-.35)*.19 if kind=='knit' else .035*sin((px+py)*pi/3) if kind=='twill' else (float(fibre_height[py,px])-.15)*.12
                 shade=1+detail+(rng.random()-.5)*(.025 if kind=='plush' else .07)
                 colours.extend((*[min(1,max(0,c*shade)) for c in base[:3]],1))
         grain.pixels=colours;grain.pack()

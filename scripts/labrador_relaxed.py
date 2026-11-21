@@ -34,3 +34,19 @@ for obj in list(root.children_recursive):
 # 13. Longer, softer sleeve rim transition at the relaxed shoulder.
 for obj in root.children_recursive:
     if obj.name=='Red cuff R':obj.scale.y*=1.04
+
+# Project real knit stitches onto the evaluated folded fabric; avoid floating dots.
+bpy.context.view_layer.update()
+cloth=bpy.data.objects.get('Hanging scarf soft wool drape')
+stitches=bpy.data.objects.get('Hanging scarf raised yarn stitches')
+if cloth and stitches:
+    evaluated=cloth.evaluated_get(bpy.context.evaluated_depsgraph_get())
+    cloth_inv=cloth.matrix_world.inverted();stitch_inv=stitches.matrix_world.inverted()
+    for vertex in stitches.data.vertices:
+        world=stitches.matrix_world@vertex.co
+        origin=cloth_inv@Vector((world.x,-3,world.z))
+        direction=(cloth_inv.to_3x3()@Vector((0,1,0))).normalized()
+        hit,point,normal,index=evaluated.ray_cast(origin,direction)
+        if hit:
+            surface=cloth.matrix_world@point;surface.y-=.0025
+            vertex.co=stitch_inv@surface

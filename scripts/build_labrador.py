@@ -777,6 +777,16 @@ for name,objects in regions.items():
         bpy.ops.object.join();obj=bpy.context.object;matrix=obj.matrix_world.copy()
         obj.parent=pivot;obj.matrix_world=matrix;obj.name=name+'_material_'+str(index)
 
+# The selected multi-view fit is applied identically in preview and web export.
+import sys,json
+sys.path.insert(0,os.path.dirname(__file__))
+from labrador_fit import capture_meshes,apply_fit
+fit_path=os.path.join(os.path.dirname(__file__),'labrador_fit_parameters.json')
+if os.path.exists(fit_path) and os.environ.get('LABRADOR_APPLY_FIT','1')!='0':
+    bpy.context.view_layer.update()
+    with open(fit_path,encoding='utf-8-sig') as fit_file:fit_parameters=json.load(fit_file)['parameters']
+    apply_fit(capture_meshes(root),fit_parameters)
+
 os.makedirs(OUTPUT_DIR,exist_ok=True)
 base=os.path.join(OUTPUT_DIR,'Labrador_Arsenal_UFC')
 scene.render.filepath=base+'.png'

@@ -1,0 +1,15 @@
+{
+  "parameters": {
+    "head_width": 0.936689097308659,
+    "head_height": 1.1357905670405166,
+    "body_width": 1.0638290547697862,
+    "body_height": 1.0306876186033032,
+    "leg_height": 1.079387402380648,
+    "depth": 0.8801513095628857,
+    "ear_length": 0.9732970135061635,
+    "ear_width": 1.25
+  },
+  "mean_silhouette_iou": 0.8700832939260243,
+  "iteration": 113,
+  "metric": "silhouette IoU, NOT perceptual similarity"
+}
