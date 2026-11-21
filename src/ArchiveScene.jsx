@@ -8,7 +8,7 @@ import LoungeBlanket from './LoungeBlanket'
 import {toggleGlassDoor} from './greenhouseLayout'
 import StudyRoom from './StudyRoom'
 import {toggleStudyDoor} from './studyLayout'
-import {movementVector,facingForMovement} from './cameraMovement'
+import {movementVector,facingForMovement,frontViewYaw} from './cameraMovement'
 import {ATTIC_EXPANSION} from './atticLayout'
 import PaperSpirits from './PaperSpirits'
 import AtmosphereDetails from './AtmosphereDetails'
@@ -127,6 +127,13 @@ function WalkControl({verandaDoor,blanket,onBlanket,glassDoor,studyDoor,onMusic,
       if(ui.blocked||ui.mode==='overview'||e.target?.matches?.('input,textarea,select,[contenteditable]'))return
       if(MOVE.includes(e.code)){e.preventDefault();s.keys.add(e.code)}
       if(e.code==='KeyE'&&!e.repeat){e.preventDefault();interact()}
+      if(e.code==='KeyF'&&!e.repeat&&!tour.current?.running){
+        e.preventDefault()
+        const facing=ui.mode==='first'&&!s.seated?-s.yaw:s.bodyYaw
+        s.bodyYaw=facing;s.yaw=frontViewYaw(facing);s.pitch=-.05
+        s.keys.clear();s.pointer=null
+        window.dispatchEvent(new Event('library-third-person'))
+      }
     }
     const keyUp=e=>s.keys.delete(e.code)
     const reset=()=>{s.keys.clear();s.pointer=null}

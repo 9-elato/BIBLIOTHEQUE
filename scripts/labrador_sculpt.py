@@ -217,6 +217,7 @@ for obj in root.children_recursive:
     if obj.name.startswith(('Red snapback','Cap panel seam','Cap top covered','Sideways red cap brim','Cap UFC','Black cap adjustment','Small strap hole')):
         obj.matrix_world=transform @ obj.matrix_world
 exec(compile(open(os.path.join(os.path.dirname(__file__),'labrador_plush.py'),encoding='utf-8-sig').read(),'labrador_plush.py','exec'))
+exec(compile(open(os.path.join(os.path.dirname(__file__),'labrador_relaxed.py'),encoding='utf-8-sig').read(),'labrador_relaxed.py','exec'))
 
 # Recalculate normals and UVs on the new closed organic meshes.
 import bmesh

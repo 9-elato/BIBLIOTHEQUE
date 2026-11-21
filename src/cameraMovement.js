@@ -7,3 +7,5 @@ export function facingForMovement(previous,dx,dz,dt){
  const target=Math.atan2(-dx,-dz)
  return previous+Math.atan2(Math.sin(target-previous),Math.cos(target-previous))*(1-Math.exp(-12*Math.min(dt,.1)))
 }
+// Orbit to the avatar's front without rotating its body.
+export function frontViewYaw(bodyYaw){return Math.PI-bodyYaw}

@@ -8,6 +8,15 @@ const data=readFileSync(new URL('../public/models/labrador_arsenal.glb',import.m
 // Node validates geometry/animation; embedded image headers are checked separately below.
 const loader=new GLTFLoader().register(()=>({name:'node-test-texture',loadTexture:()=>Promise.resolve(new Texture())}))
 const gltf=await loader.parseAsync(data.buffer.slice(data.byteOffset,data.byteOffset+data.byteLength),'')
+
+test('relaxed Labrador keeps an animatable bare arm without boxing materials',()=>{
+ const json=JSON.parse(data.toString('utf8',20,20+data.readUInt32LE(12)))
+ assert.ok(!json.materials.some(m=>/glove/i.test(m.name)))
+ const arm=gltf.scene.getObjectByName('LabradorArmR')
+ assert.ok(arm)
+ let meshes=0;arm.traverse(o=>{if(o.isMesh)meshes++})
+ assert.ok(meshes>0)
+})
 test('labrador export contains animated parts within a real-time mesh budget',()=>{
  const model=prepareLabrador(gltf.scene)
  assert.equal(Object.keys(model.parts).length,6)
