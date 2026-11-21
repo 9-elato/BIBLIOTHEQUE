@@ -70,18 +70,35 @@ for obj in root.children_recursive:
     if obj.name.startswith('Small strap hole'):obj.location.y=-.769;obj.location.z=2.86
 sphere('Cap top covered button',(0,-.015,3.54),(.085,.075,.036),cap_red,20,12)
 for a in [-2.8,-2.2,-.85,.2,1.4]:
-    line('Cap panel seam '+str(a),[(rx*cos(a),y+ry*sin(a),z+.006) for x,y,z,rx,ry in profiles[:-1]],.003,cap_red)
-# A broad rear brim curves down around the head, with just its right edge visible.
-v=[];f=[]
-for row in range(3):
-    for j in range(17):
-        a=-.55+j*pi*.55/16;spread=max(0,sin(pi*j/16))**.55;r=.96+row*.22*spread
-        v.append((r*cos(a),.03+r*.76*sin(a),2.95-.035*row-.04*row*row*spread))
-for row in range(2):
-    for j in range(16):k=row*17+j;f.append((k,k+1,k+18,k+17))
+    line('Cap panel seam '+str(a),[(rx*cos(a),y+ry*sin(a),z+.006) for x,y,z,rx,ry in profiles[1:-1]],.003,cap_red)
+# Rear visor: every vertex stays behind the forehead (positive Blender Y).
+# Its crescent wraps around the back of the head and curls down at the outer rim.
+v=[];f=[];rows=6;columns=32
+for row in range(rows+1):
+    t=row/rows
+    for j in range(columns+1):
+        a=pi*.12+j*pi*.76/columns;spread=sin(pi*j/columns)**.65
+        x=(.93+.17*t*spread)*cos(a)
+        y=.04+(.65+.46*t*spread)*sin(a)
+        z=2.89-.08*t-.17*t*t*spread
+        v.append((x,y,z))
+for row in range(rows):
+    for j in range(columns):
+        k=row*(columns+1)+j;f.append((k,k+1,k+columns+2,k+columns+1))
 brim=geometry('Sideways red cap brim',v,f,[cap_red],subsurf=1)
-solid=brim.modifiers.new('Visor thickness','SOLIDIFY');solid.thickness=.045
-label('Cap UFC lettering','UFC',.53,-.60,3.13,.25,letter_mat)
+solid=brim.modifiers.new('Rounded rear visor thickness','SOLIDIFY');solid.thickness=.035
+cap_text=label('Cap UFC lettering','UFC',.45,-.60,3.13,.25,letter_mat)
+bpy.ops.object.select_all(action='DESELECT');cap_text.select_set(True);bpy.context.view_layer.objects.active=cap_text
+bpy.ops.object.convert(target='MESH');cap_text=bpy.context.object
+bpy.context.view_layer.update();matrix=cap_text.matrix_world.copy();inverse=matrix.inverted()
+for vertex in cap_text.data.vertices:
+    world=matrix@vertex.co;z=world.z
+    for low,high in zip(profiles,profiles[1:]):
+        if low[2]<=z<=high[2]:
+            t=(z-low[2])/(high[2]-low[2]);rx=low[3]+t*(high[3]-low[3])-.012;ry=low[4]+t*(high[4]-low[4])-.01
+            world.y=-.015-ry*math.sqrt(max(.02,1-(world.x/rx)**2))-.009
+            break
+    vertex.co=inverse@world
 # Plush proportions: one broad head, a round belly and soft, short paws.
 from mathutils import Matrix
 head=bpy.data.objects.get('Giant round Labrador head');head.scale=(1.10,.83,.85);head.location.z=2.42
@@ -100,11 +117,68 @@ for obj in root.children_recursive:
         obj.location.x*=1.13;obj.location.y-=.065;obj.scale.x*=1.06
     if n.startswith(('Hanging scarf','Scarf knit rib','Scarf emblem','Knitted white fringe')):
         obj.location.y-=.055
+# Soft cheek-to-chin transition, rather than a flat lower face.
+for vertex in head.data.vertices:
+    z=vertex.co.z
+    vertex.co.x*=1+.035*math.exp(-((z+.25)/.3)**2)-.09*max(0,-z-.35)
+    if vertex.co.y<0:vertex.co.y*=1+.025*(1-z*z)
+# Ears sit against the cheeks and taper inward toward their rounded tips.
+remove_named('Soft inner ear fold')
+for obj in root.children_recursive:
+    if obj.name.startswith('Sculpted floppy ear'):
+        for vertex in obj.data.vertices:
+            t=max(0,min(1,(2.55-vertex.co.z)/.6))
+            vertex.co.z-=.10*t;vertex.co.x-=math.copysign(.045*t,vertex.co.x);vertex.co.y-=.025*t
+# Make the scarf padded, with soft edge rolls instead of engraved horizontal bars.
+remove_named('Scarf knit rib')
+for obj in root.children_recursive:
+    if obj.name.startswith('Hanging scarf sculpted'):
+        for vertex in obj.data.vertices:
+            t=max(0,min(1,(1.74-vertex.co.z)/1.07));cx=.46+.18*t
+            u=max(-1,min(1,(vertex.co.x-cx)/.175))
+            if vertex.co.y<-.5:vertex.co.y-=.035*(1-u*u)
+            vertex.co.x+=.012*sin(t*pi*2)
+    if obj.name.startswith(('Scarf emblem','Knitted white fringe')):obj.location.y-=.03
+# Separate embedded surface maps: plush grain, fine twill, and larger knit loops.
+for kind,mats in [('plush',[fur,ear_fur]),('twill',[jersey_red,jersey_wht,cap_red]),('knit',[scarf_red,scarf_cream])]:
+    texture=bpy.data.images.new('Labrador '+kind+' normal',width=128,height=128)
+    texture.colorspace_settings.name='Non-Color';pixels=[]
+    random.seed(31)
+    for y in range(128):
+        for x in range(128):
+            if kind=='knit':
+                phase=x*pi/4+(.9 if (y//8)%2 else -.9)*sin(y*pi/8)
+                nx=.24*sin(phase);ny=.18*sin(y*pi/4)
+            elif kind=='twill':nx=.09*sin((x+y)*pi/3);ny=.07*cos((x-y)*pi/3)
+            else:nx=(random.random()-.5)*.14;ny=(random.random()-.5)*.14
+            pixels.extend((.5+nx,.5+ny,1,1))
+    texture.pixels=pixels;texture.pack()
+    for material in mats:
+        nodes=material.node_tree.nodes
+        uv=nodes.new('ShaderNodeTexCoord');mapping=nodes.new('ShaderNodeMapping')
+        repeat=3 if kind=='knit' else 7
+        mapping.inputs['Scale'].default_value=(repeat,repeat,1)
+        material.node_tree.links.new(uv.outputs['UV'],mapping.inputs['Vector'])
+        for node in list(nodes):
+            if node.type=='TEX_IMAGE':
+                node.image=texture;material.node_tree.links.new(mapping.outputs['Vector'],node.inputs['Vector'])
+            if node.type=='NORMAL_MAP':node.inputs['Strength'].default_value=.45 if kind=='knit' else .22
+        bsdf=nodes.get('Principled BSDF');bsdf.inputs['Roughness'].default_value=.96 if kind=='knit' else .86 if kind=='plush' else .78
+        bsdf.inputs['Sheen Weight'].default_value=.26 if kind=='knit' else .12
+# The jersey must enclose the back of the plump torso as well as its front.
+for obj in root.children_recursive:
+    if obj.name.startswith('Red jersey tailored body'):
+        for vertex in obj.data.vertices:
+            if vertex.co.y>-.1:vertex.co.y+=.14*math.sqrt(max(0,(vertex.co.y+.1)/.5))
+    if obj.name.startswith('Curved ivory jersey hem'):
+        for spline in obj.data.splines:
+            for point in spline.bezier_points:
+                if point.co.y>-.1:point.co.y+=.14*math.sqrt(max(0,(point.co.y+.1)/.5))
 # Rotate every cap component together: a low rear crown and an inclined strap.
 # No separately floating brim or lettering after the fit adjustment.
 pivot=Vector((0,0,2.92))
 rotation=Matrix.Rotation(math.radians(-6),4,'X') @ Matrix.Rotation(math.radians(-4),4,'Y')
-transform=Matrix.Translation(pivot+Vector((0,.035,-.025))) @ rotation @ Matrix.Diagonal((1.10,1.14,1,1)) @ Matrix.Translation(-pivot)
+transform=Matrix.Translation(pivot+Vector((0,.035,.005))) @ rotation @ Matrix.Diagonal((1.12,1.18,1,1)) @ Matrix.Translation(-pivot)
 bpy.context.view_layer.update()
 for obj in root.children_recursive:
     if obj.name.startswith(('Red snapback','Cap panel seam','Cap top covered','Sideways red cap brim','Cap UFC','Black cap adjustment','Small strap hole')):

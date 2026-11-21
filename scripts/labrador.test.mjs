@@ -48,3 +48,12 @@ test('plush surface normal texture is embedded in the GLB for browser delivery',
  assert.equal(data.readUInt32BE(offset+20),128)
  assert.ok(view.byteLength>100)
 })
+
+test('fur, knit and jersey retain distinct normal maps and UV scales in the web asset',()=>{
+ const json=JSON.parse(data.toString('utf8',20,20+data.readUInt32LE(12)))
+ const materials=['Fur / warm cream','Scarf / red knit','Uniform / red fabric'].map(name=>json.materials.find(m=>m.name===name))
+ assert.equal(new Set(materials.map(m=>m.normalTexture.index)).size,3)
+ assert.deepEqual(materials[1].normalTexture.extensions.KHR_texture_transform.scale,[3,3])
+ assert.deepEqual(materials[2].normalTexture.extensions.KHR_texture_transform.scale,[7,7])
+ assert.ok(materials[1].pbrMetallicRoughness.roughnessFactor>materials[2].pbrMetallicRoughness.roughnessFactor)
+})
