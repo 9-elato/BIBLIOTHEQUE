@@ -160,13 +160,13 @@ for kind,mats in [('plush',[fur,ear_fur]),('twill',[jersey_red,jersey_wht,cap_re
     for material in mats:
         nodes=material.node_tree.nodes
         uv=nodes.new('ShaderNodeTexCoord');mapping=nodes.new('ShaderNodeMapping')
-        repeat=3 if kind=='knit' else 2 if kind=='plush' else 7
+        repeat=3 if kind=='knit' else 5 if kind=='plush' else 7
         mapping.inputs['Scale'].default_value=(repeat,repeat,1)
         material.node_tree.links.new(uv.outputs['UV'],mapping.inputs['Vector'])
         for node in list(nodes):
             if node.type=='TEX_IMAGE':
                 node.image=texture;material.node_tree.links.new(mapping.outputs['Vector'],node.inputs['Vector'])
-            if node.type=='NORMAL_MAP':node.inputs['Strength'].default_value=.85 if kind=='knit' else .65 if kind=='plush' else .48
+            if node.type=='NORMAL_MAP':node.inputs['Strength'].default_value=.85 if kind=='knit' else .25 if kind=='plush' else .48
         bsdf=nodes.get('Principled BSDF');bsdf.inputs['Roughness'].default_value=.96 if kind=='knit' else .86 if kind=='plush' else .78
         bsdf.inputs['Sheen Weight'].default_value=.25 if kind in ('knit','plush') else .05
         bsdf.inputs['Specular IOR Level'].default_value=.12 if kind=='knit' else .18 if kind=='twill' else .25
@@ -179,7 +179,7 @@ for kind,mats in [('plush',[fur,ear_fur]),('twill',[jersey_red,jersey_wht,cap_re
         for py in range(128):
             for px in range(128):
                 detail=(stitch_height(px,py)-.35)*.19 if kind=='knit' else .035*sin((px+py)*pi/3) if kind=='twill' else 0
-                shade=1+detail+(rng.random()-.5)*(.13 if kind=='plush' else .07)
+                shade=1+detail+(rng.random()-.5)*(.025 if kind=='plush' else .07)
                 colours.extend((*[min(1,max(0,c*shade)) for c in base[:3]],1))
         grain.pixels=colours;grain.pack()
         colour_node=nodes.new('ShaderNodeTexImage');colour_node.image=grain

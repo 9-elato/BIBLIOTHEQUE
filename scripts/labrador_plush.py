@@ -51,9 +51,9 @@ for face in rng.sample(list(head.data.polygons),min(650,len(head.data.polygons))
     tangent=normal.cross(Vector((0,0,1)))
     if tangent.length<.01:tangent=normal.cross(Vector((0,1,0)))
     tangent.normalize();bitangent=normal.cross(tangent)
-    tip=center+normal*(.009+rng.random()*.008)
+    tip=center+normal*(.004+rng.random()*.004)
     for direction in (tangent,bitangent):
-        k=len(fv);fv.extend((tuple(center-direction*.004),tuple(center+direction*.004),tuple(tip)))
+        k=len(fv);fv.extend((tuple(center-direction*.0015),tuple(center+direction*.0015),tuple(tip)))
         ffib.append((k,k+1,k+2))
 geometry('Cream plush short surface fibres',fv,ffib,[fur])
 # Keep the underside tips full and round, with a clear dropped silhouette.
@@ -68,33 +68,35 @@ for i in range(rings):
         # Soft lengthwise tuck along the front of the loosely wrapped knit.
         tuck=.18*front*math.exp(-((math.atan2(sin(t-pi),cos(t-pi))-.20)/.30)**2)
         fold=1+.10*cos(2*t+a)+.06*sin(3*a)-tuck
-        vv.append(((.65+radius*fold*cos(t))*cos(a),-.025+(.46+radius*fold*cos(t))*sin(a),h+radius*.9*sin(t)))
+        vv.append(((.65+radius*.62*fold*cos(t))*cos(a),-.025+(.46+radius*.62*fold*cos(t))*sin(a),h+radius*.9*sin(t)))
 for i in range(rings):
     for j in range(cross):
         k=i*cross+j;n=i*cross+(j+1)%cross;nk=((i+1)%rings)*cross+j;nn=((i+1)%rings)*cross+(j+1)%cross
         ff.append((k,nk,nn,n));ids.append((i//8)%2)
 geometry('Thick red white striped relaxed knit wrap',vv,ff,[scarf_red,scarf_cream],ids,subsurf=1)
-# Swept elliptical wool cross-sections replace the front/back sheet construction.
-# Rounded edges stay padded through a single gravity-led bend; no hard ribbon twist.
+# Broad knitted cloth folds over the shoulder, then opens under its own weight.
+# Flattened rounded sections preserve wool thickness without a tubular silhouette.
 rows=36;cross=16;vv=[];ff=[];ids=[]
 def scarf_center(t):
-    return (.49+.13*t+.055*sin(2*pi*t),-.53-.19*sin(pi*t*.8)-.07*sin(2*pi*t),1.70-1.08*t)
+    return (.48+.17*t+.025*sin(2*pi*t),-.28-.43*(1-math.exp(-11*t))+.025*sin(pi*t),1.79-1.15*t)
 def scarf_point(t,u,back=False):
     x,y,z=scarf_center(t)
-    width=.20+.018*sin(pi*t)
-    depth=.105+.02*sin(pi*t)
-    roll=.16*sin(pi*t)-.08
-    return (x+width*u,y+(1 if back else -1)*depth*math.sqrt(max(0,1-u*u))+width*u*roll,z+.025*u*sin(pi*t))
+    width=.15+.075*(1-math.exp(-5*t))
+    depth=.043+.012*math.exp(-((t-.15)/.16)**2)
+    crease=.045*cos(pi*u)*math.exp(-((t-.28)/.35)**2)
+    return (x+width*u,y+crease+(1 if back else -1)*depth,z+.035*u*sin(pi*t))
 for i in range(rows+1):
     t=i/rows;x,y,z=scarf_center(t)
     # Soft gathered fold near the shoulder; free end has a gently rounded hem.
-    hem=.72+.28*min(1,min(t,1-t)*18)
-    width=(.20+.018*sin(pi*t))*hem
-    depth=(.105+.02*sin(pi*t))*hem
+    hem=.94+.06*min(1,min(t,1-t)*30)
+    width=(.15+.075*(1-math.exp(-5*t)))*hem
+    depth=(.043+.012*math.exp(-((t-.15)/.16)**2))*hem
     for j in range(cross):
-        a=2*pi*j/cross;u=cos(a)
-        gather=.018*sin(3*a+.6)*math.exp(-((t-.18)/.2)**2)
-        vv.append((x+width*u,y+depth*sin(a)+.025*u*sin(pi*t)+gather,z+.025*u*sin(pi*t)))
+        a=2*pi*j/cross
+        u=math.copysign(abs(cos(a))**.65,cos(a))
+        v=math.copysign(abs(sin(a))**.65,sin(a))
+        crease=.045*cos(pi*u)*math.exp(-((t-.28)/.35)**2)
+        vv.append((x+width*u,y+depth*v+crease,z+.035*u*sin(pi*t)))
 for i in range(rows):
     for j in range(cross):
         k=i*cross+j;n=i*cross+(j+1)%cross
