@@ -42,7 +42,7 @@ ADD_UFC_CAP = True
 ADD_YELLOW_FX = False
 
 # 모델 디자인 색상: 6자리 sRGB HEX
-FUR_HEX   = "F2D2AA"   # 포근한 베이지색 털
+FUR_HEX   = "DDB88C"   # 깊고 따뜻한 베이지색 털
 EAR_HEX   = "F9DFBD"   # 귀 안쪽보다 살짝 어두운 털
 RED_HEX   = "9E3945"   # 차분한 붉은 직물
 WHITE_HEX = "FFF9F1"
@@ -758,7 +758,7 @@ for obj in list(root.children_recursive):
     elif n.startswith(('Right arm raised','Black glove','UFC glove','Glove finger','UFC lettering')) or n == 'Cream arm R': region = 'ArmR'
     elif n.startswith('Left soft hand') or n == 'Cream arm L': region = 'ArmL'
     regions[region].append(obj)
-pivots={'Body':(0,0,0),'LegL':(-.34,0,.42),'LegR':(.34,0,.42),'ArmL':(-.63,-.075,1.45),'ArmR':(.63,-.075,1.45),'Tail':(.43,.37,.77),'Football':(-1,-.56,1.03)}
+pivots={'Body':(0,0,0),'LegL':(-.34,0,.42),'LegR':(.34,0,.42),'ArmL':(-.63,-.075,1.45),'ArmR':(.63,-.075,1.45),'Tail':(.18,.43,.77),'Football':(-1,-.56,1.03)}
 for name,objects in regions.items():
     pivot=bpy.data.objects.new('Labrador'+name,None)
     bpy.context.collection.objects.link(pivot);pivot.parent=root;pivot.location=pivots[name]

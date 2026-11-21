@@ -9,8 +9,15 @@ for vertex in head.data.vertices:
     p.z+=.12*lower*min(1,abs(p.x))**2
     p.x*=1+.045*lower
     if p.y<0:p.y-=.055*lower*(1-min(1,abs(p.x)))
+    if p.y<0:
+        # Continuous muzzle projection, with a recessed forehead and rounded chin.
+        front=max(0,1-abs(p.x)/.85)
+        p.y-=.12*math.exp(-((p.z+.25)/.30)**2)*front
+        p.y+=.035*math.exp(-((p.z-.58)/.24)**2)*front
 for obj in root.children_recursive:
-    if obj.name.startswith('Smiling mouth'):obj.location.y-=.045
+    if obj.name.startswith('Smiling mouth'):obj.location.y-=.115
+    if obj.name.startswith(('Small round brown-black nose','Nose nostril')):obj.location.y-=.085
+    if obj.name.startswith('Shiny black oval'):obj.location.y-=.035
 # Lower ears hang slightly in front of the cheeks while their roots stay tucked in.
 for ear in ears:
     for vertex in ear.data.vertices:
@@ -126,10 +133,18 @@ geometry('Hanging scarf raised yarn stitches',yarn_vertices,yarn_faces,[scarf_re
 # Keep the raised glove in front of the longer ear rather than intersecting it.
 for obj in root.children_recursive:
     if obj.name.startswith(('Black cap adjustment','Small strap hole')):obj.location.y+=.095
-    if obj.name.startswith(('Black glove','UFC glove','Glove finger','UFC lettering')):obj.location.y-=.12
+    if obj.name.startswith(('Black glove','UFC glove','Glove finger','UFC lettering')):obj.location.y-=.37
     elif obj.name=='Cream arm R':
         for vertex in obj.data.vertices:
-            vertex.co.y-=.12*max(0,min(1,(vertex.co.z-1.30)/.25))
+            vertex.co.y-=.37*max(0,min(1,(-vertex.co.y-.08)/.30))
+
+# Tail grows from the back of the pelvis, then curls upward behind the body.
+tail_origin=Vector((.43,.37,.77));tail_root=Vector((.18,.43,.77))
+tail_rotation=Matrix.Rotation(math.radians(68),3,'Z')
+for obj in root.children_recursive:
+    if obj.name.startswith('One-piece curved'):
+        for vertex in obj.data.vertices:
+            vertex.co=tail_root+tail_rotation@(vertex.co-tail_origin)
 
 # Enlarge the complete football (panels, seams and crest) together, then refit the palm.
 # Broader short legs and slightly wider stance; keep the soles on the same floor.

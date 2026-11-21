@@ -166,8 +166,8 @@ for kind,mats in [('plush',[fur,ear_fur]),('twill',[jersey_red,jersey_wht,cap_re
             elif kind=='twill':nx=.09*sin((x+y)*pi/3);ny=.07*cos((x-y)*pi/3)
             else:
                 # Fine directional nap, with less speckled relief than random grains.
-                nx=.10*sin(x*pi/2+.4*sin(y*pi/8))+(random.random()-.5)*.08
-                ny=.035*cos(y*pi/8+x*pi/8)
+                nx=(random.random()-.5)*.12
+                ny=(random.random()-.5)*.12
             pixels.extend((.5+nx,.5+ny,1,1))
     texture.pixels=pixels;texture.pack()
     for material in mats:
