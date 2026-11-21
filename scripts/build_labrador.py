@@ -42,8 +42,8 @@ ADD_UFC_CAP = True
 ADD_YELLOW_FX = False
 
 # 모델 디자인 색상: 6자리 sRGB HEX
-FUR_HEX   = "FFE0B5"   # 크림 래브라도
-EAR_HEX   = "F1CFA6"   # 귀 안쪽보다 살짝 어두운 털
+FUR_HEX   = "FFF0D7"   # 크림 래브라도
+EAR_HEX   = "F6E2C4"   # 귀 안쪽보다 살짝 어두운 털
 RED_HEX   = "AC0920"   # 붉은 유니폼
 WHITE_HEX = "FFF9F1"
 BLACK_HEX = "24252B"
@@ -658,6 +658,8 @@ for obj in root.children_recursive:
         uv=obj.data.uv_layers.new(name='SurfaceUV')
         for loop in obj.data.loops:
             v=obj.data.vertices[loop.vertex_index].co;uv.data[loop.index].uv=(v.x*.5+.5,v.z*.5+.5)
+
+exec(compile(open(os.path.join(os.path.dirname(__file__),'labrador_sculpt.py'),encoding='utf-8-sig').read(),'labrador_sculpt.py','exec'))
 
 # 10. 노란 응원 표시 (렌더 소품, GLB 내보내기에서는 제외) -----------
 fx_objects=[]
