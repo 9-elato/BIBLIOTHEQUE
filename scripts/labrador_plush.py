@@ -5,8 +5,9 @@ ears=[o for o in root.children_recursive if o.name.startswith('Sculpted floppy e
 for vertex in head.data.vertices:
     p=vertex.co
     lower=max(0,min(1,(-p.z+.30)/.90))
-    p.z-=.10*lower
-    p.x*=1+.065*lower
+    p.z-=.15*lower
+    p.z+=.12*lower*min(1,abs(p.x))**2
+    p.x*=1+.085*lower
     if p.y<0:p.y-=.055*lower*(1-min(1,abs(p.x)))
 for obj in root.children_recursive:
     if obj.name.startswith('Smiling mouth'):obj.location.y-=.045
@@ -18,7 +19,7 @@ for ear in ears:
         vertex.co.z-=.15*fall**1.7
         center=math.copysign(1.04,vertex.co.x)
         vertex.co.x=center+(vertex.co.x-center)*(1-.03*fall)
-        vertex.co.x+=math.copysign(.06*sin(pi*fall),vertex.co.x)
+        vertex.co.x+=math.copysign(.11*sin(pi*fall)-.025*fall,vertex.co.x)
 bpy.ops.object.select_all(action='DESELECT')
 for obj in [head]+ears:
     bpy.context.view_layer.objects.active=obj
@@ -41,7 +42,7 @@ for vertex in head.data.vertices:
     if y<-.22 and 2.00<z<2.80:
         t=(z-2.00)/.8;edge=.88+.12*(1-t)
         valley=math.exp(-((abs(x)-edge)/.055)**2)*(sin(pi*t)**.65)
-        vertex.co.y+=.115*valley
+        vertex.co.y+=.145*valley
         if abs(x)>1.08:vertex.co.y-=.035*sin(pi*t)
 # Short, sparse plush fibres add a soft silhouette without a costly hair system.
 head.data.update();rng=random.Random(81);fv=[];ffib=[]
@@ -81,21 +82,21 @@ def scarf_center(t):
     return (.48+.17*t+.025*sin(2*pi*t),-.28-.43*(1-math.exp(-11*t))+.025*sin(pi*t),1.79-1.15*t)
 def scarf_point(t,u,back=False):
     x,y,z=scarf_center(t)
-    width=.15+.075*(1-math.exp(-5*t))
+    width=.16+.085*(1-math.exp(-5*t))
     depth=.043+.012*math.exp(-((t-.15)/.16)**2)
-    crease=.045*cos(pi*u)*math.exp(-((t-.28)/.35)**2)
+    crease=.060*cos(pi*u)*math.exp(-((t-.28)/.35)**2)
     return (x+width*u,y+crease+(1 if back else -1)*depth,z+.035*u*sin(pi*t))
 for i in range(rows+1):
     t=i/rows;x,y,z=scarf_center(t)
     # Soft gathered fold near the shoulder; free end has a gently rounded hem.
     hem=.94+.06*min(1,min(t,1-t)*30)
-    width=(.15+.075*(1-math.exp(-5*t)))*hem
+    width=(.16+.085*(1-math.exp(-5*t)))*hem
     depth=(.043+.012*math.exp(-((t-.15)/.16)**2))*hem
     for j in range(cross):
         a=2*pi*j/cross
         u=math.copysign(abs(cos(a))**.65,cos(a))
         v=math.copysign(abs(sin(a))**.65,sin(a))
-        crease=.045*cos(pi*u)*math.exp(-((t-.28)/.35)**2)
+        crease=.060*cos(pi*u)*math.exp(-((t-.28)/.35)**2)
         vv.append((x+width*u,y+depth*v+crease,z+.035*u*sin(pi*t)))
 for i in range(rows):
     for j in range(cross):
@@ -121,3 +122,19 @@ for obj in root.children_recursive:
     elif obj.name=='Cream arm R':
         for vertex in obj.data.vertices:
             vertex.co.y-=.12*max(0,min(1,(vertex.co.z-1.30)/.25))
+
+# Enlarge the complete football (panels, seams and crest) together, then refit the palm.
+ball_center=Vector((-1,-.56,1.03))
+ball_shift=Vector((0,-.08,-.04))
+ball_transform=Matrix.Translation(ball_center+ball_shift) @ Matrix.Scale(1.35,4) @ Matrix.Translation(-ball_center)
+bpy.context.view_layer.update()
+for obj in root.children_recursive:
+    if obj.name.startswith(('Classic 32-panel','Football cannon','Football panel seam')):
+        obj.matrix_world=ball_transform @ obj.matrix_world
+    elif obj.name=='Cream arm L':
+        for vertex in obj.data.vertices:
+            p=vertex.co;weight=max(0,min(1,(-p.y-.25)/.50))
+            target=ball_center+(p-ball_center)*1.35+ball_shift
+            p+=weight*(target-p)
+    elif obj.name.startswith('Left soft hand finger crease'):
+        obj.matrix_world=ball_transform @ obj.matrix_world

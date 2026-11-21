@@ -149,8 +149,10 @@ for kind,mats in [('plush',[fur,ear_fur]),('twill',[jersey_red,jersey_wht,cap_re
             if kind=='knit':
                 def stitch_height(px,py):
                     u=(px%8)/8;v=(py%16)/16
-                    d=min(abs(u-(.18+.32*v)),abs(u-(.82-.32*v)))
-                    return math.exp(-(d/.085)**2)
+                    # Rounded interlocking yarn loops rather than sharp V-shaped noise.
+                    u=(u+.16*sin(v*pi))%1
+                    ring=math.sqrt(((u-.5)/.31)**2+((v-.5)/.56)**2)
+                    return math.exp(-((ring-1)/.22)**2)
                 nx=.24*(stitch_height(x-1,y)-stitch_height(x+1,y))
                 ny=.24*(stitch_height(x,y-1)-stitch_height(x,y+1))
             elif kind=='twill':nx=.09*sin((x+y)*pi/3);ny=.07*cos((x-y)*pi/3)
@@ -166,7 +168,7 @@ for kind,mats in [('plush',[fur,ear_fur]),('twill',[jersey_red,jersey_wht,cap_re
         for node in list(nodes):
             if node.type=='TEX_IMAGE':
                 node.image=texture;material.node_tree.links.new(mapping.outputs['Vector'],node.inputs['Vector'])
-            if node.type=='NORMAL_MAP':node.inputs['Strength'].default_value=.85 if kind=='knit' else .25 if kind=='plush' else .48
+            if node.type=='NORMAL_MAP':node.inputs['Strength'].default_value=.65 if kind=='knit' else .25 if kind=='plush' else .48
         bsdf=nodes.get('Principled BSDF');bsdf.inputs['Roughness'].default_value=.96 if kind=='knit' else .86 if kind=='plush' else .78
         bsdf.inputs['Sheen Weight'].default_value=.25 if kind in ('knit','plush') else .05
         bsdf.inputs['Specular IOR Level'].default_value=.12 if kind=='knit' else .18 if kind=='twill' else .25
