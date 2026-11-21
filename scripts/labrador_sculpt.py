@@ -147,8 +147,12 @@ for kind,mats in [('plush',[fur,ear_fur]),('twill',[jersey_red,jersey_wht,cap_re
     for y in range(128):
         for x in range(128):
             if kind=='knit':
-                phase=x*pi/4+(.9 if (y//8)%2 else -.9)*sin(y*pi/8)
-                nx=.24*sin(phase);ny=.18*sin(y*pi/4)
+                def stitch_height(px,py):
+                    u=(px%8)/8;v=(py%16)/16
+                    d=min(abs(u-(.18+.32*v)),abs(u-(.82-.32*v)))
+                    return math.exp(-(d/.085)**2)
+                nx=.24*(stitch_height(x-1,y)-stitch_height(x+1,y))
+                ny=.24*(stitch_height(x,y-1)-stitch_height(x,y+1))
             elif kind=='twill':nx=.09*sin((x+y)*pi/3);ny=.07*cos((x-y)*pi/3)
             else:nx=(random.random()-.5)*.14;ny=(random.random()-.5)*.14
             pixels.extend((.5+nx,.5+ny,1,1))
@@ -164,7 +168,8 @@ for kind,mats in [('plush',[fur,ear_fur]),('twill',[jersey_red,jersey_wht,cap_re
                 node.image=texture;material.node_tree.links.new(mapping.outputs['Vector'],node.inputs['Vector'])
             if node.type=='NORMAL_MAP':node.inputs['Strength'].default_value=.45 if kind=='knit' else .22
         bsdf=nodes.get('Principled BSDF');bsdf.inputs['Roughness'].default_value=.96 if kind=='knit' else .86 if kind=='plush' else .78
-        bsdf.inputs['Sheen Weight'].default_value=.26 if kind=='knit' else .12
+        bsdf.inputs['Sheen Weight'].default_value=.15 if kind=='knit' else .05
+        bsdf.inputs['Specular IOR Level'].default_value=.12 if kind=='knit' else .18 if kind=='twill' else .25
 # The jersey must enclose the back of the plump torso as well as its front.
 for obj in root.children_recursive:
     if obj.name.startswith('Red jersey tailored body'):
