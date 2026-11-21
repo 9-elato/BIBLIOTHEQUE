@@ -5,9 +5,9 @@ ears=[o for o in root.children_recursive if o.name.startswith('Sculpted floppy e
 for vertex in head.data.vertices:
     p=vertex.co
     lower=max(0,min(1,(-p.z+.30)/.90))
-    p.z-=.15*lower
+    p.z-=.085*lower
     p.z+=.12*lower*min(1,abs(p.x))**2
-    p.x*=1+.085*lower
+    p.x*=1+.045*lower
     if p.y<0:p.y-=.055*lower*(1-min(1,abs(p.x)))
 for obj in root.children_recursive:
     if obj.name.startswith('Smiling mouth'):obj.location.y-=.045
@@ -19,7 +19,7 @@ for ear in ears:
         vertex.co.z-=.15*fall**1.7
         center=math.copysign(1.04,vertex.co.x)
         vertex.co.x=center+(vertex.co.x-center)*(1-.03*fall)
-        vertex.co.x+=math.copysign(.11*sin(pi*fall)-.025*fall,vertex.co.x)
+        vertex.co.x+=math.copysign(.07*sin(pi*fall)-.055*fall,vertex.co.x)
 bpy.ops.object.select_all(action='DESELECT')
 for obj in [head]+ears:
     bpy.context.view_layer.objects.active=obj
@@ -31,8 +31,6 @@ remesh=head.modifiers.new('Blend cheek and floppy ear roots','REMESH');remesh.mo
 bpy.ops.object.modifier_apply(modifier=remesh.name)
 soft=head.modifiers.new('Plush root smoothing','SMOOTH');soft.factor=.65;soft.iterations=4
 bpy.ops.object.modifier_apply(modifier=soft.name)
-dec=head.modifiers.new('Preserve silhouette web budget','DECIMATE');dec.ratio=.28
-bpy.ops.object.modifier_apply(modifier=dec.name)
 head.data.materials.clear();head.data.materials.append(fur)
 for polygon in head.data.polygons:polygon.material_index=0;polygon.use_smooth=True
 # A shallow sculpted valley separates each hanging ear from its cheek.
@@ -41,9 +39,15 @@ for vertex in head.data.vertices:
     world=head.matrix_world@vertex.co;x,y,z=world
     if y<-.22 and 2.00<z<2.80:
         t=(z-2.00)/.8;edge=.88+.12*(1-t)
-        valley=math.exp(-((abs(x)-edge)/.055)**2)*(sin(pi*t)**.65)
-        vertex.co.y+=.145*valley
+        valley=math.exp(-((abs(x)-edge)/.085)**2)*(sin(pi*t)**.9)
+        vertex.co.y+=.09*valley
         if abs(x)>1.08:vertex.co.y-=.035*sin(pi*t)
+# Sculpt on the dense surface before reduction so the cheek fold cannot form
+# sharp wedges by moving only a few already-decimated vertices.
+soft=head.modifiers.new('Soften cheek and ear fold transitions','SMOOTH');soft.factor=.5;soft.iterations=3
+bpy.ops.object.modifier_apply(modifier=soft.name)
+dec=head.modifiers.new('Preserve silhouette web budget','DECIMATE');dec.ratio=.28
+bpy.ops.object.modifier_apply(modifier=dec.name)
 # Short, sparse plush fibres add a soft silhouette without a costly hair system.
 head.data.update();rng=random.Random(81);fv=[];ffib=[]
 for face in rng.sample(list(head.data.polygons),min(650,len(head.data.polygons))):
@@ -79,11 +83,11 @@ geometry('Thick red white striped relaxed knit wrap',vv,ff,[scarf_red,scarf_crea
 # Flattened rounded sections preserve wool thickness without a tubular silhouette.
 rows=36;cross=16;vv=[];ff=[];ids=[]
 def scarf_center(t):
-    return (.48+.17*t+.025*sin(2*pi*t),-.28-.43*(1-math.exp(-11*t))+.025*sin(pi*t),1.79-1.15*t)
+    return (.46+.20*t+.025*sin(pi*t),-.48-.28*(1-math.exp(-13*t))+.045*t,1.73-1.09*t**1.15)
 def scarf_point(t,u,back=False):
     x,y,z=scarf_center(t)
     width=.16+.085*(1-math.exp(-5*t))
-    depth=.043+.012*math.exp(-((t-.15)/.16)**2)
+    depth=.057+.025*math.exp(-((t-.15)/.16)**2)
     crease=.060*cos(pi*u)*math.exp(-((t-.28)/.35)**2)
     return (x+width*u,y+crease+(1 if back else -1)*depth,z+.035*u*sin(pi*t))
 for i in range(rows+1):
@@ -91,7 +95,7 @@ for i in range(rows+1):
     # Soft gathered fold near the shoulder; free end has a gently rounded hem.
     hem=.94+.06*min(1,min(t,1-t)*30)
     width=(.16+.085*(1-math.exp(-5*t)))*hem
-    depth=(.043+.012*math.exp(-((t-.15)/.16)**2))*hem
+    depth=(.057+.025*math.exp(-((t-.15)/.16)**2))*hem
     for j in range(cross):
         a=2*pi*j/cross
         u=math.copysign(abs(cos(a))**.65,cos(a))

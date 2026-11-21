@@ -156,7 +156,10 @@ for kind,mats in [('plush',[fur,ear_fur]),('twill',[jersey_red,jersey_wht,cap_re
                 nx=.24*(stitch_height(x-1,y)-stitch_height(x+1,y))
                 ny=.24*(stitch_height(x,y-1)-stitch_height(x,y+1))
             elif kind=='twill':nx=.09*sin((x+y)*pi/3);ny=.07*cos((x-y)*pi/3)
-            else:nx=(random.random()-.5)*.36;ny=(random.random()-.5)*.36
+            else:
+                # Fine directional nap, with less speckled relief than random grains.
+                nx=.10*sin(x*pi/2+.4*sin(y*pi/8))+(random.random()-.5)*.08
+                ny=.035*cos(y*pi/8+x*pi/8)
             pixels.extend((.5+nx,.5+ny,1,1))
     texture.pixels=pixels;texture.pack()
     for material in mats:
@@ -168,9 +171,9 @@ for kind,mats in [('plush',[fur,ear_fur]),('twill',[jersey_red,jersey_wht,cap_re
         for node in list(nodes):
             if node.type=='TEX_IMAGE':
                 node.image=texture;material.node_tree.links.new(mapping.outputs['Vector'],node.inputs['Vector'])
-            if node.type=='NORMAL_MAP':node.inputs['Strength'].default_value=.65 if kind=='knit' else .25 if kind=='plush' else .48
+            if node.type=='NORMAL_MAP':node.inputs['Strength'].default_value=.65 if kind=='knit' else .40 if kind=='plush' else .48
         bsdf=nodes.get('Principled BSDF');bsdf.inputs['Roughness'].default_value=.96 if kind=='knit' else .86 if kind=='plush' else .78
-        bsdf.inputs['Sheen Weight'].default_value=.25 if kind in ('knit','plush') else .05
+        bsdf.inputs['Sheen Weight'].default_value=.4 if kind=='plush' else .25 if kind=='knit' else .05
         bsdf.inputs['Specular IOR Level'].default_value=.12 if kind=='knit' else .18 if kind=='twill' else .25
         # Embedded albedo grain survives GLB export, unlike Blender-only noise nodes.
         # Gentle yarn/fibre shading also remains visible under broad, soft lights.
