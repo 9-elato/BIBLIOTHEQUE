@@ -42,7 +42,7 @@ ADD_UFC_CAP = True
 ADD_YELLOW_FX = False
 
 # 모델 디자인 색상: 6자리 sRGB HEX
-FUR_HEX   = "FFE0B6"   # 크림 래브라도
+FUR_HEX   = "FFE1B9"   # 따뜻한 크림 래브라도
 EAR_HEX   = "F9DFBD"   # 귀 안쪽보다 살짝 어두운 털
 RED_HEX   = "B31226"   # 붉은 유니폼
 WHITE_HEX = "FFF9F1"
@@ -589,7 +589,10 @@ for material in [fur,ear_fur,jersey_red,jersey_wht,scarf_red,scarf_cream,cap_red
 # Match the fox's sculpted, continuous silhouettes while retaining Labrador anatomy.
 remove_named('Soft floppy hanging ear')
 for side,sign in [('L',-1),('R',1)]:
-    profiles=[(2.86,.77,-.04,.025,.025),(2.75,.94,-.12,.20,.16),(2.53,1.055,-.22,.27,.21),(2.28,1.07,-.29,.255,.215),(2.06,1.02,-.32,.18,.17),(1.96,.99,-.31,.035,.04)]
+    profiles=[(2.86,.77,-.04,.025,.025),(2.75,.94,-.12,.20,.16),
+              (2.53,1.055,-.22,.27,.21),(2.28,1.07,-.29,.255,.215),
+              (2.10,1.055,-.32,.235,.20),(2.01,1.05,-.33,.20,.175),
+              (1.955,1.05,-.33,.13,.12),(1.925,1.05,-.33,.025,.025)]
     vertices=[];faces=[];segments=24
     for z,cx,cy,rx,ry in profiles:
         for j in range(segments):
@@ -682,6 +685,8 @@ if PASTEL_BG:
     floor=bpy.context.object
     floor.name='STUDIO FLOOR / not in GLB'
     floor.data.materials.append(floor_mat)
+    # The turquoise backdrop must not dye the cream fur green through bounce light.
+    floor.visible_diffuse=False
 
 world=bpy.data.worlds.new('Soft ambient studio')
 world.use_nodes=True

@@ -166,7 +166,7 @@ for kind,mats in [('plush',[fur,ear_fur]),('twill',[jersey_red,jersey_wht,cap_re
         for node in list(nodes):
             if node.type=='TEX_IMAGE':
                 node.image=texture;material.node_tree.links.new(mapping.outputs['Vector'],node.inputs['Vector'])
-            if node.type=='NORMAL_MAP':node.inputs['Strength'].default_value=.45 if kind=='knit' else .22
+            if node.type=='NORMAL_MAP':node.inputs['Strength'].default_value=.75 if kind=='knit' else .32
         bsdf=nodes.get('Principled BSDF');bsdf.inputs['Roughness'].default_value=.96 if kind=='knit' else .86 if kind=='plush' else .78
         bsdf.inputs['Sheen Weight'].default_value=.15 if kind=='knit' else .05
         bsdf.inputs['Specular IOR Level'].default_value=.12 if kind=='knit' else .18 if kind=='twill' else .25
