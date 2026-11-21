@@ -7,4 +7,4 @@ export const READING_CHAIRS=[
  {id:'attic-1',label:'다락 코냑 가죽 빈백',x:atticX(-12.9),z:-3.3,level:10.6,turn:0,color:'#98714f'},
 ]
 export const CHAIR_HEIGHT=.62
-export const STUDY_CHAIR={id:'study-chair',label:'작업실 독서 안락의자',x:-4.7,z:-25,turn:0,level:0,color:'#6a5360'}
+export const STUDY_CHAIR={id:'study-chair',label:'작업실 독서 안락의자',x:-3.8,z:-25,turn:0,level:0,color:'#6a5360'}

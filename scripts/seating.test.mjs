@@ -43,7 +43,7 @@ test('every seat smoothly reaches its cushion and returns to a collision-free or
   assert.ok(first.pose.amount>0&&first.pose.amount<.01)
   assert.ok(Math.hypot(first.pose.x-from.x,first.pose.z-from.z)<.02)
   const seated=finish(start);assert.equal(seated.pose.amount,1);assert.equal(seated.pose.y,s.level+s.height)
-  assert.equal(seated.pose.x,s.anchor.x);assert.equal(seated.pose.z,s.anchor.z)
+  assert.ok(Math.abs(seated.pose.x-s.anchor.x)<1e-9);assert.ok(Math.abs(seated.pose.z-s.anchor.z)<1e-9)
   const leaving=startStanding(seated.seating,world),end=finish(leaving)
   assert.equal(end.seating,null);assert.equal(end.pose.amount,0);assert.equal(end.pose.x,from.x);assert.equal(end.pose.z,from.z)
   assert.equal(walkHeight(end.pose.x,end.pose.z,from.level,world),s.level)

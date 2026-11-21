@@ -18,7 +18,7 @@ test('study desk and window seats are reachable along clear circulation routes',
  const world={end:45,gateReady:true,entranceOpen:true,studyDoor:{amount:1,open:true}}
  for(const id of ['study-desk','study-window']){
   const seat=SEATS.find(s=>s.id===id);let p={x:0,z:-21,level:0,yaw:0}
-  const waypoints=id==='study-desk'?[[2.3,-21],[2.3,-28.1],[seat.entry.x,seat.entry.z]]:[[seat.entry.x,-21],[seat.entry.x,seat.entry.z]]
+  const waypoints=id==='study-desk'?[[2.3,-21],[2.3,-26.17],[seat.entry.x,seat.entry.z]]:[[seat.entry.x,-21],[seat.entry.x,seat.entry.z]]
   for(const [x,z] of waypoints){p=movePlayer(p,x-p.x,z-p.z,world);assert.ok(Math.hypot(p.x-x,p.z-z)<.01,id)}
  }
 })
@@ -36,4 +36,12 @@ test('study door opens away from nearby visitors on both sides and finishes in r
  const slow={open:true,amount:0};advanceStudyDoor(slow,1);assert.equal(slow.amount,1)
  const door={open:true,amount:1,swing:-1}
  assert.equal(toggleStudyDoor(door,{x:0,z:-19}),false,'do not close onto someone in doorway')
+})
+
+test('coastal study entrance reaches writing desk, left counter and right record player',()=>{
+ const world={end:45,gateReady:true,entranceOpen:true,studyDoor:{amount:1,open:true}}
+ for(const waypoints of [[[0,-24],[2.3,-26.17],[1.5,-26.17]],[[-3,-21],[-5.4,-21],[-5.4,-27.8]],[[3,-21],[5.4,-21],[5.4,-26.8]]]){
+  let p={x:0,z:-20.8,level:0,yaw:0}
+  for(const [x,z] of waypoints){p=movePlayer(p,x-p.x,z-p.z,world);assert.ok(Math.hypot(p.x-x,p.z-z)<.01,`blocked at ${x},${z}`)}
+ }
 })

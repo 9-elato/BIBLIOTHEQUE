@@ -15,8 +15,8 @@ export function interactionAt(s, {entranceOpen, gateReady, gateOpening=false, bo
   if(Math.abs(s.level-7.2)<.1&&near(0,-14,2.7))return {type:'gardenWater',label:'분수 물소리 켜고 끄기'}
   if(s.level===0&&world?.studyDoor){
    if(Math.abs(s.x)<1.3&&Math.abs(s.z+19)<3)return {type:'studyDoor',label:!canToggleStudyDoor(world.studyDoor,s)?'문 옆에서 한 걸음 물러나세요':world.studyDoor.open?'작업실 나무문 닫기':'작업실 나무문 열기'}
-   if(near(-6.25,-21.5,1.6))return {type:'music',label:'LP 플레이어와 음악 열기'}
-   if(s.x<-.5&&near(-.95,-26.72,1.85))return {type:'studyLamp',label:'책상 조명 켜고 끄기'}
+   if(near(6.40,-26.3,1.8))return {type:'music',label:'LP 플레이어와 음악 열기'}
+   if(s.x<-.5&&near(-.95,-28.72,1.85))return {type:'studyLamp',label:'책상 조명 켜고 끄기'}
   }
   const game=GAME_SPOTS.find(g=>Math.abs(s.level-g.level)<.1&&near(g.x,g.z,1.65))
   if(game)return {type:'minigame',game:game.id,label:game.title+' 시작'}

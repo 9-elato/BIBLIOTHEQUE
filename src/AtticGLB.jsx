@@ -1,4 +1,4 @@
-import AtticSky from './AtticSky'
+import AtticSky,{PanoramicRoofFrame} from './AtticSky'
 import AtticCosmos from './AtticCosmos'
 import AtticTextiles from './AtticTextiles'
 import {makeAtticTexture,makeRoofPlanks,makeChalkboard} from './atticTextures'
@@ -17,6 +17,7 @@ export default function AtticGLB({time,weather,event}){
  const model=useMemo(()=>{
   const copy=scene.clone(true)
   copy.traverse(object=>{
+   if(/^SKYLIGHT/.test(object.name)||/^ROOF.*left/.test(object.name)||/^RAFTER.*side.-1.(0\.3|3\.4)/.test(object.name))object.visible=false
    if(/^(DAYBED|TELESCOPE)/.test(object.name))object.visible=false
    if(/^SKYLIGHT/.test(object.name)&&/mid.mullion/.test(object.name))object.visible=false
    if(/^DAYBED/.test(object.name)&&/pillow|fallen.linen.throw/.test(object.name))object.visible=false
@@ -59,7 +60,7 @@ export default function AtticGLB({time,weather,event}){
  useEffect(()=>()=>model.traverse(o=>{if(o.isMesh&&(o.userData.atticMaterial||/DAYBED.*carved.frame/.test(o.name)))o.material.dispose();if(o.userData.atticGeometry)o.geometry.dispose()}),[model])
  const panel=(p,s,color='#dfd2bd')=><mesh position={p} castShadow receiveShadow><boxGeometry args={s}/><meshStandardMaterial color={color} roughness={.85}/></mesh>
  return <group><AtticDetails time={time}/><group position={ATTIC_ORIGIN}>
-  <primitive object={model}/><AtticTextiles fabric={textures.fabric}/><mesh position={[-3.67,2.8,-3.7]} rotation={[0,Math.PI/2,0]}><planeGeometry args={[2.87,2.09]}/><meshStandardMaterial map={textures.chalk} roughness={1}/></mesh><AtticSky time={time} weather={weather}/><AtticCosmos time={time} textures={textures}/><group position={[0,3.62,6.56]} rotation={[0,Math.PI,0]}><WindowLandscape width={3.86} height={3.18} time={time} weather={weather} event={event}/></group>
+  <primitive object={model}/><AtticTextiles fabric={textures.fabric}/><mesh position={[-3.67,2.8,-3.7]} rotation={[0,Math.PI/2,0]}><planeGeometry args={[2.87,2.09]}/><meshStandardMaterial map={textures.chalk} roughness={1}/></mesh><AtticSky time={time} weather={weather}/><PanoramicRoofFrame map={textures.roof}/><AtticCosmos time={time} textures={textures}/><group position={[0,3.62,6.56]} rotation={[0,Math.PI,0]}><WindowLandscape width={3.86} height={3.18} time={time} weather={weather} event={event}/></group>
   {panel([4.16,2.04,-.92],[.19,4.08,11.44])}
   {panel([4.16,2.04,6.56],[.19,4.08,.16])}
   {panel([4.16,3.37,5.64],[.19,1.42,1.68])}

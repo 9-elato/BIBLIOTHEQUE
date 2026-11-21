@@ -14,8 +14,8 @@ function seat(id,label,x,z,turn,level,height,side=0,front=.24,approach=1.12){
 const sofaNames=['버건디 긴 소파','딥그린 소파','가죽 소파','독서 안락의자']
 export const SEATS=[
  ...GARDEN_SEATING.map(s=>seat(s.id,s.label,s.x,s.z,s.turn,GARDEN_LEVEL,s.height,s.side||0,.1,1.15)),
- seat('study-window','작업실 창가 벤치',6.25,-23,-Math.PI/2,0,.67,0,.10,1.13),
- {...seat('study-desk','작업실 집필 의자',0,-28.1,0,0,.62,0,.1,1.13),entry:{x:1.5,z:-28.1}},
+ seat('study-window','작업실 창가 벤치',6.25,-21.3,-Math.PI/2,0,.67,0,.10,1.13),
+ {...seat('study-desk','작업실 집필 의자',0,-27.3,Math.PI,0,.62,0,.1,1.13),entry:{x:1.5,z:-26.17}},
   seat(STUDY_CHAIR.id,STUDY_CHAIR.label,STUDY_CHAIR.x,STUDY_CHAIR.z,0,0,CHAIR_HEIGHT,0,.10,1.13),
   ...SOFAS.flatMap((s,index)=>Array.from({length:s.seats},(_,i)=>seat(`lounge-${index}-${i}`,`${sofaNames[index]}${s.seats>1?' · '+(i+1)+'번 자리':''}`,s.x,s.z,s.turn,0,.70,(i-(s.seats-1)/2)*.72))),
   ...READING_CHAIRS.map(s=>seat(s.id,s.label,s.x,s.z,s.turn,s.level,s.level===10.6?.48:CHAIR_HEIGHT,0,.10,1.13)),

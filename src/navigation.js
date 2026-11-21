@@ -31,14 +31,14 @@ const upperRegions=[...GREENHOUSE_REGIONS,[-7.6,-5.3,-6.7,-4.85],[-7.6,-5.3,5.25
 // Bounds match the actual furniture footprints. Each box has its floor's height.
 export const FURNITURE=[
  ...[-1,1].map(a=>({floor:0,id:`estate-portico-${a}`,rect:[a*2.05-.325,a*2.05+.325,11.05,13.15]})),
- {floor:0,rect:[5.78,6.74,-24.5,-21.5],id:'study-bench'},
- {floor:0,rect:[-6.8,-5.7,-22.08,-20.92],id:'study-lp'},
- {floor:0,rect:[-7,-6.15,-27.9,-25.5],id:'study-fireplace'},
- {floor:0,rect:[-.64,.64,-28.62,-27.58],id:'study-desk-chair'},
+ {floor:0,rect:[5.78,6.74,-22.8,-19.8],id:'study-bench'},
+ {floor:0,rect:[5.8,7,-29.15,-23.45],id:'study-lp'},
+
+ {floor:0,rect:[-.64,.64,-27.82,-26.78],id:'study-desk-chair'},
  ...CONSERVATORY_SOLIDS.map(s=>({...s,floor:GALLERY_HEIGHT})),
 
-  {floor:0,rect:[-5.34,-4.06,-25.52,-24.48],id:'study-chair'},
-  {floor:0,rect:[-6.1,-5.5,-24.4,-23.8],id:'study-lamp'},
+  {floor:0,rect:[-4.44,-3.16,-25.52,-24.48],id:'study-chair'},
+  {floor:0,rect:[-4.9,-4.3,-24.4,-23.8],id:'study-lamp'},
   ...GARDEN_SOLIDS.map(s=>({...s,floor:0})),
   ...[[-17.9,-3.3],[-8.25,4.9]].map(([x,z])=>({floor:0,rect:[x-.28,x+.28,z-.28,z+.28],id:'lounge-lamp'})),
   {floor:0,rect:[-2,2,.45,3.05],id:'central-table'},
