@@ -44,7 +44,7 @@ ADD_YELLOW_FX = False
 # 모델 디자인 색상: 6자리 sRGB HEX
 FUR_HEX   = "FFE8C4"   # 크림 래브라도
 EAR_HEX   = "F4D7B3"   # 귀 안쪽보다 살짝 어두운 털
-RED_HEX   = "C81D2E"   # 붉은 유니폼
+RED_HEX   = "AC0920"   # 붉은 유니폼
 WHITE_HEX = "FFF9F1"
 BLACK_HEX = "24252B"
 
@@ -77,14 +77,14 @@ fur         = mat('Fur / warm cream', FUR_HEX, .80, sheen=.12)
 ear_fur     = mat('Fur / folded ear', EAR_HEX, .85)
 muzzle      = mat('Fur / ivory muzzle', WHITE_HEX, .82)
 blush       = mat('Cheeks / delicate cream', 'FFE3D3', .87)
-eye_mat     = mat('Eyes / glossy black', '141315', .17)
+eye_mat     = mat('Eyes / glossy black', '141315', .27)
 nose_mat    = mat('Nose / espresso', '3D3431', .34)
 smile_mat   = mat('Smile / soft dark line', '3C302C', .48)
 jersey_red  = mat('Uniform / red fabric', RED_HEX, .83, sheen=.18)
 jersey_wht  = mat('Uniform / white details', WHITE_HEX, .86, sheen=.12)
-scarf_red   = mat('Scarf / red knit', 'C81D2E', .93, sheen=.20)
+scarf_red   = mat('Scarf / red knit', 'AC0920', .93, sheen=.20)
 scarf_cream = mat('Scarf / cream knit', 'F8F0E6', .92, sheen=.21)
-cap_red     = mat('Cap / red fabric', 'C91E2D', .85, sheen=.14)
+cap_red     = mat('Cap / red fabric', 'AB091C', .9, sheen=.14)
 cap_black   = mat('Cap / adjustable strap', '3A373B', .62)
 glove_black = mat('Gloves / matte charcoal', BLACK_HEX, .71)
 glove_pad   = mat('Gloves / protective cushion', '34353C', .69)
@@ -178,13 +178,16 @@ def line(name, points, radius, material, closed=False):
 def label(name, content, x, y, z, height, material, angle=0.):
     """-Y에서 보는 정면 글씨. 이후 GLB를 위해 메시로 변환합니다."""
     data = bpy.data.curves.new(name, 'FONT')
-    data.resolution_u = 4
+    data.resolution_u = 2
     data.body = content
+    font_path='C:/Windows/Fonts/timesbd.ttf' if content=='Emirates' else 'C:/Windows/Fonts/arialbd.ttf'
+    if os.path.exists(font_path):data.font=bpy.data.fonts.load(font_path,check_existing=True)
+    if content in ['UFC','FLY BETTER']:data.shear=.12
     data.align_x = 'CENTER'
     data.align_y = 'CENTER'
     data.size = height
     data.extrude = .0012
-    data.bevel_depth = .00035
+    data.bevel_depth = 0
     data.materials.append(material)
     o = bpy.data.objects.new(name, data)
     bpy.context.collection.objects.link(o)
@@ -273,8 +276,8 @@ for j,(x,z,l) in enumerate([(-.30,1.425,.100),(-.236,1.455,.135),(-.172,1.483,.1
     b.rotation_euler[1]=-.22
 
 # 전면 문구: 방패형 Arsenal 클럽 마크는 의도적으로 없음.
-label('Jersey sponsor Emirates','Emirates',0,-.632,1.118,.199,letter_mat)
-label('Jersey sponsor FLY BETTER','FLY BETTER',0,-.639,.936,.112,letter_mat)
+label('Jersey sponsor Emirates','Emirates',0,-.632,1.118,.30,letter_mat)
+label('Jersey sponsor FLY BETTER','FLY BETTER',0,-.639,.936,.145,letter_mat)
 
 # 5. 매우 큰 둥근 머리와 래브라도 특유의 처진 귀 --------------------
 head=sphere('Giant round Labrador head',(0,-.03,2.37),(.98,.715,.77),fur,48,28)
@@ -331,7 +334,7 @@ if ADD_UFC_CAP:
     # 캡 모자 챙은 화면 오른쪽으로 삐져나오도록 위치
     brim=sphere('Sideways red cap brim',(.80,-.10,2.93),(.405,.245,.063),cap_red)
     brim.rotation_euler[2]=.16
-    label('Cap UFC lettering','UFC',.485,-.573,3.135,.194,letter_mat)
+    label('Cap UFC lettering','UFC',.485,-.573,3.135,.25,letter_mat)
 
 # 7. 목도리: 실제 둥근 목 + 전면 아래로 늘어진 끝 ---------------------
 # 큰 머리 아래(약 z=1.68)에서 두툼하게 둘러진 목도리
@@ -355,10 +358,10 @@ geometry('Thick red white striped knit scarf ring',vv,ff,
          [scarf_red,scarf_cream],ids,0)
 
 # 긴 목도리 끝은 오른쪽 가슴 앞으로 늘어뜨림
-box('Hanging scarf tail',(.376,-.657,1.179),(.325,.085,.825),scarf_red,.039)
+box('Hanging scarf tail',(.376,-.657,1.179),(.345,.13,.825),scarf_red,.065)
 for z in [1.43,1.19,.91]:
     box('Ivory scarf horizontal band %.2f'%z,(.376,-.711,z),
-        (.324,.017,.082),scarf_cream,.012)
+        (.344,.025,.14),scarf_cream,.022)
 for k in range(6):
     x=.243+k*.053
     line('Knitted white fringe %d'%k,[(x,-.706,.772),(x,-.705,.664)],
@@ -373,12 +376,13 @@ def cannon_symbol(prefix, x, y, z, scale, color):
                                 (x+scale*.70,y,z+scale*.08)],scale*.041,color)
     line(prefix+' / cannon handle',[(x-scale*.30,y,z+scale*.09),
                                   (x-scale*.47,y,z-scale*.14)],scale*.048,color)
-    sphere(prefix+' / cannon wheel',(x-scale*.05,y-.009,z-scale*.08),
-           (scale*.19,scale*.024,scale*.19),color,20,14)
-    sphere(prefix+' / wheel hub',(x-scale*.05,y-.034,z-scale*.08),
-           (scale*.064,scale*.013,scale*.064),jersey_red,16,10)
+    cx=x-scale*.05;cz=z-scale*.08
+    line(prefix+' / cannon wheel',[(cx+scale*.21*cos(i*2*pi/16),y-.02,cz+scale*.21*sin(i*2*pi/16)) for i in range(16)],scale*.022,color,True)
+    for i in range(6):
+        a=i*pi/3
+        line(prefix+' / wheel spoke '+str(i),[(cx,y-.022,cz),(cx+scale*.19*cos(a),y-.022,cz+scale*.19*sin(a))],scale*.014,color)
 
-cannon_symbol('Scarf emblem',.376,-.727,.999,.115,scarf_cream)
+cannon_symbol('Scarf emblem',.376,-.727,.999,.19,scarf_cream)
 
 # 8. 오른쪽의 UFC 장갑. 왼팔은 맨손으로 축구공을 잡음 ---------------
 # 오른팔은 따로 조금 높이 들어올린 주먹 디자인
@@ -393,7 +397,7 @@ box('UFC glove black strap',(.828,-.427,1.423),
 for i in range(3):
     sphere('Glove finger protector %d'%i,(.727+.085*i,-.557,1.537),
            (.053,.074,.056),glove_black,24,16)
-label('UFC lettering on glove','UFC',.852,-.721,1.686,.132,letter_mat)
+label('UFC lettering on glove','UFC',.852,-.721,1.686,.16,letter_mat)
 
 # 9. 정확한 패널 축구공: 정이십면체 절두로 흰 육각형+검정 오각형 ---
 BALL_CENTER=Vector((-1.000,-.560,1.03))
@@ -455,10 +459,132 @@ bevel.segments=2
 soccer.modifiers.new('Football weighted normals','WEIGHTED_NORMAL')
 
 # 앞쪽에 작은 빨간 대포 심볼 (모델링 시 축구공과 맞닿도록 배치)
-cannon_symbol('Football cannon',-1.005,-.933,1.040,.137,jersey_red)
+cannon_symbol('Football cannon',-1.005,-.933,1.040,.23,jersey_red)
 # 공을 부드럽게 안고 있는 왼손
 sphere('Left soft hand holding soccer ball',(-.688,-.490,1.257),
        (.219,.205,.210),fur)
+
+# Reference-image refinement: continuous plush silhouette and soft equipment.
+def remove_named(prefix):
+    for obj in list(root.children_recursive):
+        if obj.name.startswith(prefix): bpy.data.objects.remove(obj,do_unlink=True)
+remove_named('Cheek volume');remove_named('Soft muzzle');remove_named('Drooping ear bottom')
+for obj in root.children_recursive:
+    n=obj.name
+    if n.startswith('Giant round'):
+        obj.scale=(1.04,.76,.80)
+    if n.startswith('Soft floppy'):
+        obj.location.y=-.20;obj.location.z=2.32
+        obj.scale=(.29,.24,.50);obj.rotation_euler[1]=(-1 if obj.location.x<0 else 1)*-.24
+    if n.startswith('Shiny black oval'):
+        obj.scale=(.14,.075,.175);obj.location.y=-.752;obj.location.z=2.44
+    if n.startswith('Small round brown'):
+        obj.location=(0,-.80,2.31);obj.scale=(.16,.09,.10)
+    if n.startswith('One-piece curved'):
+        for v in obj.data.vertices:
+            v.co.x=.43+(v.co.x-.43)*.70
+            v.co.z=.6+(v.co.z-.6)*.65
+            v.co.y=.37+(v.co.y-.37)*.7
+remove_named('Smiling mouth')
+line('Smiling mouth left',[(-.30,-.744,2.18),(-.23,-.774,2.105),(-.12,-.793,2.10),(0,-.804,2.15)],.014,smile_mat)
+line('Smiling mouth right',[(0,-.804,2.15),(.12,-.793,2.10),(.23,-.774,2.105),(.30,-.744,2.18)],.014,smile_mat)
+for side in ['L','R']:
+    leg=bpy.data.objects.get('Short hindleg '+side);paw=bpy.data.objects.get('Rounded paw '+side)
+    bpy.ops.object.select_all(action='DESELECT');leg.select_set(True);paw.select_set(True)
+    bpy.context.view_layer.objects.active=leg;bpy.ops.object.join()
+    bpy.ops.object.transform_apply(location=False,rotation=False,scale=True)
+    remesh=leg.modifiers.new('Continuous plush foot','REMESH');remesh.mode='VOXEL';remesh.voxel_size=.035
+    bpy.ops.object.modifier_apply(modifier=remesh.name)
+    soft=leg.modifiers.new('Soft paw transition','SMOOTH');soft.factor=.7;soft.iterations=3
+    bpy.ops.object.modifier_apply(modifier=soft.name)
+    dec=leg.modifiers.new('Foot web budget','DECIMATE');dec.ratio=.45
+    bpy.ops.object.modifier_apply(modifier=dec.name);smooth(leg)
+# Shirt with a broad, curved hem instead of floating straight strips.
+remove_named('Red jersey main');remove_named('White jersey lower stripe')
+rows=[(.52,.60,.43),(.56,.66,.48),(.65,.67,.49),(.95,.66,.50),(1.25,.62,.48),(1.50,.51,.41),(1.69,.40,.34)]
+vv=[];ff=[]
+for z,rx,ry in rows:
+    for j in range(48):
+        a=j*2*pi/48;vv.append((rx*cos(a),-.1+ry*sin(a),z))
+for i in range(len(rows)-1):
+    for j in range(48):ff.append((i*48+j,i*48+(j+1)%48,(i+1)*48+(j+1)%48,(i+1)*48+j))
+geometry('Red jersey tailored body',vv,ff,[jersey_red],subsurf=1)
+for z in [.57,.65]:
+    line('Curved ivory jersey hem '+str(z),[(.665*cos(j*2*pi/48),-.1+.495*sin(j*2*pi/48),z) for j in range(48)],.018,jersey_wht,True)
+# Rear-facing snapback aperture, a thicker strap and stitched panel seams.
+cap=bpy.data.objects.get('Red snapback cap crown')
+for v in cap.data.vertices:v.co.z=2.875+(v.co.z-2.875)*1.25
+bpy.context.view_layer.objects.active=cap
+for mod in list(cap.modifiers):bpy.ops.object.modifier_apply(modifier=mod.name)
+solid=cap.modifiers.new('Sewn cap thickness','SOLIDIFY');solid.thickness=.025
+bpy.ops.object.modifier_apply(modifier=solid.name)
+cutter=sphere('temporary cap aperture',(0,-.64,2.98),(.34,.34,.31),fur,32,20)
+mod=cap.modifiers.new('Actual rear adjustment opening','BOOLEAN');mod.operation='DIFFERENCE';mod.object=cutter
+bpy.context.view_layer.objects.active=cap;bpy.ops.object.modifier_apply(modifier=mod.name)
+bpy.data.objects.remove(cutter,do_unlink=True)
+remove_named('Black cap adjustment');remove_named('Small strap hole')
+box('Black cap adjustment strap',(0,-.692,2.953),(.60,.065,.105),cap_black,.032)
+for x in [-.22,-.132,-.044,.044,.132,.22]:sphere('Small strap hole '+str(x),(x,-.731,2.953),(.013,.005,.014),eye_mat,12,8)
+sphere('Cap top covered button',(0,-.018,3.57),(.085,.08,.036),cap_red,20,12)
+for a in [-2.8,-2.15,-.85,.1,1.3]:
+    line('Cap panel seam '+str(a),[(rx*cos(a),-.018+ry*sin(a),2.883+(z-2.875)*1.25) for z,rx,ry in cap_rows],.003,cap_red)
+cap_label=bpy.data.objects.get('Cap UFC lettering');cap_label.location=(.49,-.586,3.19);cap_label.rotation_euler[1]=.14
+brim=bpy.data.objects.get('Sideways red cap brim');brim.location=(.82,.07,2.91);brim.rotation_euler[1]=.45
+# Keep lettering clear of the scarf and give the scarf a loose diagonal drape.
+for obj in list(root.children_recursive):
+    if obj.name.startswith(('Hanging scarf','Ivory scarf','Knitted white fringe','Scarf emblem')):
+        obj.location.x+=.17+(1.6-obj.location.z)*.12
+        obj.rotation_euler[1]=-.12
+        if obj.name.startswith('Knitted white fringe'):obj.data.bevel_depth=.026
+    if obj.name.startswith(('Black glove','UFC glove','Glove finger','UFC lettering')):
+        obj.location.x=.85+(obj.location.x-.85)*1.17
+        obj.location.z=1.6+(obj.location.z-1.6)*1.17
+        obj.scale*=1.17
+for i in range(4):
+    sphere('Glove finger padded knuckle '+str(i),(.64+i*.115,-.58,1.83-abs(i-1.5)*.03),(.078,.11,.10),glove_black,16,12)
+# Round the ball without losing black pentagons and white hexagons.
+for mod in list(soccer.modifiers):soccer.modifiers.remove(mod)
+mod=soccer.modifiers.new('Round panel tessellation','SUBSURF');mod.subdivision_type='SIMPLE';mod.levels=2
+bpy.context.view_layer.objects.active=soccer;bpy.ops.object.modifier_apply(modifier=mod.name)
+for v in soccer.data.vertices:v.co=BALL_CENTER+(v.co-BALL_CENTER).normalized()*BALL_RADIUS
+for k,face in enumerate(ball_faces):
+    points=[]
+    for i,a in enumerate(face):
+        va=Vector(new_v[a])-BALL_CENTER;vb=Vector(new_v[face[(i+1)%len(face)]])-BALL_CENTER
+        for t in [0,.25,.5,.75]:points.append(tuple(BALL_CENTER+va.lerp(vb,t).normalized()*(BALL_RADIUS+.001)))
+    line('Football panel seam '+str(k),points,.0025,ball_black,True)
+for obj in root.children_recursive:
+    if obj.type=='MESH' and not obj.data.uv_layers:
+        uv=obj.data.uv_layers.new(name='SurfaceUV')
+        for poly in obj.data.polygons:
+            for index in poly.loop_indices:
+                v=obj.data.vertices[obj.data.loops[index].vertex_index].co
+                uv.data[index].uv=(v.x*.5+.5,v.z*.5+.5)
+# Thin stitching uses short linear curve segments instead of dense swept tubes.
+for obj in root.children_recursive:
+    if obj.type=='CURVE' and obj.name.startswith(('Football panel seam','Curved ivory jersey hem','Cap panel seam','Football cannon','Scarf emblem')):
+        obj.data.resolution_u=1;obj.data.bevel_resolution=0
+        for spline in obj.data.splines:
+            for point in spline.bezier_points:
+                point.handle_left_type='VECTOR';point.handle_right_type='VECTOR'
+# Shared tiny normal map survives GLB export (unlike Blender-only noise nodes).
+import random
+random.seed(19)
+image=bpy.data.images.new('Fine textile and plush grain',width=128,height=128)
+pixels=[]
+for y in range(128):
+    for x in range(128):
+        nx=(random.random()-.5)*.16;ny=(random.random()-.5)*.16
+        pixels.extend((.5+nx,.5+ny,1,1))
+image.colorspace_settings.name='Non-Color';image.pixels=pixels;image.pack()
+for material in [fur,ear_fur,jersey_red,jersey_wht,scarf_red,scarf_cream,cap_red]:
+    nodes=material.node_tree.nodes;links=material.node_tree.links
+    tex=nodes.new('ShaderNodeTexImage');tex.image=image
+    uv=nodes.new('ShaderNodeTexCoord');mapping=nodes.new('ShaderNodeVectorMath');mapping.operation='SCALE';mapping.inputs[3].default_value=7
+    links.new(uv.outputs['UV'],mapping.inputs[0]);links.new(mapping.outputs[0],tex.inputs['Vector'])
+    normal=nodes.new('ShaderNodeNormalMap');normal.inputs['Strength'].default_value=.12
+    links.new(tex.outputs['Color'],normal.inputs['Color']);links.new(normal.outputs['Normal'],nodes.get('Principled BSDF').inputs['Normal'])
+# Less washed-out lighting keeps the jersey crimson and the fur warm cream.
 
 # 10. 노란 응원 표시 (렌더 소품, GLB 내보내기에서는 제외) -----------
 fx_objects=[]
@@ -484,7 +610,7 @@ if PASTEL_BG:
 
 world=bpy.data.worlds.new('Soft ambient studio')
 world.use_nodes=True
-world.node_tree.nodes['Background'].inputs['Color'].default_value=(.65,.79,.82,1)
+world.node_tree.nodes['Background'].inputs['Color'].default_value=(.80,.77,.72,1)
 world.node_tree.nodes['Background'].inputs['Strength'].default_value=.7
 scene.world=world
 
@@ -519,6 +645,7 @@ scene.render.image_settings.file_format='PNG'
 scene.render.film_transparent=not PASTEL_BG
 scene.view_settings.view_transform='AgX'
 scene.view_settings.look='AgX - Medium High Contrast'
+scene.view_settings.exposure=-.15
 
 for area in (bpy.context.screen.areas if bpy.context.screen else []):
     if area.type=='VIEW_3D':
@@ -546,7 +673,7 @@ for obj in list(root.children_recursive):
     region = 'Body'
     if n.startswith(('Short hindleg','Rounded paw','Tiny paw crease')):
         region = 'LegL' if ' L' in n else 'LegR'
-    elif n.startswith(('Classic 32-panel','Football cannon')): region = 'Football'
+    elif n.startswith(('Classic 32-panel','Football cannon','Football panel seam')): region = 'Football'
     elif n.startswith('One-piece curved'): region = 'Tail'
     elif n.startswith(('Right arm raised','Black glove','UFC glove','Glove finger','UFC lettering')) or n == 'Cream arm R': region = 'ArmR'
     elif n.startswith('Left soft hand') or n == 'Cream arm L': region = 'ArmL'

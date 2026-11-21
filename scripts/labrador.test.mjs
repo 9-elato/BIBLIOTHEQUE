@@ -2,10 +2,12 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {readFileSync} from 'node:fs'
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js'
-import {Box3,Vector3} from 'three'
+import {Box3,Vector3,Texture} from 'three'
 import {prepareLabrador,animateLabrador} from '../src/labradorMotion.js'
 const data=readFileSync(new URL('../public/models/labrador_arsenal.glb',import.meta.url))
-const gltf=await new GLTFLoader().parseAsync(data.buffer.slice(data.byteOffset,data.byteOffset+data.byteLength),'')
+// Node validates geometry/animation; embedded image headers are checked separately below.
+const loader=new GLTFLoader().register(()=>({name:'node-test-texture',loadTexture:()=>Promise.resolve(new Texture())}))
+const gltf=await loader.parseAsync(data.buffer.slice(data.byteOffset,data.byteOffset+data.byteLength),'')
 test('labrador export contains animated parts within a real-time mesh budget',()=>{
  const model=prepareLabrador(gltf.scene)
  assert.equal(Object.keys(model.parts).length,6)
@@ -33,4 +35,16 @@ test('labrador walking, reading, sitting and returning to idle do not accumulate
  // Cached geometry and transforms remain reusable when switching characters.
  const again=prepareLabrador(gltf.scene)
  assert.equal(again.parts.LegL.node.rotation.x,leg.rotation.x)
+})
+
+test('plush surface normal texture is embedded in the GLB for browser delivery',()=>{
+ const jsonLength=data.readUInt32LE(12),json=JSON.parse(data.toString('utf8',20,20+jsonLength))
+ assert.ok(json.materials.some(m=>m.normalTexture))
+ const image=json.images[0],view=json.bufferViews[image.bufferView]
+ assert.equal(image.mimeType,'image/png')
+ const offset=20+jsonLength+8+(view.byteOffset||0)
+ assert.equal(data.subarray(offset,offset+8).toString('hex'),'89504e470d0a1a0a')
+ assert.equal(data.readUInt32BE(offset+16),128)
+ assert.equal(data.readUInt32BE(offset+20),128)
+ assert.ok(view.byteLength>100)
 })
