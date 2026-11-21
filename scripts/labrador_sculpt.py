@@ -154,7 +154,7 @@ for kind,mats in [('plush',[fur,ear_fur]),('twill',[jersey_red,jersey_wht,cap_re
                 nx=.24*(stitch_height(x-1,y)-stitch_height(x+1,y))
                 ny=.24*(stitch_height(x,y-1)-stitch_height(x,y+1))
             elif kind=='twill':nx=.09*sin((x+y)*pi/3);ny=.07*cos((x-y)*pi/3)
-            else:nx=(random.random()-.5)*.14;ny=(random.random()-.5)*.14
+            else:nx=(random.random()-.5)*.36;ny=(random.random()-.5)*.36
             pixels.extend((.5+nx,.5+ny,1,1))
     texture.pixels=pixels;texture.pack()
     for material in mats:
@@ -166,10 +166,25 @@ for kind,mats in [('plush',[fur,ear_fur]),('twill',[jersey_red,jersey_wht,cap_re
         for node in list(nodes):
             if node.type=='TEX_IMAGE':
                 node.image=texture;material.node_tree.links.new(mapping.outputs['Vector'],node.inputs['Vector'])
-            if node.type=='NORMAL_MAP':node.inputs['Strength'].default_value=.75 if kind=='knit' else .32
+            if node.type=='NORMAL_MAP':node.inputs['Strength'].default_value=.85 if kind=='knit' else .65 if kind=='plush' else .48
         bsdf=nodes.get('Principled BSDF');bsdf.inputs['Roughness'].default_value=.96 if kind=='knit' else .86 if kind=='plush' else .78
         bsdf.inputs['Sheen Weight'].default_value=.15 if kind=='knit' else .05
         bsdf.inputs['Specular IOR Level'].default_value=.12 if kind=='knit' else .18 if kind=='twill' else .25
+        # Embedded albedo grain survives GLB export, unlike Blender-only noise nodes.
+        # Gentle yarn/fibre shading also remains visible under broad, soft lights.
+        grain=bpy.data.images.new(material.name+' fibre colour',width=128,height=128)
+        grain.colorspace_settings.name='Non-Color'
+        base=tuple(bsdf.inputs['Base Color'].default_value);colours=[]
+        rng=random.Random(47)
+        for py in range(128):
+            for px in range(128):
+                detail=(stitch_height(px,py)-.35)*.19 if kind=='knit' else .035*sin((px+py)*pi/3) if kind=='twill' else 0
+                shade=1+detail+(rng.random()-.5)*(.13 if kind=='plush' else .07)
+                colours.extend((*[min(1,max(0,c*shade)) for c in base[:3]],1))
+        grain.pixels=colours;grain.pack()
+        colour_node=nodes.new('ShaderNodeTexImage');colour_node.image=grain
+        material.node_tree.links.new(mapping.outputs['Vector'],colour_node.inputs['Vector'])
+        material.node_tree.links.new(colour_node.outputs['Color'],bsdf.inputs['Base Color'])
 # The jersey must enclose the back of the plump torso as well as its front.
 for obj in root.children_recursive:
     if obj.name.startswith('Red jersey tailored body'):

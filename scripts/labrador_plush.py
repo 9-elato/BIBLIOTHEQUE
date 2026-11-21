@@ -1,14 +1,24 @@
 # Fuse the cheek and ear roots into a single softly blended plush surface.
 head=bpy.data.objects.get('Giant round Labrador head')
 ears=[o for o in root.children_recursive if o.name.startswith('Sculpted floppy ear')]
+# Give the lower face a full, rounded cheek/jaw rather than a wide flat oval.
+for vertex in head.data.vertices:
+    p=vertex.co
+    lower=max(0,min(1,(-p.z+.30)/.90))
+    p.z-=.10*lower
+    p.x*=1+.035*lower
+    if p.y<0:p.y-=.055*lower*(1-min(1,abs(p.x)))
+for obj in root.children_recursive:
+    if obj.name.startswith('Smiling mouth'):obj.location.y-=.045
 # Lower ears hang slightly in front of the cheeks while their roots stay tucked in.
 for ear in ears:
     for vertex in ear.data.vertices:
         fall=max(0,min(1,(2.80-vertex.co.z)/.65))
         vertex.co.y-=.14*fall
-        vertex.co.z-=.18*fall**1.7
+        vertex.co.z-=.15*fall**1.7
         center=math.copysign(1.04,vertex.co.x)
-        vertex.co.x=center+(vertex.co.x-center)*(1+.12*fall)
+        vertex.co.x=center+(vertex.co.x-center)*(1-.12*fall)
+        vertex.co.x+=math.copysign(.06*sin(pi*fall),vertex.co.x)
 bpy.ops.object.select_all(action='DESELECT')
 for obj in [head]+ears:
     bpy.context.view_layer.objects.active=obj
@@ -38,8 +48,8 @@ for vertex in head.data.vertices:
 for prefix in ['Thick red white striped','Hanging scarf','Knitted white fringe','Scarf emblem']:remove_named(prefix)
 vv=[];ff=[];ids=[];rings=64;cross=12
 for i in range(rings):
-    a=i*2*pi/rings;front=max(0,-sin(a));h=1.76-.20*front+.035*cos(3*a+.4)
-    radius=.15+.022*sin(2*a+.4)
+    a=i*2*pi/rings;front=max(0,-sin(a));h=1.77-.25*front+.045*cos(3*a+.4)
+    radius=.17+.025*sin(2*a+.4)
     for j in range(cross):
         t=j*2*pi/cross
         # Soft lengthwise tuck along the front of the loosely wrapped knit.
@@ -54,14 +64,14 @@ geometry('Thick red white striped relaxed knit wrap',vv,ff,[scarf_red,scarf_crea
 # A padded scarf end with changing width, uneven folds and a curled lower hem.
 rows=32;cols=8;vv=[];ff=[];ids=[]
 def scarf_point(t,u,back=False):
-    cx=.48+.18*t+.045*sin(t*2*pi)
-    cy=-.45-.28*sin(t*pi*.65)-.085*sin(t*pi*2.1)
-    width=.18+.02*sin(t*pi*2+.5)
-    twist=.32*sin(t*pi*1.8)-.15
+    cx=.48+.14*t+.075*sin(t*2*pi)
+    cy=-.48-.28*sin(t*pi*.65)-.13*sin(t*pi*2.1)
+    width=.205+.028*sin(t*pi*2+.5)
+    twist=.65*sin(t*pi*1.8)-.25
     # Rounded, padded edges and a loose longitudinal fold, not a rigid ribbon.
-    padding=.052+.045*max(0,1-u*u)**.5
-    fold=.036*cos(u*pi*1.5+t*3)*sin(pi*t)
-    z=1.71-1.08*t+.025*sin(t*3*pi)+.055*u*sin(t*pi*1.5)
+    padding=.025+.075*max(0,1-u*u)**.5
+    fold=.055*cos(u*pi*1.5+t*3)*sin(pi*t)
+    z=1.71-1.08*t+.045*sin(t*3*pi)+.075*u*sin(t*pi*1.5)
     y=cy+(padding if back else -padding)+width*u*sin(twist)+fold
     return (cx+width*u*cos(twist),y,z)
 for back in [False,True]:
