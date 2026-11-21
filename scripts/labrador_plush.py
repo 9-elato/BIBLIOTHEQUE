@@ -6,6 +6,9 @@ for ear in ears:
     for vertex in ear.data.vertices:
         fall=max(0,min(1,(2.80-vertex.co.z)/.65))
         vertex.co.y-=.14*fall
+        vertex.co.z-=.18*fall**1.7
+        center=math.copysign(1.04,vertex.co.x)
+        vertex.co.x=center+(vertex.co.x-center)*(1+.12*fall)
 bpy.ops.object.select_all(action='DESELECT')
 for obj in [head]+ears:
     bpy.context.view_layer.objects.active=obj
@@ -49,10 +52,10 @@ geometry('Thick red white striped relaxed knit wrap',vv,ff,[scarf_red,scarf_crea
 rows=32;cols=8;vv=[];ff=[];ids=[]
 def scarf_point(t,u,back=False):
     cx=.48+.20*t+.035*sin(t*2*pi)
-    cy=-.43-.30*sin(t*pi*.65)-.022*sin(t*3*pi)
+    cy=-.43-.30*sin(t*pi*.65)-.065*sin(t*pi*2.1)
     width=.17+.018*sin(t*pi*2+.5)
     z=1.70-1.08*t+.016*sin(t*3*pi)+.035*u*sin(t*pi*1.5)
-    y=cy+(.07 if back else -.085-.027*(1-u*u))+.035*u*sin(t*2*pi)+.010*sin(u*pi*2+t*pi*2)
+    y=cy+(.085 if back else -.105-.032*(1-u*u))+.035*u*sin(t*2*pi)+.010*sin(u*pi*2+t*pi*2)
     return (cx+width*u,y,z)
 for back in [False,True]:
     for i in range(rows+1):
@@ -74,4 +77,12 @@ geometry('Hanging scarf soft wool drape',vv,ff,[scarf_red,scarf_cream],ids,subsu
 for i in range(5):
     x,y,z=scarf_point(1,(i-2)*.37)
     limb('Knitted white fringe curled '+str(i),[(x,y+.03,z+.025,.028,.028),(x+.012,y+.015,z-.045,.032,.032),(x+.025,y+.025,z-.10,.025,.025),(x+.021,y+.035,z-.12,.008,.008)],scarf_cream,10)
-cannon_symbol('Scarf emblem knit',.59,-.844,1.00,.16,scarf_cream)
+ex,ey,ez=scarf_point(.65,0)
+cannon_symbol('Scarf emblem knit',ex,ey-.012,ez,.16,scarf_cream)
+
+# Keep the raised glove in front of the longer ear rather than intersecting it.
+for obj in root.children_recursive:
+    if obj.name.startswith(('Black glove','UFC glove','Glove finger','UFC lettering')):obj.location.y-=.12
+    elif obj.name=='Cream arm R':
+        for vertex in obj.data.vertices:
+            vertex.co.y-=.12*max(0,min(1,(vertex.co.z-1.30)/.25))
