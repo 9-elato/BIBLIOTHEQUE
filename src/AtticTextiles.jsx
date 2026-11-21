@@ -14,6 +14,6 @@ export default function AtticTextiles({fabric}){
   <mesh geometry={objects.quilt} position={[-1.95,1.03,-.43]} castShadow receiveShadow>{cloth('#8d5267')}</mesh>
   {/* Unequal pillows, slightly tilted and indented, with sewn perimeter piping. */}
   {[[-2.76,1.02,.81,1,'#eee1c8',-.13],[-1.77,1.01,.86,.88,'#dfd1bd',.13],[-2.3,1.15,1.02,.66,'#9ca78c',-.23]].map(([x,y,z,s,c,r],i)=><group key={i} position={[x,y,z]} scale={[s,1,s]} rotation={[.12, r, .035*(i-1)]}><mesh geometry={objects.pillow} castShadow receiveShadow>{cloth(c)}</mesh><mesh geometry={objects.piping}><meshStandardMaterial color="#c5b18e" roughness={1}/></mesh></group>)}
-  {[[1.1,-2.7,'#e1d3b9'],[2.7,-3.7,'#a09b81']].map(([x,z,c])=><group key={x} position={[x,0,z]}><mesh geometry={objects.drape} castShadow receiveShadow>{cloth(c)}</mesh></group>)}
+
  </group>
 }

@@ -1,3 +1,4 @@
+import {Beanbag,CreamRugs,SofaBed,DetailedTelescope} from './AtticComfort'
 import {originalAtticX} from './atticLayout'
 import React from 'react'
 import {CarvedBox as B,ReadingChair,AntiqueLamp,WovenRug,Folios,Quill,WallSconce} from './StorybookDecor'
@@ -39,9 +40,9 @@ export function UpperDetails({time}){const y=GALLERY_HEIGHT;return <group>
  </group>}
 
 export function AtticDetails({time}){return <group>
- {READING_CHAIRS.filter(s=>s.level===10.6).map(s=><ReadingChair key={s.id} item={{...s,x:originalAtticX(s.x)}}/>)}
+ {READING_CHAIRS.filter(s=>s.level===10.6).map(s=><Beanbag key={s.id} item={{...s,x:originalAtticX(s.x)}}/>)}
  <group position={ATTIC_ORIGIN}>
-  <WovenRug p={[1.45,.035,-2.9]} size={[3.4,4.1]} color="#596579"/>
+  <CreamRugs/><SofaBed/><DetailedTelescope/>
   {/* The daybed remains accessible from the east. Decorative cushions stay at its back. */}
   {[-.65,.35].map(z=><B key={z} p={[-2.95,1.02,z]} s={[.24,.4,.49]} c={z<0?'#7c616d':'#7b8b89'} r={.09} rot={[0,0,-.13]}/>)}
   <B p={[-2.7,.88,-.92]} s={[.9,.055,.44]} c="#ad997b"/>

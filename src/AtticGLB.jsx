@@ -17,6 +17,8 @@ export default function AtticGLB({time,weather,event}){
  const model=useMemo(()=>{
   const copy=scene.clone(true)
   copy.traverse(object=>{
+   if(/^(DAYBED|TELESCOPE)/.test(object.name))object.visible=false
+   if(/^SKYLIGHT/.test(object.name)&&/mid.mullion/.test(object.name))object.visible=false
    if(/^DAYBED/.test(object.name)&&/pillow|fallen.linen.throw/.test(object.name))object.visible=false
    if(/^CHALKBOARD/.test(object.name)&&/star.dot|constellation.line/.test(object.name))object.visible=false
    if(object.isMesh&&/^CHALKBOARD/.test(object.name)&&/green.slate/.test(object.name)){object.material=object.material.clone();object.material.color.set('#171a1c');object.userData.atticMaterial=true}

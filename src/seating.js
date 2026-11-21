@@ -18,7 +18,7 @@ export const SEATS=[
  {...seat('study-desk','작업실 집필 의자',0,-28.1,0,0,.62,0,.1,1.13),entry:{x:1.5,z:-28.1}},
   seat(STUDY_CHAIR.id,STUDY_CHAIR.label,STUDY_CHAIR.x,STUDY_CHAIR.z,0,0,CHAIR_HEIGHT,0,.10,1.13),
   ...SOFAS.flatMap((s,index)=>Array.from({length:s.seats},(_,i)=>seat(`lounge-${index}-${i}`,`${sofaNames[index]}${s.seats>1?' · '+(i+1)+'번 자리':''}`,s.x,s.z,s.turn,0,.70,(i-(s.seats-1)/2)*.72))),
-  ...READING_CHAIRS.map(s=>seat(s.id,s.label,s.x,s.z,s.turn,s.level,CHAIR_HEIGHT,0,.10,1.13)),
+  ...READING_CHAIRS.map(s=>seat(s.id,s.label,s.x,s.z,s.turn,s.level,s.level===10.6?.48:CHAIR_HEIGHT,0,.10,1.13)),
   seat('attic-daybed','다락 데이베드',-17.55,-.4,Math.PI/2,10.6,.84,0,.87,1.95),
   ...GARDEN_BENCHES.map(([x,z],i)=>seat(`garden-${i}`,i===0?'서쪽 정원 벤치':'동쪽 정원 벤치',x,z,Math.PI,0,.71,0,.08,1.25)),
 ]

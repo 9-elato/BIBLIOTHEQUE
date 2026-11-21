@@ -101,3 +101,13 @@ test('daybed torso clears thick quilt and sits upright before a slow dismount',(
  assert.equal(end.seating,null);assert.equal(end.pose.recline,0)
  assert.equal(walkHeight(end.pose.x,end.pose.z,bed.level,world),bed.level)
 })
+
+test('attic beanbags preserve a wide aisle to the shelves and clear cabinet fronts',()=>{
+ const a=SEATS.find(s=>s.id==='attic-0'),b=SEATS.find(s=>s.id==='attic-1')
+ assert.equal(a.height,.48);assert.equal(b.height,.48)
+ const gap=b.anchor.x-a.anchor.x-1.28
+ assert.ok(gap>=.9,'at least 90cm between conservative furniture bounds')
+ const x=(a.anchor.x+b.anchor.x)/2
+ let p={x,z:3,level:10.6,yaw:0}
+ for(let i=0;i<74;i++){const next=movePlayer(p,0,-.1,world);assert.ok(Math.abs(next.z-(p.z-.1))<.001,'central aisle remains walkable');p=next}
+})
