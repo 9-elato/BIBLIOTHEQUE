@@ -17,12 +17,12 @@ for ear in ears:
         fall=max(0,min(1,(2.80-vertex.co.z)/.65))
         # Thicken the hanging lobe around its centre without detaching its root.
         cy=-.04-.29*fall
-        vertex.co.y=cy+(vertex.co.y-cy)*(1+.32*fall)
-        vertex.co.y-=.18*fall
-        vertex.co.z-=.15*fall**1.7
+        vertex.co.y=cy+(vertex.co.y-cy)*(1+.65*fall)
+        vertex.co.y-=.24*fall
+        vertex.co.z=2.85+(vertex.co.z-.15*fall**1.7-2.85)*.78
         center=math.copysign(1.04,vertex.co.x)
         vertex.co.x=center+(vertex.co.x-center)*(1-.03*fall)
-        vertex.co.x+=math.copysign(.07*sin(pi*fall)-.055*fall,vertex.co.x)
+        vertex.co.x+=math.copysign(.07*sin(pi*fall)-.10*fall,vertex.co.x)
 # Keep each ear independent: its narrow root overlaps the cheek, its lobe stays free.
 for ear in ears:
     ear.data.materials.clear();ear.data.materials.append(fur)
@@ -37,7 +37,7 @@ head.data.materials.clear();head.data.materials.append(fur)
 for polygon in head.data.polygons:polygon.material_index=0;polygon.use_smooth=True
 # Short, sparse plush fibres add a soft silhouette without a costly hair system.
 head.data.update();rng=random.Random(81);fv=[];ffib=[]
-for face in rng.sample(list(head.data.polygons),min(650,len(head.data.polygons))):
+for face in rng.sample(list(head.data.polygons),min(800,len(head.data.polygons))):
     center=head.matrix_world@face.center
     normal=(head.matrix_world.to_3x3()@face.normal).normalized()
     tangent=normal.cross(Vector((0,0,1)))
@@ -107,8 +107,25 @@ for i in range(5):
 ex,ey,ez=scarf_point(.65,0)
 cannon_symbol('Scarf emblem knit',ex,ey-.045,ez,.16,scarf_cream)
 
+# Low-profile real yarn loops: readable knit relief even in soft studio lighting.
+# One shared mesh, two existing yarn materials, no per-stitch draw calls.
+yarn_vertices=[];yarn_faces=[];yarn_ids=[]
+for row in range(24):
+    t=.08+row*.036
+    for col in range(10):
+        u=(col-4.5)*.18
+        start=len(yarn_vertices)
+        for du,dt in [(-.055,-.012),(-.057,.001),(0,.014),(.057,.001),(.055,-.012)]:
+            x,y,z=scarf_point(t+dt,u+du)
+            yarn_vertices.extend(((x-.002,y-.018,z),(x+.002,y-.018,z)))
+        for section in range(4):
+            a=start+section*2
+            yarn_faces.append((a,a+1,a+3,a+2));yarn_ids.append((int(t*rows)//6)%2)
+geometry('Hanging scarf raised yarn stitches',yarn_vertices,yarn_faces,[scarf_red,scarf_cream],yarn_ids)
+
 # Keep the raised glove in front of the longer ear rather than intersecting it.
 for obj in root.children_recursive:
+    if obj.name.startswith(('Black cap adjustment','Small strap hole')):obj.location.y+=.095
     if obj.name.startswith(('Black glove','UFC glove','Glove finger','UFC lettering')):obj.location.y-=.12
     elif obj.name=='Cream arm R':
         for vertex in obj.data.vertices:
