@@ -15,6 +15,9 @@ for obj in root.children_recursive:
 for ear in ears:
     for vertex in ear.data.vertices:
         fall=max(0,min(1,(2.80-vertex.co.z)/.65))
+        # Thicken the hanging lobe around its centre without detaching its root.
+        cy=-.04-.29*fall
+        vertex.co.y=cy+(vertex.co.y-cy)*(1+.32*fall)
         vertex.co.y-=.18*fall
         vertex.co.z-=.15*fall**1.7
         center=math.copysign(1.04,vertex.co.x)
@@ -83,12 +86,12 @@ geometry('Thick red white striped relaxed knit wrap',vv,ff,[scarf_red,scarf_crea
 # Flattened rounded sections preserve wool thickness without a tubular silhouette.
 rows=36;cross=16;vv=[];ff=[];ids=[]
 def scarf_center(t):
-    return (.46+.20*t+.025*sin(pi*t),-.48-.28*(1-math.exp(-13*t))+.045*t,1.73-1.09*t**1.15)
+    return (.46+.20*t+.04*sin(2*pi*t),-.52-.28*(1-math.exp(-13*t))+.045*t-.045*sin(2*pi*t),1.73-1.09*t**1.15)
 def scarf_point(t,u,back=False):
     x,y,z=scarf_center(t)
     width=.16+.085*(1-math.exp(-5*t))
     depth=.057+.025*math.exp(-((t-.15)/.16)**2)
-    crease=.060*cos(pi*u)*math.exp(-((t-.28)/.35)**2)
+    crease=.075*cos(pi*u+.5*sin(pi*t))*math.exp(-((t-.28)/.40)**2)
     return (x+width*u,y+crease+(1 if back else -1)*depth,z+.035*u*sin(pi*t))
 for i in range(rows+1):
     t=i/rows;x,y,z=scarf_center(t)
@@ -100,7 +103,7 @@ for i in range(rows+1):
         a=2*pi*j/cross
         u=math.copysign(abs(cos(a))**.65,cos(a))
         v=math.copysign(abs(sin(a))**.65,sin(a))
-        crease=.060*cos(pi*u)*math.exp(-((t-.28)/.35)**2)
+        crease=.075*cos(pi*u+.5*sin(pi*t))*math.exp(-((t-.28)/.40)**2)
         vv.append((x+width*u,y+depth*v+crease,z+.035*u*sin(pi*t)))
 for i in range(rows):
     for j in range(cross):
@@ -128,6 +131,17 @@ for obj in root.children_recursive:
             vertex.co.y-=.12*max(0,min(1,(vertex.co.z-1.30)/.25))
 
 # Enlarge the complete football (panels, seams and crest) together, then refit the palm.
+# Broader short legs and slightly wider stance; keep the soles on the same floor.
+for obj in root.children_recursive:
+    if obj.name.startswith('Short hindleg'):
+        sign=-1 if obj.name.endswith('L') else 1
+        for vertex in obj.data.vertices:
+            vertex.co.x=sign*.39+(vertex.co.x-sign*.34)*1.13
+    elif obj.name.startswith('Tiny paw crease'):
+        for spline in obj.data.splines:
+            for point in spline.bezier_points:
+                sign=-1 if point.co.x<0 else 1
+                point.co.x=sign*.39+(point.co.x-sign*.34)*1.13
 ball_center=Vector((-1,-.56,1.03))
 ball_shift=Vector((0,-.08,-.04))
 ball_transform=Matrix.Translation(ball_center+ball_shift) @ Matrix.Scale(1.35,4) @ Matrix.Translation(-ball_center)

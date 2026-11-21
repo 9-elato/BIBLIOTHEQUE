@@ -101,14 +101,14 @@ for vertex in cap_text.data.vertices:
     vertex.co=inverse@world
 # Plush proportions: one broad head, a round belly and soft, short paws.
 from mathutils import Matrix
-head=bpy.data.objects.get('Giant round Labrador head');head.scale=(1.10,.83,.85);head.location.z=2.42
+head=bpy.data.objects.get('Giant round Labrador head');head.scale=(1.08,.96,.88);head.location.z=2.43
 for obj in root.children_recursive:
     n=obj.name
-    if n.startswith('Shiny black oval'):obj.location.y-=.075;obj.location.x*=1.05;obj.location.z+=.025
-    if n.startswith(('Small round brown-black nose','Nose nostril')):obj.location.y-=.075;obj.location.z+=.015
+    if n.startswith('Shiny black oval'):obj.location.y-=.19;obj.location.x*=1.05;obj.location.z+=.025
+    if n.startswith(('Small round brown-black nose','Nose nostril')):obj.location.y-=.20;obj.location.z+=.015
     if n.startswith('Smiling mouth'):
         for spline in obj.data.splines:
-            for point in spline.bezier_points:point.co.y-=.075;point.co.z+=.015
+            for point in spline.bezier_points:point.co.y-=.19;point.co.z+=.015
     if n.startswith(('Sculpted floppy ear','Soft inner ear fold')):
         obj.scale.x*=1.045
     if n.startswith(('Main torso continuous','Red jersey tailored body','Curved ivory jersey hem')):
@@ -173,7 +173,7 @@ for kind,mats in [('plush',[fur,ear_fur]),('twill',[jersey_red,jersey_wht,cap_re
                 node.image=texture;material.node_tree.links.new(mapping.outputs['Vector'],node.inputs['Vector'])
             if node.type=='NORMAL_MAP':node.inputs['Strength'].default_value=.65 if kind=='knit' else .40 if kind=='plush' else .48
         bsdf=nodes.get('Principled BSDF');bsdf.inputs['Roughness'].default_value=.96 if kind=='knit' else .86 if kind=='plush' else .78
-        bsdf.inputs['Sheen Weight'].default_value=.4 if kind=='plush' else .25 if kind=='knit' else .05
+        bsdf.inputs['Sheen Weight'].default_value=.50 if kind=='plush' else .30 if kind=='knit' else .05
         bsdf.inputs['Specular IOR Level'].default_value=.12 if kind=='knit' else .18 if kind=='twill' else .25
         # Embedded albedo grain survives GLB export, unlike Blender-only noise nodes.
         # Gentle yarn/fibre shading also remains visible under broad, soft lights.
@@ -203,7 +203,7 @@ for obj in root.children_recursive:
 # No separately floating brim or lettering after the fit adjustment.
 pivot=Vector((0,0,2.92))
 rotation=Matrix.Rotation(math.radians(-6),4,'X') @ Matrix.Rotation(math.radians(-4),4,'Y')
-transform=Matrix.Translation(pivot+Vector((0,.035,.005))) @ rotation @ Matrix.Diagonal((1.12,1.18,1,1)) @ Matrix.Translation(-pivot)
+transform=Matrix.Translation(pivot+Vector((0,.035,.005))) @ rotation @ Matrix.Diagonal((1.12,1.30,1,1)) @ Matrix.Translation(-pivot)
 bpy.context.view_layer.update()
 for obj in root.children_recursive:
     if obj.name.startswith(('Red snapback','Cap panel seam','Cap top covered','Sideways red cap brim','Cap UFC','Black cap adjustment','Small strap hole')):
