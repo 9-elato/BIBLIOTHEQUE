@@ -55,7 +55,7 @@ export default function MainRoomDetails({layout,time,zone}){
  {layout.sections.map(({genre,start,cases},i)=><group key={genre.id}>
   <B p={[start,8.8,0]} s={[.16,.17,11.5]} c={genre.trim}/>
   <Pendant p={[start,7.6,0]} color={genre.wood} time={time} lit={zone==='서가'&&i===nearest}/>
-  {[-1,1].map(a=><group key={a}>
+  {[-1].map(a=><group key={a}>
    <B p={[start,4.86,a*4.8]} s={[3.1,.10,.34]} c={genre.trim}/>
    <Print p={[start,2.4,a*5.69]} turn={a>0?Math.PI:0} color={genre.wood} kind={i%2}/>
   </group>)}

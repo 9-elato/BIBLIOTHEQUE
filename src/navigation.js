@@ -30,6 +30,10 @@ const upperRegions=[...GREENHOUSE_REGIONS,[-7.6,-5.3,-6.7,-4.85],[-7.6,-5.3,5.25
   [5.3,7.6,-6.7,6.7],[-7.6,7.6,-6.7,-4.45],[-7.6,7.6,4.9,6.7],[7.3,15,-4.85,4.85]]
 // Bounds match the actual furniture footprints. Each box has its floor's height.
 export const FURNITURE=[
+ {floor:0,id:'forest-sofa',rect:[8.45,12.95,3.4,4.7]},
+ {floor:0,id:'forest-chaise',rect:[11.5,12.9,2.4,3.45]},
+ {floor:0,id:'forest-table',rect:[9.425,10.775,1.475,2.225]},
+ {floor:0,id:'forest-lamp',rect:[7.8,8.5,4.2,4.9]},
  ...[-17.5,-12.5].map(x=>({floor:0,id:`veranda-cushion-${x}`,rect:[x-.7,x+.7,-12.45,-11.15]})),
  {floor:0,id:'veranda-lantern',rect:[-19.2,-18.8,-13,-12.6]},
  ...[-1,1].map(a=>({floor:0,id:`estate-portico-${a}`,rect:[a*2.05-.325,a*2.05+.325,11.05,13.15]})),

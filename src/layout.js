@@ -25,7 +25,7 @@ export const SOFAS = [
   {x:-17,z:.3,seats:2,turn:Math.PI/2,color:'#795740'},
   {x:-9.9,z:3.6,seats:1,turn:-Math.PI/2,color:'#76604b'}
 ]
-export const DESKS = [[9.6,-3],[9.6,3],[12,-3],[12,3]]
+export const DESKS = [[9.6,-3],[12,-3]]
 export const SHELF_CAPACITY = 24
 
 export function makeStacks(books,placements={}) {
