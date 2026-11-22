@@ -2,20 +2,21 @@ export const BASEMENT_HEIGHT=-5.2
 export const BASEMENT_STAIR={id:'basement',from:[3.5,0,-4.8],to:[12.7,BASEMENT_HEIGHT,-4.8],width:1.6,steps:32}
 export const BASEMENT_OPENING=[3.48,12.75,-5.6,-4.0]
 export const BASEMENT_BOUNDS=[7.4,26,-6.65,6.5]
-export const SPRING_WALK_REGION=[18.1,26,6.2,10.3]
-export const SPRING_POOL={x:22.1,z:5,rx:2.45,rz:3.35,barrier:[19.3,24.9,1.3,8.7]}
+export const SPRING_WALK_REGION=[18.1,26,6.2,18.3]
+export const SPRING_POOL={x:22.1,z:8.6,rx:2.45,rz:7.2,barrier:[19.3,24.9,1.05,16.15]}
+export const SPRING_LANTERNS=[[18.35,1],[25.85,1],[18.35,17.65],[25.85,17.65]]
 export const BASEMENT_CEILING=-.30
 export const BASEMENT_PORTAL={x:17.92,z:-.05,width:2.1,clearHeight:4.65}
 export const SPRING_CURBS=[
- {id:'spring-rear-curb',rect:[18.2,26,10.12,10.38]},
- {id:'spring-west-curb',rect:[18.105,18.335,6.75,10.25]},
- {id:'spring-east-curb',rect:[25.735,25.965,6.75,10.25]},
+ {id:'spring-rear-curb',rect:[18.2,26,18.12,18.38]},
+ {id:'spring-west-curb',rect:[18.105,18.335,6.75,18.25]},
+ {id:'spring-east-curb',rect:[25.735,25.965,6.75,18.25]},
 ]
 export const BASEMENT_SOLIDS=[
  ...SPRING_CURBS,
  {id:'basement-stairwell-north',rect:[3.5,12.75,-5.83,-5.65]},
  {id:'basement-stairwell-south',rect:[3.5,12.75,-3.95,-3.77]},
- ...[[18.35,1],[25.85,1],[18.35,9.65],[25.85,9.65]].map(([x,z],i)=>({id:'spring-lantern-'+i,rect:[x-.09,x+.09,z-.09,z+.09]})),
+ ...SPRING_LANTERNS.map(([x,z],i)=>({id:'spring-lantern-'+i,rect:[x-.09,x+.09,z-.09,z+.09]})),
  {id:'basement-sofa',rect:[9,15,3.55,5.25]},
  {id:'basement-table',rect:[10.35,13.65,1.9,3.1]},
  {id:'basement-fireplace',rect:[7.4,8.3,0,4.2]},

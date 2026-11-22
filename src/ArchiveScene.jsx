@@ -53,7 +53,7 @@ function WalkControl({playerPosition,verandaDoor,blanket,onBlanket,glassDoor,stu
   const rayDirection=useMemo(()=>new THREE.Vector3(),[])
   const eye=useMemo(()=>new THREE.Vector3(),[])
   const cameraDistance=useRef(6)
-  const occlusion=useRef({elapsed:1,safe:6,objects:[],hits:[]})
+  const occlusion=useRef({elapsed:1,safe:6,objects:[],hits:[],eye:new THREE.Vector3(),direction:new THREE.Vector3(),zone:null})
   const cameraYaw=useRef(0)
   const avatar=useRef()
   const moving=useRef(false)
@@ -62,7 +62,10 @@ function WalkControl({playerPosition,verandaDoor,blanket,onBlanket,glassDoor,stu
   const lastSeatStatus=useRef('')
   const currentZone=useRef('')
   const lastHint=useRef('')
+  const hintElapsed=useRef(1)
   const state=useRef({x:0,z:23,level:0,yaw:0,bodyYaw:0,pitch:0,keys:new Set(),pointer:null,lx:0,ly:0,seated:false})
+  const touch=useRef(new Map())
+  const zoom=useRef(1)
   const tour=useRef(null)
   const status=useRef({})
   useEffect(()=>{
@@ -143,18 +146,50 @@ function WalkControl({playerPosition,verandaDoor,blanket,onBlanket,glassDoor,stu
       }
     }
     const keyUp=e=>s.keys.delete(e.code)
-    const reset=()=>{s.keys.clear();s.pointer=null}
+    const reset=()=>{s.keys.clear();s.pointer=null;touch.current.clear()}
+    const canZoom=()=>!status.current.blocked&&status.current.mode!=='overview'
+    const applyZoom=factor=>{zoom.current=THREE.MathUtils.clamp(zoom.current*factor,.8,2.6)}
+    const touchDistance=()=>{
+      const [a,b]=touch.current.values()
+      return a&&b?Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY):0
+    }
     const down=e=>{
       if(e.button!==0||status.current.blocked||status.current.mode==='overview')return
+      if(e.pointerType==='touch'){
+        touch.current.set(e.pointerId,e)
+        if(touch.current.size>1){s.pointer=null;return}
+      }
       Object.assign(s,{pointer:e.pointerId,lx:e.clientX,ly:e.clientY})
     }
     const move=e=>{
+      if(touch.current.has(e.pointerId)){
+        const before=touchDistance()
+        touch.current.set(e.pointerId,e)
+        if(touch.current.size>1){
+          const after=touchDistance()
+          if(canZoom()&&before>4&&after>4)applyZoom(after/before)
+          return
+        }
+      }
       if(s.pointer!==e.pointerId||status.current.blocked)return
       s.yaw-=(e.clientX-s.lx)*.004
       s.pitch=THREE.MathUtils.clamp(s.pitch-(e.clientY-s.ly)*.004,-.83,.83)
       s.lx=e.clientX;s.ly=e.clientY
     }
-    const up=e=>{if(s.pointer===e.pointerId)s.pointer=null}
+    const up=e=>{touch.current.delete(e.pointerId);if(s.pointer===e.pointerId)s.pointer=null}
+    const wheel=e=>{
+      if(!e.ctrlKey||!canZoom())return
+      e.preventDefault()
+      const scale=e.deltaMode===1?16:e.deltaMode===2?100:1
+      applyZoom(Math.exp(THREE.MathUtils.clamp(-e.deltaY*scale*.012,-.35,.35)))
+    }
+    let gestureZoom=1
+    const gestureStart=e=>{if(canZoom()){e.preventDefault();gestureZoom=zoom.current}}
+    const gestureChange=e=>{
+      if(!canZoom())return
+      e.preventDefault()
+      if(touch.current.size<2)zoom.current=THREE.MathUtils.clamp(gestureZoom*e.scale,.8,2.6)
+    }
     const skyView=()=>{if(s.seated?.seat.id==='meadow-rest')s.skyGaze=!s.skyGaze}
     window.addEventListener('library-meadow-sky',skyView)
     const posture=e=>{if(s.seated?.phase==='seated'&&s.seated.seat.id==='attic-daybed'){s.seated={...s.seated,posture:['lying','cinema'].includes(e.detail)?'lying':'sitting'};s.cinema=e.detail==='cinema';s.yaw=e.detail==='lying'?0:-s.seated.seat.turn-.4;s.pitch=0}}
@@ -163,6 +198,9 @@ function WalkControl({playerPosition,verandaDoor,blanket,onBlanket,glassDoor,stu
     window.addEventListener('blur',reset)
     window.addEventListener('library-interact',interact)
     canvas.addEventListener('pointerdown',down)
+    canvas.addEventListener('wheel',wheel,{passive:false})
+    canvas.addEventListener('gesturestart',gestureStart,{passive:false})
+    canvas.addEventListener('gesturechange',gestureChange,{passive:false})
     window.addEventListener('pointermove',move);window.addEventListener('pointerup',up);window.addEventListener('pointercancel',up)
     return ()=>{
       window.removeEventListener('library-seat-pose',posture)
@@ -171,11 +209,14 @@ function WalkControl({playerPosition,verandaDoor,blanket,onBlanket,glassDoor,stu
       window.removeEventListener('blur',reset)
       window.removeEventListener('library-interact',interact)
       canvas.removeEventListener('pointerdown',down)
+      canvas.removeEventListener('wheel',wheel)
+      canvas.removeEventListener('gesturestart',gestureStart)
+      canvas.removeEventListener('gesturechange',gestureChange)
       window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up);window.removeEventListener('pointercancel',up)
     }
   },[gl])
   useEffect(()=>{
-    if(blocked){state.current.keys.clear();state.current.pointer=null}
+    if(blocked){state.current.keys.clear();state.current.pointer=null;touch.current.clear()}
   },[blocked])
   useFrame(({camera},dt)=>{
     const s=state.current
@@ -202,9 +243,13 @@ function WalkControl({playerPosition,verandaDoor,blanket,onBlanket,glassDoor,stu
       Object.assign(s,movePlayer(s,direction.x*step,direction.z*step,world))
       s.bodyYaw=facingForMovement(s.bodyYaw,s.x-beforeX,s.z-beforeZ,dt)
     }
-    const action=interactionAt(s,status.current)
-    const hint=active&&!blocked?(action?.label||''):''
-    if(hint!==lastHint.current){lastHint.current=hint;onInteraction?.(hint,action?.type||null)}
+    hintElapsed.current+=dt
+    if(!active||blocked||hintElapsed.current>=.05){
+      hintElapsed.current=0
+      const action=active&&!blocked?interactionAt(s,status.current):null
+      const hint=action?.label||''
+      if(hint!==lastHint.current){lastHint.current=hint;onInteraction?.(hint,action?.type||null)}
+    }
     let visualY=s.level
     if(s.seated){
       const oldSeat=s.seated
@@ -238,9 +283,12 @@ function WalkControl({playerPosition,verandaDoor,blanket,onBlanket,glassDoor,stu
       ray.set(eye,rayDirection);ray.far=6.15;ray.near=.12
       const check=occlusion.current
       check.elapsed+=dt
-      // Keep camera interpolation at display rate, expensive mesh checks at 30 Hz.
-      if(check.elapsed>=1/30){
+      const changed=check.eye.distanceToSquared(eye)>.0001||check.direction.distanceToSquared(rayDirection)>.00001
+      // Check promptly while moving; stationary views still check animated doors.
+      if(check.zone!==zone||check.elapsed>=(changed?1/30:1/8)){
         check.elapsed=0
+        check.zone=zone
+        check.eye.copy(eye);check.direction.copy(rayDirection)
         check.hits.length=0
         ray.intersectObjects(collectCameraObstacles(scene,check.objects),false,check.hits)
         const hit=check.hits[0]
@@ -258,7 +306,8 @@ function WalkControl({playerPosition,verandaDoor,blanket,onBlanket,glassDoor,stu
     if(mode==='third'&&pose.current.recline>.1)look.copy(eye)
     if(s.skyGaze&&s.seated?.seat.id==='meadow-rest'&&s.seated.phase==='seated'){camera.position.set(s.x,visualY+.35,s.z);look.set(s.x+Math.sin(s.yaw)*4,visualY+8,s.z-Math.cos(s.yaw)*4);avatar.current.visible=false}
     if(s.cinema&&s.seated?.posture==='lying'){camera.position.copy(eye);look.set(ATTIC_SCREEN_TARGET[0],ATTIC_SCREEN_TARGET[1]*WORLD_HEIGHT_SCALE,ATTIC_SCREEN_TARGET[2])}
-    const desiredFov=mode==='third'?73:69
+    const baseFov=mode==='third'?73:69
+    const desiredFov=THREE.MathUtils.radToDeg(2*Math.atan(Math.tan(THREE.MathUtils.degToRad(baseFov/2))/zoom.current))
     if(Math.abs(camera.fov-desiredFov)>.05){camera.fov=THREE.MathUtils.damp(camera.fov,desiredFov,7,dt);camera.updateProjectionMatrix()}
     camera.lookAt(look)
   })

@@ -1,12 +1,12 @@
 import {Box3,MathUtils} from 'three'
 const palette={
- 'Fur / warm cream':['#F6D6AD',.2995],
- 'Fur / folded ear':['#EBC397',.55126],
- 'Uniform / red fabric':['#D70C20',.03684],
+ 'Fur / warm cream':['#DFC29C',.2995],
+ 'Fur / folded ear':['#D2B38D',.55126],
+ 'Uniform / red fabric':['#F21C33',.03684],
  'Uniform / white details':['#FFF0E9',.89104],
- 'Scarf / red knit':['#CA0D21',.04308],
+ 'Scarf / red knit':['#ED1930',.04308],
  'Scarf / cream knit':['#FFF2E9',.74493],
- 'Cap / red fabric':['#D91023',.02956],
+ 'Cap / red fabric':['#F22237',.02956],
 }
 function recolorMaterial(source,[color,bakedLuminance]){
  const material=source.clone()

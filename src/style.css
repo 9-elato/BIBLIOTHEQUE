@@ -151,6 +151,9 @@ canvas { touch-action:none; }
 .record-popover button{display:flex;width:100%;align-items:center;gap:8px;border:0;border-radius:9px;padding:8px 9px;background:transparent;color:inherit;font-size:12px;text-align:left}
 .record-popover button:hover,.record-popover button:focus-visible{background:#ebdfc9}
 .floor-drawing{display:block;width:100%;height:clamp(260px,49vh,475px);margin-top:12px;border:1px solid #cbb894;border-radius:12px;background:#f1e7d3}
+.plan-decoration{pointer-events:none}
+.plan-room[role=button]{cursor:pointer}
+.plan-room[role=button]:hover,.plan-room[role=button]:focus-visible{stroke:#47633b;stroke-width:.46;filter:brightness(1.05)}
 .plan-room{fill:#f8e7c8;stroke:#785d42;stroke-width:.22}
 .plan-room.outdoor{fill:#d9e3bb;stroke:#708755}.plan-room.glass{fill:#d5e6d8;stroke:#5f806e}.plan-room.water,.plan-water{fill:#a9cbd0;stroke:#557a80;stroke-width:.15}
 .plan-room.void{fill:#e6ded1;stroke:#a5927d;stroke-dasharray:.7 .35}.plan-room.is-current{stroke:#56813c;stroke-width:.43}

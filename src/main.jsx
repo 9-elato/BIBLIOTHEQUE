@@ -1,3 +1,4 @@
+import CatPaw from './CatPaw'
 import CinemaControls from './CinemaControls'
 import {localDateKey} from './activityRecords'
 import LibraryActivity from './LibraryActivity'
@@ -8,7 +9,7 @@ import useReadingTime from './useReadingTime'
 import Experiences from './Experiences'
 import React,{useState,useEffect,useMemo,useRef} from 'react'
 import {createRoot} from 'react-dom/client'
-import {Footprints,BookOpen,Film,Plane,NotebookPen,Music2,Users,Settings,Sun,CloudRain,Moon,Search,X,Plus,Check,Copy,ArrowLeft,BarChart3,MessageCircle,Save,Trash2,ExternalLink,Eye,Navigation,DoorOpen,Home,Library,Lock,Map,ChevronDown,ChevronUp} from 'lucide-react'
+import {BookOpen,Film,Plane,NotebookPen,Music2,Users,Settings,Sun,CloudRain,Moon,Search,X,Plus,Check,Copy,ArrowLeft,BarChart3,MessageCircle,Save,Trash2,ExternalLink,Eye,Navigation,DoorOpen,Home,Library,Lock,Map,ChevronDown,ChevronUp} from 'lucide-react'
 import {createClient} from '@supabase/supabase-js'
 import ArchiveScene from './ArchiveScene'
 import SceneBoundary from './SceneBoundary'
@@ -54,7 +55,7 @@ function App(){const [blanket,setBlanket]=useState(false);const [experience,setE
  const readHeldBook=id=>{setSelected(id);setPanel('');setEditing(false);setAdding(false)};
  return <div className={showRooms?'app rooms-visible':'app'}><div className="world"><SceneBoundary><ArchiveScene blanket={blanket} onBlanket={()=>setBlanket(v=>!v)} onMusic={index=>{page('music');if(Number.isInteger(index))selectRecord(index)}} onExperience={kind=>{stopJoy();setExperience(kind)}} books={books} placements={placementState.placements} canPlace={owner&&booksReady} onPlaceNearby={placeNearby} heldBook={heldBook} onPick={id=>{setSelected(id);setHeldBook(id);setPanel('')}} mode={mode} weather={weather} time={time} blocked={isOverlay||mapOpen||Boolean(experience)} joy={joy} onZone={setZone} onSeatStatus={setSeatStatus} teleport={teleport} onDoor={jump} onRead={readHeldBook} character={character} season={season} onOpenNotes={()=>page('activities')} onGenre={openGenre} onInteraction={(label,action)=>{setInteractHint(label||'');setInteractAction(action||null)}}/></SceneBoundary></div><div className="warm-vignette"/><PerformancePanel onTravel={jump}/><RecordPlayer selection={recordSelection} onSelect={selectRecord} onTracks={setRecordTracks} onStop={()=>setRecordSelection(null)} onOpenShelf={()=>page('music')}/><FurnitureTour/>
  <header className="site-header" aria-label="저택 환경 설정과 지도">
-   <div className="top-tools"><button className="gear-button" onClick={()=>page('activities')} aria-label="도서관 활동" title="출석 · 등록 · 독서기록 · 주문"><Footprints size={24}/></button>
+   <div className="top-tools"><button className="gear-button" onClick={()=>page('activities')} aria-label="도서관 활동" title="출석 · 등록 · 독서기록 · 주문"><CatPaw size={24}/></button>
      <button className="gear-button map-trigger" onClick={togglePlan} aria-label="지도 열기" title="지도"><Map size={23}/></button>
      <button className="gear-button archive-trigger" aria-label="기록 메뉴" title="기록 메뉴" aria-expanded={recordMenuOpen} aria-controls="record-menu-items" onClick={()=>{setMapOpen(false);setRecordMenuOpen(v=>!v)}}><Library size={18}/></button>
      <button className="gear-button" onClick={()=>page('settings')} aria-label="환경 설정 열기" title="환경 설정"><Settings size={24}/></button>

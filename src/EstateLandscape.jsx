@@ -16,9 +16,11 @@ export default function EstateLandscape({time,weather}){
  useFrame(({clock})=>{wind.value=clock.elapsedTime*m.wind})
  useLayoutEffect(()=>{
   const o=new THREE.Object3D(),color=new THREE.Color()
-  for(let i=0;i<64;i++){
-   const east=i<42,x=east?30+(i*7.31)%34:-35+(i*5.17)%67,z=east?-3+(i*11.67)%47:120+(i*7.13)%18
-   const ground=east?-5:0,height=5+(i%5)*1.3
+  for(let i=0;i<90;i++){
+   const east=i<42,bank=i>=64
+   const x=bank?8+(i*5.17)%33:east?30+(i*7.31)%34:-35+(i*5.17)%67
+   const z=bank?19+(i*9.21)%26:east?-3+(i*11.67)%47:120+(i*7.13)%18
+   const ground=east||bank?-5.5:0,height=bank?3.8+(i%5)*.92:5+(i%5)*1.3
    o.position.set(x,ground+height/2,z);o.scale.set(.22,height,.22);o.rotation.set(0,0,0);o.updateMatrix();trunks.current.setMatrixAt(i,o.matrix)
    for(let j=0;j<3;j++){o.position.set(x+Math.sin(i+j*2.1)*1.1,ground+height+(j-1)*1.2,z+Math.cos(i+j*2.1)*.9);o.scale.set(1.8+(i%3)*.25,2.5,1.8);o.updateMatrix();crowns.current.setMatrixAt(i*3+j,o.matrix);color.set(m.snow?'#c1cdbb':[m.near,m.mid,'#67865a'][(i+j)%3]);crowns.current.setColorAt(i*3+j,color)}
   }
@@ -29,12 +31,13 @@ export default function EstateLandscape({time,weather}){
   for(const r of [trunks,crowns,rocks,hills]){r.current.instanceMatrix.needsUpdate=true;r.current.computeBoundingSphere()};crowns.current.instanceColor.needsUpdate=true
  },[weather,time])
  return <group><Meadow time={time} weather={weather}/>
- <instancedMesh ref={trunks} args={[null,null,64]}><cylinderGeometry args={[1,1.3,1,7]}/><meshStandardMaterial color="#5f5039" roughness={1}/></instancedMesh>
- <instancedMesh ref={crowns} args={[null,null,192]} material={leafMaterial}><sphereGeometry args={[1,10,8]}/></instancedMesh>
+ <instancedMesh ref={trunks} args={[null,null,90]}><cylinderGeometry args={[1,1.3,1,7]}/><meshStandardMaterial color="#5f5039" roughness={1}/></instancedMesh>
+ <instancedMesh ref={crowns} args={[null,null,270]} material={leafMaterial}><sphereGeometry args={[1,10,8]}/></instancedMesh>
  <instancedMesh ref={hills} args={[null,null,6]}><sphereGeometry args={[1,16,10]}/><meshStandardMaterial color={m.far} roughness={1}/></instancedMesh>
  <instancedMesh ref={rocks} args={[null,null,30]}><dodecahedronGeometry args={[1,0]}/><meshStandardMaterial color="#797f74" roughness={1}/></instancedMesh>
  <StaticBatch revision={weather}>
  <B p={[16.7,-5.65,11.8]} s={[19,.3,10.3]} c={weather==='snow'?'#d4d9ca':'#66815a'}/>
+ <B p={[20,-5.68,31]} s={[29,.36,34]} c={weather==='snow'?'#d4d9ca':'#577550'}/>
  <B p={[42,-5.7,22]} s={[46,.5,64]} c={weather==='snow'?'#d4d9ca':'#607950'}/>
  <B p={[0,-.6,49]} s={[74,.5,28]} c={weather==='snow'?'#d4d9ca':'#718661'}/>
  {/* Exposed stone plinth ties the lower forest rooms to the east wing. */}

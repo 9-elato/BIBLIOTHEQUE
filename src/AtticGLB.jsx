@@ -5,14 +5,13 @@ import AtticCosmos from './AtticCosmos'
 import AtticTextiles from './AtticTextiles'
 import {makeAtticTexture,makeRoofPlanks,makeChalkboard} from './atticTextures'
 import * as THREE from 'three'
-import {WindowLandscape} from './WindowLandscape'
 import React,{useMemo,useEffect} from 'react'
 import {useLibraryModel} from './useLibraryModel'
 import {AtticDetails} from './RoomDetails'
 import {ATTIC_ORIGIN} from './navigation'
 
 const modelUrl=`${import.meta.env.BASE_URL}models/starlight_attic.glb`
-export default function AtticGLB({time,weather,event}){
+export default function AtticGLB({time,weather}){
  const {scene}=useLibraryModel(modelUrl)
  const textures=useMemo(()=>({wood:makeAtticTexture('wood'),fabric:makeAtticTexture('fabric'),wallpaper:makeAtticTexture('wallpaper'),roof:makeRoofPlanks(),chalk:makeChalkboard()}),[])
  useEffect(()=>()=>Object.values(textures).forEach(t=>t.dispose()),[textures])
@@ -62,15 +61,9 @@ export default function AtticGLB({time,weather,event}){
   return copy
  },[scene,textures])
  useEffect(()=>()=>model.traverse(o=>{if(o.isMesh&&(o.userData.atticMaterial||/DAYBED.*carved.frame/.test(o.name)))o.material.dispose();if(o.userData.atticGeometry)o.geometry.dispose()}),[model])
- const rearGable=useMemo(()=>{
-  const s=new THREE.Shape();s.moveTo(-4.36,0);s.lineTo(2,0);s.lineTo(2,2.65);s.lineTo(3.6,2.65);s.lineTo(3.6,0);s.lineTo(4.36,0);s.lineTo(4.36,4.26);s.lineTo(0,7.62);s.lineTo(-4.36,4.26);s.closePath()
-  const hole=new THREE.Path();hole.moveTo(-1.93,2.03);hole.lineTo(1.93,2.03);hole.lineTo(1.93,3.28);hole.absarc(0,3.28,1.93,0,Math.PI,false);hole.closePath();s.holes.push(hole)
-  return new THREE.ShapeGeometry(s)
- },[])
- useEffect(()=>()=>rearGable.dispose(),[rearGable])
  const panel=(p,s,color='#dfd2bd')=><mesh position={p} castShadow receiveShadow><boxGeometry args={s}/><meshStandardMaterial color={color} roughness={.85}/></mesh>
  return <group><AtticDetails time={time}/><group position={ATTIC_ORIGIN}>
-  <AtticTerraceCinema time={time} weather={weather}/><primitive object={model}/><mesh scale={[1,ATTIC_SHELL_SCALE,1]} position={[0,0,6.59]} geometry={rearGable}><meshStandardMaterial color="#dfd2bd" roughness={.95} side={THREE.DoubleSide}/></mesh><AtticTextiles fabric={textures.fabric}/><mesh position={[-3.67,2.8,-3.7]} rotation={[0,Math.PI/2,0]}><planeGeometry args={[2.87,2.09]}/><meshStandardMaterial map={textures.chalk} roughness={1}/></mesh><group scale={[1,ATTIC_SHELL_SCALE,1]}><AtticSky time={time} weather={weather}/><PanoramicRoofFrame map={textures.roof}/></group><AtticCosmos time={time} textures={textures}/><group scale={[1,ATTIC_SHELL_SCALE,1]} position={[0,4.525,6.56]} rotation={[0,Math.PI,0]}><WindowLandscape width={3.86} height={3.18} time={time} weather={weather} event={event}/></group>
+  <AtticTerraceCinema time={time} weather={weather}/><primitive object={model}/><AtticTextiles fabric={textures.fabric}/><mesh position={[-3.67,2.8,-3.7]} rotation={[0,Math.PI/2,0]}><planeGeometry args={[2.87,2.09]}/><meshStandardMaterial map={textures.chalk} roughness={1}/></mesh><group scale={[1,ATTIC_SHELL_SCALE,1]}><AtticSky time={time} weather={weather}/><PanoramicRoofFrame map={textures.roof}/></group><AtticCosmos time={time} textures={textures}/>
   <group scale={[1,ATTIC_SHELL_SCALE,1]}>
   {panel([4.16,2.15,-.92],[.19,4.3,11.44])}
   {panel([4.16,2.15,6.56],[.19,4.3,.16])}

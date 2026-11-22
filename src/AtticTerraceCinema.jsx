@@ -17,10 +17,7 @@ export default function AtticTerraceCinema({time,weather}){
   {[-3.95,3.95].map(x=><group key={x}><B p={[x,.62,8.8]} s={[.06,1.24,4.2]} c="#d0b998" opacity={.18}/><B p={[x,1.2,8.8]} s={[.1,.12,4.2]} c="#a88551"/>{[6.8,8.8,10.8].map(z=><B key={z} p={[x,.6,z]} s={[.1,1.2,.1]} c="#52483c"/>)}</group>)}
   <B p={[0,1.2,10.85]} s={[8,.12,.1]} c="#a88551"/>
   {Array.from({length:27},(_,i)=><B key={i} p={[-3.95+i*(7.9/26),.6,10.85]} s={[.06,1.2,.06]} c="#52483c"/>)}
-  <B p={[2.8,.025,6.6]} s={[1.5,.05,.36]} c="#a18a65"/>
-  {[-.55,.55].map(x=><mesh key={'threshold'+x} position={[2.8+x,.065,6.7]}><boxGeometry args={[.15,.015,.035]}/><meshStandardMaterial color="#ead6a3" emissive="#ffcd81" emissiveIntensity={time==='evening'?.7:.05}/></mesh>)}
-  {[2,3.6].map(x=><B key={x} p={[x,1.65,6.59]} s={[.1,3.3125,.17]} c="#725339"/>)}
-  <B p={[2.8,3.3625,6.59]} s={[1.7,.12,.17]} c="#a88551"/>
+  <B p={[0,-.045,6.57]} s={[7.9,.09,.38]} c="#a18a65"/>
   <group position={[.45,0,4.7]}><DetailedTelescope/></group>
   {[-3.5,3.5].map(x=><mesh key={x} position={[x,.12,10.3]}><boxGeometry args={[.22,.18,.22]}/><meshStandardMaterial color="#e9c58b" emissive="#ffc778" emissiveIntensity={time==='evening'?1.5:.15}/></mesh>)}
   {time==='evening'&&weather!=='rain'&&weather!=='snow'&&<points><bufferGeometry><bufferAttribute attach="attributes-position" args={[stars,3]}/></bufferGeometry><pointsMaterial size={.085} color="#fff0d1" sizeAttenuation/></points>}
