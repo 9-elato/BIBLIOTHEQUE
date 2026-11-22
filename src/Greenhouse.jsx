@@ -70,6 +70,7 @@ export default function Greenhouse({time,weather,event,door,active}){
  <GreenhouseAtmosphere time={time} weather={weather} active={active}/><StaticBatch revision={`${time}:${weather}:${event}`}>
  <B p={[0,-.12,-15.55]} s={[10.8,.24,17.7]} c={stone}/>{[-1,1].map(a=><B key={a} p={[a*6.9,-.12,-14.05]} s={[3.3,.24,6.5]} c={stone}/>)}
  {Array.from({length:17},(_,j)=>Array.from({length:10},(_,i)=><B key={j+':'+i} p={[-4.78+i*1.06,.005,-7.3-j]} s={[1.03,.015,.97]} c={(i+j)%3?'#d5d5c7':'#bec4bb'}/>))}
+ <group scale={[1,1.4,1]}>
  {[-1,1].map(a=><group key={a}>{GREENHOUSE_SIDE_PANELS.map(({z,w})=><Glazing key={z} x={a*5.35} z={z} w={w} turn={-a*Math.PI/2} time={time} weather={weather} event={event}/>)}
  {[-12,-14,-16].map(z=><Glazing key={z} x={a*8.5} z={z} w={2} turn={-a*Math.PI/2} time={time} weather={weather} event={event}/>)}
  {[-11,-17.2].map(z=><Glazing key={z} x={a*6.9} z={z} w={3.2} turn={z===-11?Math.PI:0} time={time} weather={weather} event={event}/>)}
@@ -88,6 +89,7 @@ export default function Greenhouse({time,weather,event,door,active}){
  <Ring p={[0,6.45,-14]} r={1.3} c={brass}/>
  {[-1,1].map(a=><group key={a} position={[a*1.4,0,-6.95]}><B p={[0,1.35,0]} s={[.1,2.7,.15]} c={iron}/><group ref={a<0?left:right} userData={{noBatch:true}}><B p={[-a*.7,1.3,0]} s={[1.34,2.55,.055]} c="#c9e4d7" opacity={.23}/>{[0,.7,1.4].map(x=><B key={x} p={[-a*x,1.3,0]} s={[.04,2.6,.08]} c={iron}/>)}{[.1,1.2,2.6].map(y=><B key={y} p={[-a*.7,y,0]} s={[1.4,.045,.08]} c={iron}/>)}<B p={[-a*1.2,1.18,.09]} s={[.04,.28,.06]} c={brass}/></group></group>)}
  <Ring p={[0,2.05,-6.95]} r={1.4} rot={[0,0,0]} arc={Math.PI}/>
+ </group>
  <Ring p={[0,.04,-14]} r={2.05} t={.08} c="#7b8d7b"/>{Array.from({length:12},(_,i)=><B key={i} p={[Math.sin(i*Math.PI/6)*1.85,.03,-14+Math.cos(i*Math.PI/6)*1.85]} s={[.18,.025,.18]} rot={[0,i*Math.PI/6,0]} c={brass}/>)}
  <group userData={{noBatch:true}}><Water active={active}/><Water pond active={active}/></group>
  {[-1,1].map(a=><group key={'path'+a}>{[-12,-13,-14,-15,-16].map((z,i)=><mesh key={z} position={[a*(2.05+(i%2)*.1),.03,z]} rotation={[-Math.PI/2,0,i*.4]}><circleGeometry args={[.42,6]}/><meshStandardMaterial color={i%2?'#c4c3b4':'#ded9c8'}/></mesh>)}</group>)}

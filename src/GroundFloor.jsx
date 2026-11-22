@@ -57,12 +57,12 @@ function Wall({x,z,w,d,h=5}) {
 function Arch({x=0,z,turn=0,title}) {
   const curve=useMemo(()=>new THREE.CatmullRomCurve3(Array.from({length:31},(_,i)=>{
     const t=i*Math.PI/30
-    return new THREE.Vector3(2.02*Math.cos(t),2.72+1.5*Math.sin(t),0)
+    return new THREE.Vector3(2.02*Math.cos(t),4.35+1.5*Math.sin(t),0)
   })),[])
   return <group position={[x,0,z]} rotation={[0,turn,0]}>
-    {[-2.02,2.02].map(a=><group key={a}><Box p={[a,1.35,0]} s={[.33,2.7,.39]} c="#976d48"/><Box p={[a,.16,0]} s={[.54,.32,.54]}/><Box p={[a,2.68,0]} s={[.46,.22,.51]} c={gold}/></group>)}
+    {[-2.02,2.02].map(a=><group key={a}><Box p={[a,2.17,0]} s={[.33,4.34,.39]} c="#976d48"/><Box p={[a,.16,0]} s={[.54,.32,.54]}/><Box p={[a,4.31,0]} s={[.46,.22,.51]} c={gold}/></group>)}
     <mesh><tubeGeometry args={[curve,36,.15,10,false]}/><meshStandardMaterial color="#a78059"/></mesh>
-    <Plate p={[0,4.55,.13]} label={title} w={1.65}/>
+    <Plate p={[0,6.12,.13]} label={title} w={1.65}/>
   </group>
 }
 function Lamp({p}) {
@@ -163,8 +163,8 @@ function Stacks({layout,onGenre,onPick,heldBook}) {
   const w=layout.end-7.15,x=7.15+w/2
   return <group>
     <Floor opening x={x} z={0} w={w} d={11.65} c="#825e43"/>
-    {[-5.85,5.85].map(z=><Wall key={z} x={x} z={z} w={w} d={.26} h={8.8}/>)}
-    <Wall x={layout.end+.1} z={0} w={.28} d={11.8} h={8.8}/>
+    {[-5.85,5.85].map(z=><Wall key={z} x={x} z={z} w={w} d={.26} h={10.3}/>)}
+    <Wall x={layout.end+.1} z={0} w={.28} d={11.8} h={10.3}/>
     {DESKS.map(([a,z])=><Desk key={a+'/'+z} x={a} z={z}/>)}
     {layout.sections.map(({genre,cases,start})=><group key={genre.id}>
       <Rug x={start} z={0} w={2.45} d={3.45} c={genre.wood}/>
@@ -207,10 +207,10 @@ function North({open,onKey,onReady,onNote}) {
     <Floor x={0} z={-9.97} w={4.55} d={6.36}/>
     <Floor x={0} z={-14.03} w={9.5} d={1.87}/>
     {[-1,1].map(a=><group key={a}>
-      <Wall x={a*2.24} z={-10} w={.22} d={6.48} h={4.4}/>
-      <Wall x={a*3.5} z={-13.08} w={2.62} d={.22} h={4.4}/>
-      <Wall x={a*4.74} z={-14.01} w={.22} d={1.95} h={4.4}/>
-      <Wall x={a*3.12} z={-14.96} w={3.46} d={.22} h={4.4}/>
+      <Wall x={a*2.24} z={-10} w={.22} d={6.48} h={6.5}/>
+      <Wall x={a*3.5} z={-13.08} w={2.62} d={.22} h={6.5}/>
+      <Wall x={a*4.74} z={-14.01} w={.22} d={1.95} h={6.5}/>
+      <Wall x={a*3.12} z={-14.96} w={3.46} d={.22} h={6.5}/>
       <SecretCabinet x={a*3.13}/>
     </group>)}
     {[-1,1].map(a=><SecretCabinet key={a} x={a*.75} half={a} moving open={open} onKey={onKey} onReady={onReady}/>)}
@@ -219,7 +219,7 @@ function North({open,onKey,onReady,onNote}) {
       <Floor x={0} z={-17} w={2.95} d={4.08}/>
       <Floor x={0} z={-24.3} w={14.5} d={10.65} c="#79523b"/>
       {[-1,1].map(a=><group key={a}>
-        <Wall x={a*1.47} z={-16.95} w={.21} d={4.08} h={3.35}/>
+        <Wall x={a*1.47} z={-16.95} w={.21} d={4.08} h={5.9}/>
         <Wall x={a*4.3} z={-19} w={5.6} d={.23} h={7.6}/>
         <Wall x={a*7.23} z={-24.3} w={.23} d={10.62} h={7.6}/>
         <group position={[a*5.55,0,-29]}><Box p={[0,1.25,0]} s={[2,2.5,.55]} c="#593a2d"/>{[.46,1.15,1.84].map(y=><Box key={y} p={[0,y,.25]} s={[1.8,.11,.4]} c="#ac7e55"/>)}</group>

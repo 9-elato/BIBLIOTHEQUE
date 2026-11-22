@@ -42,7 +42,7 @@ function FrontDoor({open,onToggle}){
    <MeshBox p={[0,3.90,.18]} s={[1.02,.05,.05]} c={P.brass} metalness={.4}/>
   </group>
  </group>};
- return <group>
+ return <group scale={[1,1.4,1]}>
   {/* Free space between the jambs is a real opening. */}
   <MeshBox p={[-1.42,2.12,11.70]} s={[.19,4.25,.34]} c={P.stone2}/><MeshBox p={[1.42,2.12,11.70]} s={[.19,4.25,.34]} c={P.stone2}/>
   <MeshBox p={[0,4.16,11.7]} s={[3.12,.22,.39]} c={P.stone2}/><Arch x={0} y={4.32} z={11.9} r={1.52} thick={.11}/>
@@ -66,9 +66,9 @@ function Vestibule({evening}){return <group>
   {/* A compact entrance hall, connecting the door at z=11.66 with the library at z=7.8 */}
   <MeshBox p={[0,-.045,9.65]} s={[5.6,.09,4.25]} c="#918273"/>
   {Array.from({length:6},(_,i)=><MeshBox key={i} p={[-2.5+i, .002,9.65]} s={[.018,.015,4.0]} c="#c1a99a"/>)}
-  {[-2.8,2.8].map(x=><group key={x}><MeshBox p={[x,1.1,9.60]} s={[.17,2.2,4]} c="#795743"/><MeshBox p={[x,3.15,9.60]} s={[.15,1.9,4]} c="#e9decd"/></group>)}
-  <MeshBox p={[0,4.17,9.65]} s={[5.9,.19,4.35]} c="#d2bda4"/>
-  <mesh position={[0,4.05,9.65]}><sphereGeometry args={[.36,16,12]}/><meshStandardMaterial color="#ffe6ae" emissive="#ffc477" emissiveIntensity={1.1}/></mesh><pointLight position={[0,3.8,9.65]} intensity={evening?3:1.1} distance={6} color="#ffe1b4"/>
+  {[-2.8,2.8].map(x=><group key={x}><MeshBox p={[x,1.1,9.60]} s={[.17,2.2,4]} c="#795743"/><MeshBox p={[x,4.15,9.60]} s={[.15,3.9,4]} c="#e9decd"/></group>)}
+  <MeshBox p={[0,6.17,9.65]} s={[5.9,.19,4.35]} c="#d2bda4"/>
+  <mesh position={[0,6.05,9.65]}><sphereGeometry args={[.36,16,12]}/><meshStandardMaterial color="#ffe6ae" emissive="#ffc477" emissiveIntensity={1.1}/></mesh><pointLight position={[0,5.8,9.65]} intensity={evening?3:1.1} distance={6} color="#ffe1b4"/>
   <MeshBox p={[-2.33,.85,9.55]} s={[.60,1.65,1.65]} c="#755440"/><MeshBox p={[-2.29,1.7,9.55]} s={[.64,.12,1.7]} c="#a8825e"/>
   <MeshBox p={[-2.23,2.53,9.55]} s={[.08,1.25,.98]} c={P.brass}/><MeshBox p={[-2.16,2.53,9.55]} s={[.045,1.05,.83]} c="#b3c0b6" metalness={.3}/>
   <mesh position={[-1.55,.003,9.3]} rotation={[-Math.PI/2,0,0]}><planeGeometry args={[1.1,1.4]}/><meshStandardMaterial color="#7f6958"/></mesh>

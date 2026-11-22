@@ -67,7 +67,7 @@ def shell(name,x,z,w,d,h,door=False):
  # Four facade walls; front entrance is genuinely open at ground level.
  if door:
   for a in [-1,1]:box(name+' front flank',(x+a*(w/4+.8),h/2,z+d/2),(w/2-1.6,h,.3),stone)
-  box(name+' entrance lintel',(x,(h+4.6)/2,z+d/2),(3.2,h-4.6,.3),stone)
+  box(name+' entrance lintel',(x,(h+6.2)/2,z+d/2),(3.2,h-6.2,.3),stone)
  else:box(name+' front',(x,h/2,z+d/2),(w,h,.3),stone)
  box(name+' rear',(x,h/2,z-d/2),(w,h,.3),stone)
  for side in [-1,1]:box(name+' side',(x+side*w/2,h/2,z),(.3,h,d),stone)
@@ -90,10 +90,10 @@ for x in [-6.5,0,6.5]:roof('Main gable',x,1.5,7.1,21,15,4.1 if x==0 else 3.3)
 for x,z in [(-7,-4),(6,-3),(-3,6)]:chimney(x,z,17)
 # Projecting portico keeps the existing interactive entrance clear.
 for a in [-1,1]:
- box('Portico pier',(a*2.05,2.2,12.1),(.65,4.4,2.1),trim)
- for y in [.2,3.9,4.2]:box('Portico capital',(a*2.05,y,12.9),(.88,.18,.8),stone)
-box('Portico entablature',(0,4.45,12.2),(5.2,.4,2.6),trim);roof('Portico pediment',0,12.2,5.4,2.8,4.65,1.6)
-arch('Portico upper fanlight',0,5.15,13.64,1.5,1.7)
+ box('Portico pier',(a*2.05,3.0,12.1),(.65,6.0,2.1),trim)
+ for y in [.2,5.5,5.8]:box('Portico capital',(a*2.05,y,12.9),(.88,.18,.8),stone)
+box('Portico entablature',(0,6.05,12.2),(5.2,.4,2.6),trim);roof('Portico pediment',0,12.2,5.4,2.8,6.25,1.6)
+arch('Portico upper fanlight',0,6.75,13.64,1.5,1.7)
 for side,name in [(-1,'West Tower'),(1,'East Tower')]:
  section(name);x=side*13.2;z=7.3
  cylinder(name+' stone drum',(x,8.7,z),3.35,17.4,stone,12)
@@ -149,6 +149,8 @@ for coll in list(bpy.data.collections):
    for mod in list(o.modifiers):bpy.ops.object.modifier_apply(modifier=mod.name)
   bpy.context.view_layer.objects.active=objects[0];bpy.ops.object.join();objects[0].name=coll.name+' - '+m.name
 bpy.ops.export_scene.gltf(filepath=os.path.join(ROOT,'public/models/manor_estate.glb'),export_format='GLB',export_apply=True,export_animations=False)
+import sys
+if '--no-preview' in sys.argv: sys.exit(0)
 # Dedicated Blender previews, separate from the playable scene.
 scene=bpy.context.scene;scene.render.engine='CYCLES';scene.cycles.samples=24;scene.cycles.use_denoising=True
 scene.render.resolution_x=1200;scene.render.resolution_y=850;scene.render.resolution_percentage=100

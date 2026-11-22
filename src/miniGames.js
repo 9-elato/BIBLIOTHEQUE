@@ -1,7 +1,7 @@
 export const GAME_SPOTS=[
  {id:'herbs',title:'온실 식물 짝맞추기',x:5.75,z:-15.7,y:7.97,level:7.2},
  {id:'shelves',title:'열람실 책 순서 퍼즐',x:10.25,z:0,y:8.07,level:7.2},
- {id:'cipher',title:'작업실 암호 자물쇠',x:.65,z:-28.72,y:1.12,level:0},
+ {id:'cipher',title:'작업실 암호 자물쇠',x:.65,z:-28.42,y:1.12,level:0},
 ]
 export const HERBS=['민트','라벤더','로즈마리','타임','바질','세이지','자스민','카모마일']
 export function shuffled(items,random=Math.random){

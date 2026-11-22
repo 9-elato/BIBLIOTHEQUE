@@ -1,3 +1,4 @@
+import SeaWater from './SeaWater'
 import {useFrame} from '@react-three/fiber'
 import {natureMood} from './natureMood'
 import React,{useRef,useLayoutEffect,useMemo,useEffect} from 'react'
@@ -9,7 +10,7 @@ import {Box as B} from './GroundFloor'
 export default function EstateLandscape({time,weather}){
  const trunks=useRef(),crowns=useRef(),rocks=useRef(),hills=useRef(),m= natureMood(time,weather),night=m.evening
  const wind=useMemo(()=>({value:0}),[])
- const leafMaterial=useMemo(()=>{const material=new THREE.MeshStandardMaterial({roughness:.94});material.onBeforeCompile=shader=>{shader.uniforms.forestWind=wind;shader.vertexShader='uniform float forestWind;\n'+shader.vertexShader;shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n transformed.x += sin(forestWind+instanceMatrix[3].x*.21+position.y*1.7)*.025*max(0.,position.y+.2);')};return material},[wind])
+ const leafMaterial=useMemo(()=>{const material=new THREE.MeshStandardMaterial({roughness:.94});material.onBeforeCompile=shader=>{shader.uniforms.forestWind=wind;shader.vertexShader='uniform float forestWind;\n'+shader.vertexShader;shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n transformed.x += sin(forestWind+instanceMatrix[3].x*.21+position.y*1.7)*.055*max(0.,position.y+.2);')};return material},[wind])
  useEffect(()=>()=>leafMaterial.dispose(),[leafMaterial])
  useFrame(({clock})=>{wind.value=clock.elapsedTime*m.wind})
  useLayoutEffect(()=>{
@@ -39,8 +40,8 @@ export default function EstateLandscape({time,weather}){
  <B p={[16.7,-5.7,-.2]} s={[19.1,.7,14.1]} c="#747969"/>
  <B p={[7.0,-2.7,2]} s={[.5,5,9]} c="#82816c"/>
  </StaticBatch>
- <mesh position={[0,-7,-88]} rotation={[-Math.PI/2,0,0]}><planeGeometry args={[200,105]}/><meshStandardMaterial color={m.sea} metalness={.3} roughness={.22}/></mesh>
- <mesh position={[-83,-7,0]} rotation={[-Math.PI/2,0,0]}><planeGeometry args={[90,130]}/><meshStandardMaterial color={m.sea} metalness={.3} roughness={.22}/></mesh>
+ <SeaWater position={[0,-7,-88]} size={[200,105]} time={time} weather={weather}/>
+ <SeaWater position={[-83,-7,0]} size={[90,130]} time={time} weather={weather}/>
  <mesh position={[25,-5.38,17]} rotation={[-Math.PI/2,0,0]} scale={[1.5,1,1]}><circleGeometry args={[6,48]}/><meshPhysicalMaterial color={night?'#284a43':'#527f71'} metalness={.45} roughness={.18} clearcoat={1}/></mesh>
  </group>
 }

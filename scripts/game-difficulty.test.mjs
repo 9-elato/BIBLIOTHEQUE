@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {HERBS,inversions,shelfPuzzle,adjacentSwap,cipherFeedback} from '../src/miniGames.js'
 import {boardResult,playBoard} from '../src/boardGame.js'
-import {READING_CLEAR_HEIGHT,eastHallClosure,readingCeilingY,HALL_CEILING} from '../src/upperArchitecture.js'
+import {STACKS_CEILING_START,THIRD_PERSON_ELEVATION,READING_CLEAR_HEIGHT,eastHallClosure,readingCeilingY,HALL_CEILING} from '../src/upperArchitecture.js'
 import {GALLERY_HEIGHT} from '../src/navigation.js'
 test('hard puzzles have eight pairs, meaningful shuffles and adjacent-only moves',()=>{
  assert.equal(new Set(HERBS).size,8)
@@ -21,4 +21,11 @@ test('reading room clear height and east hall wall use one matching ceiling boun
  assert.equal(wall.center-wall.height/2,readingCeilingY(GALLERY_HEIGHT))
  assert.equal(wall.center+wall.height/2,HALL_CEILING)
  assert.ok(wall.height>0)
+})
+
+test("stacks ceiling clears upstairs footprint and the default camera rises by three metres",()=>{
+ assert.ok(STACKS_CEILING_START>15.3)
+ const rise=6*Math.sin(THIRD_PERSON_ELEVATION)
+ assert.ok(Math.abs(rise-3)<1e-9)
+ assert.ok(1.65+rise+.35<READING_CLEAR_HEIGHT)
 })

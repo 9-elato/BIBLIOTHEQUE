@@ -32,14 +32,14 @@ export default function StudyRoom({open,prepare=false,door,time,weather,event,on
  const activate=fn=>e=>{e.stopPropagation();fn()}
  return <group visible={open||prepare}><StaticBatch revision={`${time}:${weather}:${event}:${lamp}`}>
   {[-1,1].map(side=><group key={side}>
-   <B p={[side*1.37,1.64,-17]} s={[.10,3.25,3.8]} c="#483025"/>
+   <B p={[side*1.37,2.89,-17]} s={[.10,5.75,3.8]} c="#483025"/>
    <B p={[side*1.30,1.15,-17]} s={[.06,.06,3.8]} c="#a08053"/>
    <Painting p={[side*1.29,1.97,side<0?-16.2:-17.3]} turn={-side*Math.PI/2} index={side+1}/>
   </group>)}
   <Painting p={[-1.29,1.97,-18.1]} turn={Math.PI/2} index={1}/>
   <group position={[1.28,2.45,-15.8]} rotation={[0,-Math.PI/2,0]}><B s={[.46,.68,.10]} c="#593b2a"/><mesh position={[0,.08,.07]}><circleGeometry args={[.18,32]}/><meshStandardMaterial color="#e6d7b7"/></mesh><group userData={{noBatch:true}} ref={clock} position={[0,.08,.08]}><B p={[0,.06,0]} s={[.012,.14,.01]} c="#3d332b"/></group><B p={[.055,.08,.09]} s={[.11,.015,.01]} c="#3d332b"/></group>
-  <B p={[0,5.5,-19]} s={[3.02,4.2,.19]} c="#4d3528"/>
-  {[-1,1].map((side,i)=><group key={side} position={[side*1.32,0,-19]}><group userData={{noBatch:true}} ref={el=>refs.current[i]=el}><B p={[-side*.66,1.7,0]} s={[1.31,3.4,.16]} c="#513628"/>{[.78,2.45].map(y=><B key={y} p={[-side*.66,y,.095]} s={[1.05,1.24,.045]} c="#654735"/>)}<B p={[-side*1.12,1.5,.14]} s={[.055,.23,.06]} c="#b5995c" metal={.7}/></group></group>)}
+  <B p={[0,6.5,-19]} s={[3.02,2.2,.19]} c="#4d3528"/>
+  {[-1,1].map((side,i)=><group key={side} position={[side*1.32,0,-19]}><group userData={{noBatch:true}} ref={el=>refs.current[i]=el}><B p={[-side*.66,2.7,0]} s={[1.31,5.4,.16]} c="#513628"/>{[.78,2.45].map(y=><B key={y} p={[-side*.66,y,.095]} s={[1.05,1.24,.045]} c="#654735"/>)}<B p={[-side*1.12,1.5,.14]} s={[.055,.23,.06]} c="#b5995c" metal={.7}/></group></group>)}
   {/* Finishes and a generous central route; all floor props have matching collision boxes. */}
   <mesh position={[0,.024,-24.3]} rotation={[-Math.PI/2,0,0]}><planeGeometry args={[14.1,10.4]}/><meshStandardMaterial map={textures.floor} bumpMap={textures.floor} bumpScale={.018} roughness={.87}/></mesh>
   {[-1,1].map(side=><group key={side}>
@@ -55,14 +55,14 @@ export default function StudyRoom({open,prepare=false,door,time,weather,event,on
   <WovenRug p={[0,.05,-26.45]} size={[4.9,3.7]} color="#763d4c"/>
   <RoundRug p={[-3.8,.067,-24.8]}/>
   {/* Writing desk: broad top, two drawer pedestals, keyholes and a leather blotter. */}
-  <CoastalStudy time={time} weather={weather} onMusic={onMusic}/><group position={[0,0,-28.72]}>
-   <B finish={finishes.walnut} p={[0,.91,0]} s={[3.2,.22,1.05]} c="#513627"/>
+  <CoastalStudy time={time} weather={weather} onMusic={onMusic}/><group position={[0,0,-28.42]}>
+   <B finish={finishes.walnut} p={[0,.91,0]} s={[3.2,.22,1.65]} c="#513627"/>
    {[-1,1].map(side=><group key={side}>
-    <B finish={finishes.walnut} p={[side*1.16,.42,0]} s={[.72,.84,.91]} c="#483023"/>
-    {[.2,.44,.68].map(y=><group key={y}><B finish={finishes.walnut} p={[side*1.16,y,.48]} s={[.65,.20,.035]} c="#6b4933"/><B finish={finishes.brass} p={[side*1.16,y,.515]} s={[.19,.028,.035]} c="#b9975c" metal={.7}/></group>)}
-    <mesh position={[side*1.16,.76,.524]}><circleGeometry args={[.018,12]}/><meshStandardMaterial color="#211d18"/></mesh>
+    <B finish={finishes.walnut} p={[side*1.16,.42,0]} s={[.72,.84,1.51]} c="#483023"/>
+    {[.2,.44,.68].map(y=><group key={y}><B finish={finishes.walnut} p={[side*1.16,y,.78]} s={[.65,.20,.035]} c="#6b4933"/><B finish={finishes.brass} p={[side*1.16,y,.815]} s={[.19,.028,.035]} c="#b9975c" metal={.7}/></group>)}
+    <mesh position={[side*1.16,.76,.824]}><circleGeometry args={[.018,12]}/><meshStandardMaterial color="#211d18"/></mesh>
    </group>)}
-   <B finish={finishes.leather} p={[0,1.032,.06]} s={[1.35,.016,.65]} c="#294f3e"/>
+   <B finish={finishes.leather} p={[0,1.032,.06]} s={[1.6,.016,1.05]} c="#294f3e"/>
    <group userData={{noBatch:true}} onClick={activate(onNotes)}><B p={[-.12,1.06,.23]} s={[.55,.04,.38]} c="#e0d1ad"/><B p={[-.12,1.085,.23]} s={[.012,.005,.36]} c="#8c6c4c"/></group>
    <Quill p={[.62,1.035,-.03]}/><Folios tidy p={[1.13,1.035,-.08]}/>
    <group userData={{noBatch:true}} position={[-.95,1.04,-.1]} onClick={activate(()=>{setLamp(v=>{localStorage.setItem('mll-study-lamp',v?'off':'on');return !v})})}>
@@ -73,7 +73,7 @@ export default function StudyRoom({open,prepare=false,door,time,weather,event,on
    <group userData={{noBatch:true}} position={[.15,1.05,-.33]} onClick={activate(onNotes)}><B p={[0,.1,0]} s={[.55,.17,.34]} c="#302d2a"/>{Array.from({length:18},(_,i)=><B key={i} p={[(i%6-2.5)*.07,.195,.03+Math.floor(i/6)*.07]} s={[.04,.025,.04]} c="#c8bfa6"/>)}<B p={[0,.3,-.1]} s={[.43,.24,.016]} c="#e6dcc3"/></group>
   </group>
 
-  <ReadingChair finish={finishes.leather} item={{x:0,z:-27.3,level:0,turn:Math.PI,color:'#543b31'}}/>
+  <ReadingChair finish={finishes.leather} item={{x:0,z:-26.65,level:0,turn:Math.PI,color:'#543b31'}}/>
   <group position={[0,5.5,-24.7]}><B p={[0,1,0]} s={[.04,2,.04]} c="#a68a53" metal={.6}/><mesh rotation={[Math.PI/2,0,0]}><torusGeometry args={[.72,.035,8,40]}/><meshStandardMaterial color="#b79a60" metalness={.7}/></mesh>{[0,1,2,3,4,5].map(i=><group key={i} position={[Math.cos(i*Math.PI/3)*.72,0,Math.sin(i*Math.PI/3)*.72]}><B p={[0,.14,0]} s={[.09,.28,.09]} c="#ead8b2"/><mesh position={[0,.34,0]}><sphereGeometry args={[.065,12,8]}/><meshStandardMaterial color="#ffe8b4" emissive="#ffce85" emissiveIntensity={1.4}/></mesh></group>)}<pointLight position={[0,-.25,0]} intensity={10} distance={13} color="#ffdcab"/></group>
   <group position={[6.25,0,-20.7]} rotation={[0,-Math.PI/2,0]}><B p={[0,.44,0]} s={[3,.18,.82]} c="#4c3325"/>{[-1.2,1.2].map(x=><B key={x} p={[x,.2,0]} s={[.14,.4,.55]} c="#62432e"/>)}<B finish={finishes.velvet} p={[0,.59,0]} s={[2.9,.16,.76]} c="#7d5557" r={.07}/>{[-.9,.8].map(x=><B key={x} p={[x,.8,-.1]} s={[.52,.24,.47]} c="#cdbf9d" r={.10} rot={[.15,x*.13,0]}/>)}<B p={[.35,.72,.15]} s={[.64,season==='winter'?.15:.055,.75]} c="#74806a" r={.04}/></group>
   <group userData={{noBatch:true}} position={[6.40,.13,-25.9]} rotation={[0,-Math.PI/2,0]} scale={[1.5,1,1]} onClick={e=>{e.stopPropagation();onMusic()}}><B p={[0,.54,0]} s={[1.1,1.08,1.15]} c="#4b3427"/>{Array.from({length:12},(_,i)=><B key={i} p={[-.42+i*.075,.52,.58]} s={[.035,.7,.04]} c={['#ab8c68','#476659','#8a5960'][i%3]}/>)}<B p={[0,1.12,0]} s={[1.02,.12,1.05]} c="#846446"/><group userData={{noBatch:true}} ref={disc} position={[0,1.195,.03]} scale={[2/3,1,1]}><mesh><cylinderGeometry args={[.36,.36,.018,40]}/><meshStandardMaterial color="#222125" roughness={.4}/></mesh><mesh position={[0,.012,0]}><cylinderGeometry args={[.10,.10,.008,24]}/><meshStandardMaterial color="#a96e5f"/></mesh></group><B p={[.32,1.24,-.05]} s={[.025,.025,.57]} c="#c1a76e" metal={.6} rot={[0,-.3,0]}/></group>

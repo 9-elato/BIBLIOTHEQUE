@@ -43,7 +43,8 @@ export const FURNITURE=[
  {floor:0,rect:[5.78,6.74,-22.2,-19.2],id:'study-bench'},
  {floor:0,rect:[5.8,7,-29.47,-22.33],id:'study-lp'},
 
- {floor:0,rect:[-.64,.64,-27.82,-26.78],id:'study-desk-chair'},
+ {floor:0,rect:[-1.6,1.6,-29.245,-27.595],id:'study-writing-desk'},
+ {floor:0,rect:[-.64,.64,-27.17,-26.13],id:'study-desk-chair'},
  ...CONSERVATORY_SOLIDS.map(s=>({...s,floor:GALLERY_HEIGHT})),
 
   {floor:0,rect:[-4.44,-3.16,-25.52,-24.48],id:'study-chair'},

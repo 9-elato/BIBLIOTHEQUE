@@ -5,10 +5,10 @@ import {STUDY_CHAIR} from './roomFurniture'
 export default function SecretDetails({open,prepare=false,time}){
  if(!open&&!prepare)return null
  return <group visible={open}><StaticBatch revision={time}>
-  <B p={[0,3.46,-17]} s={[3.1,.18,4.1]} c="#baa584"/>
+  <B p={[0,5.96,-17]} s={[3.1,.18,4.1]} c="#baa584"/>
   {[-15.4,-17,-18.7].map(z=><group key={z}>
-   <B p={[0,3.26,z]} s={[2.9,.18,.18]} c="#6a4a35"/>
-   {[-1,1].map(a=><group key={a}><B p={[a*1.31,1.62,z]} s={[.12,3.25,.14]} c="#77533c"/><WallSconce p={[a*1.29,2.2,z+.35]} turn={-a*Math.PI/2} time={time}/></group>)}
+   <B p={[0,5.76,z]} s={[2.9,.18,.18]} c="#6a4a35"/>
+   {[-1,1].map(a=><group key={a}><B p={[a*1.31,2.87,z]} s={[.12,5.75,.14]} c="#77533c"/><WallSconce p={[a*1.29,2.2,z+.35]} turn={-a*Math.PI/2} time={time}/></group>)}
   </group>)}
   <WovenRug p={[0,.035,-17]} size={[1.4,3.7]} color="#6c3545"/>
   <B p={[0,7.68,-24.3]} s={[14.6,.18,10.7]} c="#c4af90"/>

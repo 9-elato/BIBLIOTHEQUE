@@ -1,3 +1,4 @@
+import {STACKS_CEILING_START} from './upperArchitecture'
 import React,{useState} from 'react'
 import {useFrame} from '@react-three/fiber'
 import {CarvedBox as B,Quill} from './StorybookDecor'
@@ -38,12 +39,12 @@ export default function MainRoomDetails({layout,time,zone}){
   <B p={[a*4.2,3.55,-6.55]} s={[1.05,.08,.08]} c="#a48b5e"/>
  </group>)}
  {/* Ceiling and framed botanical prints give the north corridor an enclosed scale. */}
- <B p={[0,4.45,-9.96]} s={[4.5,.16,6.35]} c="#cbb697"/>
- <B p={[0,4.45,-14.03]} s={[9.5,.16,1.9]} c="#cbb697"/>
- <B p={[0,4.03,-15.03]} s={[9.5,.82,.16]} c="#c4ad8e"/>
+ <B p={[0,6.55,-9.96]} s={[4.5,.16,6.35]} c="#cbb697"/>
+ <B p={[0,6.55,-14.03]} s={[9.5,.16,1.9]} c="#cbb697"/>
+ <B p={[0,6.13,-15.03]} s={[9.5,.82,.16]} c="#c4ad8e"/>
  {[-7.4,-9.6,-11.8].map(z=><group key={z}>
-  <B p={[0,4.29,z]} s={[4.45,.17,.16]} c="#79573b"/>
-  <B p={[0,4.18,z]} s={[4.45,.045,.24]} c="#b19a6e"/>
+  <B p={[0,6.39,z]} s={[4.45,.17,.16]} c="#79573b"/>
+  <B p={[0,6.28,z]} s={[4.45,.045,.24]} c="#b19a6e"/>
  </group>)}
  {[-1,1].map(a=><Print key={a} p={[a*2.075,2.5,-10]} turn={-a*Math.PI/2} color={a<0?'#65765e':'#70604f'}/>)}
  {DESKS.map(([x,z])=><group key={`${x}/${z}`}>
@@ -51,7 +52,7 @@ export default function MainRoomDetails({layout,time,zone}){
   <Quill p={[x+.78,.95,z+.15]}/>
   {[-.835,.835].map(a=><B key={a} p={[x+a,.2,z+.28]} s={[.2,.10,.2]} c="#a28155"/>)}
  </group>)}
- <B p={[(layout.end+7.15)/2,8.95,0]} s={[layout.end-7.15,.16,11.7]} c="#cbb697"/>
+ <B p={[(layout.end+STACKS_CEILING_START)/2,10.4,0]} s={[layout.end-STACKS_CEILING_START,.16,11.7]} c="#cbb697"/>
  {layout.sections.map(({genre,start,cases},i)=><group key={genre.id}>
   <B p={[start,8.8,0]} s={[.16,.17,11.5]} c={genre.trim}/>
   <Pendant p={[start,7.6,0]} color={genre.wood} time={time} lit={zone==='서가'&&i===nearest}/>

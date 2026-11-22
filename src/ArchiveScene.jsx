@@ -1,3 +1,5 @@
+import {THIRD_PERSON_ELEVATION} from './upperArchitecture'
+import DriftingClouds from './DriftingClouds'
 import {sceneLighting} from './natureMood'
 import Basement from './Basement'
 import EstateLandscape from './EstateLandscape'
@@ -227,7 +229,7 @@ function WalkControl({playerPosition,verandaDoor,blanket,onBlanket,glassDoor,stu
     const cameraSin=Math.sin(cameraYaw.current),cameraCos=Math.cos(cameraYaw.current)
     eye.set(s.x,visualY*WORLD_HEIGHT_SCALE+1.65-.65*pose.current.amount-.65*(pose.current.recline||0)/(Math.PI/2),s.z)
     if(mode==='third'){
-      rayDirection.set(-cameraSin,pose.current.recline>.1?1:.32,cameraCos).normalize()
+      rayDirection.set(-cameraSin,pose.current.recline>.1?1:Math.tan(THIRD_PERSON_ELEVATION),cameraCos).normalize()
       ray.set(eye,rayDirection);ray.far=6.15;ray.near=.12
       const check=occlusion.current
       check.elapsed+=dt
@@ -247,7 +249,7 @@ function WalkControl({playerPosition,verandaDoor,blanket,onBlanket,glassDoor,stu
     camera.position.copy(eye).addScaledVector(rayDirection,follow)
 
     look.set(s.x+cameraSin*5,eye.y+s.pitch*5,s.z-cameraCos*5)
-    if(mode==='third')look.lerp(target.set(s.x,visualY*WORLD_HEIGHT_SCALE+.8+s.pitch,s.z),pose.current.amount)
+    if(mode==='third')look.set(s.x,eye.y+s.pitch*3,s.z)
     if(mode==='third'&&pose.current.recline>.1)look.copy(eye)
     if(s.cinema&&s.seated?.posture==='lying'){camera.position.copy(eye);look.set(-13.634,(ATTIC_HEIGHT+4.7)*WORLD_HEIGHT_SCALE,-.4)}
     const desiredFov=mode==='third'?73:69
@@ -296,7 +298,7 @@ function ArchiveScene({blanket,onBlanket,onMusic,onExperience,books=[],placement
   const unlock=()=>{if(!open)setOpen(true)}
   const light=sceneLighting({time,weather,outside,greenhouse:inGreenhouse,cozy:inLounge})
   return <Canvas frameloop={blocked?'demand':'always'} camera={{fov:69,near:.065,far:190,position:[0,2,25]}} shadows dpr={1} gl={{powerPreference:'high-performance'}}>
-    <color attach="background" args={[light.sky]}/>
+    <color attach="background" args={[light.sky]}/><DriftingClouds time={time} weather={weather}/>
     {!map&&<fog attach="fog" args={[light.fog,light.fogNear,light.fogFar]}/>}
     <ambientLight color={light.evening?'#b9c5d4':'#f4f0e2'} intensity={light.ambient}/>
     <hemisphereLight args={[light.sky,'#665b48',light.hemisphere]}/>
