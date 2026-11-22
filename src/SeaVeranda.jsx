@@ -15,8 +15,9 @@ export default function SeaVeranda({door,time,weather,onExperience}){
   {[-20.5,-8.9].map(x=><B key={x} p={[x,3.1,-10.4]} s={[.2,6.2,7.5]} c="#b2a28b"/>)}
   <group userData={{noBatch:true}}><OceanWindow p={[-14.7,3.1,-14.08]} w={11.5} h={6.2} time={time} weather={weather}/></group>
   <B p={[-14.7,.13,-13.85]} s={[11.6,.26,.3]} c="#5d4736"/>
+  <B p={[-14.7,4.25,-13.8]} s={[11.2,.10,.12]} c="#554031"/>
   {[-20.2,-9.2].map(x=><group key={x}>
-   <B p={[x,2.15,-13.8]} s={[.18,4.3,.22]} c="#554031"/>
+   <B p={[x,3.1,-13.8]} s={[.18,6.2,.22]} c="#554031"/>
    {[-.18,0,.18].map(a=><mesh key={a} position={[x+a,2.1,-13.56]}><cylinderGeometry args={[.14,.20,4.1,8]}/><meshStandardMaterial color="#e6dcc9" roughness={1}/></mesh>)}
   </group>)}
   {[-11.17,-9.23].map(x=><B key={x} p={[x,2.65,-6.65]} s={[.13,5.3,.3]} c="#50372b"/>)}

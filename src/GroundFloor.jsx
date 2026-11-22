@@ -1,3 +1,4 @@
+import {HALL_ARCH,archInfillPoints,SECRET_BOOKCASE_SCALE,SECRET_BOOKCASE_TOP,CORRIDOR_TOP} from './groundArchitecture'
 import {cutFloor} from './basementLayout'
 import {advanceGate,gatePose} from './secretGate'
 import React, {useEffect,useMemo,useRef} from 'react'
@@ -57,9 +58,12 @@ function Wall({x,z,w,d,h=5}) {
 function Arch({x=0,z,turn=0,title}) {
   const curve=useMemo(()=>new THREE.CatmullRomCurve3(Array.from({length:31},(_,i)=>{
     const t=i*Math.PI/30
-    return new THREE.Vector3(2.02*Math.cos(t),4.35+1.5*Math.sin(t),0)
+    return new THREE.Vector3(HALL_ARCH.halfWidth*Math.cos(t),HALL_ARCH.spring+HALL_ARCH.rise*Math.sin(t),0)
   })),[])
+  const infill=useMemo(()=>{const shape=new THREE.Shape(archInfillPoints().map(([x,y])=>new THREE.Vector2(x,y)));return new THREE.ExtrudeGeometry(shape,{depth:.28,bevelEnabled:false})},[])
+  useEffect(()=>()=>infill.dispose(),[infill])
   return <group position={[x,0,z]} rotation={[0,turn,0]}>
+    <mesh geometry={infill} position={[0,0,-.14]} receiveShadow><meshStandardMaterial color={cream} roughness={.85}/></mesh>
     {[-2.02,2.02].map(a=><group key={a}><Box p={[a,2.17,0]} s={[.33,4.34,.39]} c="#976d48"/><Box p={[a,.16,0]} s={[.54,.32,.54]}/><Box p={[a,4.31,0]} s={[.46,.22,.51]} c={gold}/></group>)}
     <mesh><tubeGeometry args={[curve,36,.15,10,false]}/><meshStandardMaterial color="#a78059"/></mesh>
     <Plate p={[0,6.12,.13]} label={title} w={1.65}/>
@@ -187,7 +191,7 @@ function SecretCabinet({x=0,half=0,moving,open,onKey,onReady}) {
   })
   useEffect(()=>{if(!open)ready.current=false},[open])
   const w=moving?1.48:2.72
-  return <group position={[x,0,-14.65]}><group ref={ref}>
+  return <group position={[x,0,-14.65]} scale={[1,SECRET_BOOKCASE_SCALE,1]}><group ref={ref}>
     <Box p={[0,1.79,-.24]} s={[w,3.58,.27]} c="#57382a"/>
     {[-1,1].map(a=><Box key={a} p={[a*(w/2-.065),1.8,0]} s={[.13,3.6,.57]} c="#67422e"/>)}
     {[.44,1.12,1.8,2.48,3.19].map((y,j)=><group key={y}>
@@ -214,6 +218,8 @@ function North({open,onKey,onReady,onNote}) {
       <SecretCabinet x={a*3.13}/>
     </group>)}
     {[-1,1].map(a=><SecretCabinet key={a} x={a*.75} half={a} moving open={open} onKey={onKey} onReady={onReady}/>)}
+    <Box p={[0,(CORRIDOR_TOP+SECRET_BOOKCASE_TOP)/2,-14.96]} s={[3.05,CORRIDOR_TOP-SECRET_BOOKCASE_TOP,.24]} c={cream}/>
+    <Box p={[0,SECRET_BOOKCASE_TOP+.06,-14.59]} s={[3.1,.12,.22]} c="#896744"/>
     <Lamp p={[0,3.63,-10.6]}/><Lamp p={[0,3.4,-13.3]}/>
     {open&&<>
       <Floor x={0} z={-17} w={2.95} d={4.08}/>

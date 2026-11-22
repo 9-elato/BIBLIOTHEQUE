@@ -130,7 +130,10 @@ export default function LoungeRoom({weather,time,event}){
   <Box p={[-10.2,6.15,-6.7]} s={[1.8,1.7,.25]} c="#c4ad8e"/>
   <Box p={[-20.59,3.5,0]} s={[.25,7,13.5]} c="#c4ad8e"/>
   <Box p={[-14.05,5.95,6.7]} s={[13.1,2.2,.25]} c="#c4ad8e"/>
-  <Box p={[-13.15,.62,6.7]} s={[11.3,1.24,.25]} c={wood}/>
+  <Box p={[-14.05,.62,6.7]} s={[13.1,1.24,.25]} c={wood}/>
+  {/* Window bank ends meet the side walls, with no open strip to the exterior. */}
+  <Box p={[-19.47,2.425,6.7]} s={[2.26,4.85,.25]} c={ivory}/>
+  <Box p={[-7.72,2.425,6.7]} s={[.44,4.85,.25]} c={ivory}/>
   {[.15,1.42,6.82].map(y=><group key={y}>
    <Box p={[-15,y,-6.51]} s={[7.4,.12,.15]} c={y>4?ivory:wood}/><Box p={[-8.4,y,-6.51]} s={[1.5,.12,.15]} c={y>4?ivory:wood}/>
    <Box p={[-20.4,y,0]} s={[.15,.12,13.3]} c={y>4?ivory:wood}/>

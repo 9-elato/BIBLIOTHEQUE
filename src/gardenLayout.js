@@ -4,6 +4,8 @@ export const GARDEN_BEDS=[[-6,25],[6,19]]
 export const GARDEN_TREES=[[-10,16],[10,16],[-10,28],[10,28]]
 export const GARDEN_LAMPS=[[-2.65,18],[2.65,18],[-2.65,27],[2.65,27]]
 export const GARDEN_SOLIDS=[
+ {id:'vestibule-console',rect:[-2.65,-2.01,8.70,10.40]},
+ {id:'vestibule-coat-stand',rect:[2.10,2.30,9.90,10.10]},
  ...GARDEN_BENCHES.map(([x,z])=>({id:'garden-bench',rect:[x-1.5,x+1.5,z-.55,z+.55]})),
  ...GARDEN_BEDS.map(([x,z])=>({id:'garden-flowerbed',rect:[x-1.6,x+1.6,z-1,z+1]})),
  ...GARDEN_TREES.map(([x,z])=>({id:'garden-tree',rect:[x-.45,x+.45,z-.45,z+.45]})),

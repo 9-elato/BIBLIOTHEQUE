@@ -52,6 +52,7 @@ export default function MainRoomDetails({layout,time,zone}){
   <Quill p={[x+.78,.95,z+.15]}/>
   {[-.835,.835].map(a=><B key={a} p={[x+a,.2,z+.28]} s={[.2,.10,.2]} c="#a28155"/>)}
  </group>)}
+ <B p={[15.4,11.69,0]} s={[.22,2.78,11.7]} c="#cbb697"/>
  <B p={[(layout.end+STACKS_CEILING_START)/2,10.4,0]} s={[layout.end-STACKS_CEILING_START,.16,11.7]} c="#cbb697"/>
  {layout.sections.map(({genre,start,cases},i)=><group key={genre.id}>
   <B p={[start,8.8,0]} s={[.16,.17,11.5]} c={genre.trim}/>

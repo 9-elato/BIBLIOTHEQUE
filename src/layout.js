@@ -1,3 +1,4 @@
+import {archBlocks} from './groundArchitecture.js'
 import {inMeadow,meadowHeight} from './meadowLayout.js'
 import {atticX} from './atticLayout.js'
 export const GENRES = [
@@ -71,6 +72,7 @@ const SOLIDS = [
 ]
 
 export function canWalk(x,z,{end,gateReady,entranceOpen,verandaDoor}) {
+  if(archBlocks(x,z))return false
   if(x < -8.8 && z < -6.35){
     if(z > -7.15)return Math.abs(x+10.2)<.64 && verandaDoor?.open && (verandaDoor?.amount??0)>.85
     if(x<=-20.25||x>=-9.05||z<=-13.7)return false
