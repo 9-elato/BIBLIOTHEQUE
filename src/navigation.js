@@ -61,6 +61,7 @@ export const FURNITURE=[
   ...READING_CHAIRS.map(s=>({floor:s.level,rect:[s.x-(s.level===ATTIC_HEIGHT?.80:.64),s.x+(s.level===ATTIC_HEIGHT?.80:.64),s.z-(s.level===ATTIC_HEIGHT?.65:.52),s.z+(s.level===ATTIC_HEIGHT?.65:.52)],id:s.id})),
   {floor:GALLERY_HEIGHT,rect:[13.65,14.8,-4.3,4.3],id:'reading-shelves'},
   ...[-3.1,2.4].map(z=>({floor:GALLERY_HEIGHT,rect:[7.05,7.95,z-.92,z+.92],id:'gallery-shelf'})),
+  {floor:ATTIC_HEIGHT,rect:[-17.25,-16.35,8.8,9.8],id:'terrace-telescope'},
   {floor:ATTIC_HEIGHT,rect:[-19.15,-16.05,-1.65,1.65],id:'daybed'},
   {floor:ATTIC_HEIGHT,rect:[-17.45,-14.35,-6.3,-5.1],id:'attic-shelves'},
   {floor:ATTIC_HEIGHT,rect:[-13.78,-12,-5.85,-4.9],id:'attic-cabinet'},
@@ -94,7 +95,7 @@ export function walkHeight(x,z,previousY,world){
     if(supported([BASEMENT_BOUNDS],x,z))candidates.push(BASEMENT_HEIGHT)
     if(supported(upperRegions,x,z))candidates.push(GALLERY_HEIGHT)
     // Doorway is open only at the top landing of the attic stair.
-    const attic=[[atticX(-19.5),-11.65,-6.35,6.35],[-12,-11.43,5.03,6.27]]
+    const attic=[[atticX(-19.5),atticX(-11.65),6.7,10.8],[atticX(-13.6),atticX(-12),6.05,7.1],[atticX(-19.5),-11.65,-6.35,6.35],[-12,-11.43,5.03,6.27]]
     if(supported(attic,x,z)||inRect(x,z,[-11.7,-11.43,5.15,6.15]))candidates.push(ATTIC_HEIGHT)
   }
   // A stair above the player is not a ground-floor barrier. Preserve headroom
@@ -131,7 +132,7 @@ export function floorName(x,z,y){
   if(y<=BASEMENT_HEIGHT+.12)return x>17.8?'숲 전망 욕실':'지하 숲 라운지'
   if(y>.12&&y<GALLERY_HEIGHT-.12)return '중앙 계단'
   if(y>GALLERY_HEIGHT+.12&&y<ATTIC_HEIGHT-.12)return '다락 계단'
-  if(y>=ATTIC_HEIGHT-.12)return '다락방'
+  if(y>=ATTIC_HEIGHT-.12)return z>6.7?'별빛 테라스':'다락방'
   if(y>=GALLERY_HEIGHT-.12&&z<-6.7)return '실내 온실'
   if(y>=GALLERY_HEIGHT-.12)return x>7.55?'열람실':'2층 갤러리'
   return null

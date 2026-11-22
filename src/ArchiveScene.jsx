@@ -150,7 +150,7 @@ function WalkControl({playerPosition,verandaDoor,blanket,onBlanket,glassDoor,stu
       s.lx=e.clientX;s.ly=e.clientY
     }
     const up=e=>{if(s.pointer===e.pointerId)s.pointer=null}
-    const posture=e=>{if(s.seated?.phase==='seated'&&s.seated.seat.id==='attic-daybed'){s.seated={...s.seated,posture:e.detail==='lying'?'lying':'sitting'};s.yaw=e.detail==='lying'?0:-s.seated.seat.turn-.4;s.pitch=0}}
+    const posture=e=>{if(s.seated?.phase==='seated'&&s.seated.seat.id==='attic-daybed'){s.seated={...s.seated,posture:['lying','cinema'].includes(e.detail)?'lying':'sitting'};s.cinema=e.detail==='cinema';s.yaw=e.detail==='lying'?0:-s.seated.seat.turn-.4;s.pitch=0}}
     window.addEventListener('library-seat-pose',posture)
     window.addEventListener('keydown',keyDown);window.addEventListener('keyup',keyUp)
     window.addEventListener('blur',reset)
@@ -248,6 +248,7 @@ function WalkControl({playerPosition,verandaDoor,blanket,onBlanket,glassDoor,stu
     look.set(s.x+cameraSin*5,eye.y+s.pitch*5,s.z-cameraCos*5)
     if(mode==='third')look.lerp(target.set(s.x,visualY*WORLD_HEIGHT_SCALE+.8+s.pitch,s.z),pose.current.amount)
     if(mode==='third'&&pose.current.recline>.1)look.copy(eye)
+    if(s.cinema&&s.seated?.posture==='lying'){camera.position.copy(eye);look.set(-13.634,(ATTIC_HEIGHT+4.7)*WORLD_HEIGHT_SCALE,-.4)}
     const desiredFov=mode==='third'?73:69
     if(Math.abs(camera.fov-desiredFov)>.05){camera.fov=THREE.MathUtils.damp(camera.fov,desiredFov,7,dt);camera.updateProjectionMatrix()}
     camera.lookAt(look)
@@ -278,7 +279,7 @@ function ArchiveScene({blanket,onBlanket,onMusic,onExperience,books=[],placement
   const inGreenhouse=localZone==='실내 온실'
   const inLounge=['지하 숲 라운지','숲 전망 욕실','지하 계단','벽난로 라운지','열람실','다락방'].includes(localZone)
   const upperVisible=['중앙 계단','2층 갤러리','열람실','실내 온실','다락 계단'].includes(localZone)
-  const nearAttic=['중앙 계단','2층 갤러리','열람실','실내 온실','다락 계단','다락방'].includes(localZone)
+  const nearAttic=['중앙 계단','2층 갤러리','열람실','실내 온실','다락 계단','다락방','별빛 테라스'].includes(localZone)
   const [atticLoaded,setAtticLoaded]=useState(false)
   useEffect(()=>{if(nearAttic)setAtticLoaded(true)},[nearAttic])
   const [open,setOpen]=useState(false)

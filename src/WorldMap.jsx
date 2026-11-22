@@ -22,12 +22,13 @@ const FLOORS=[
  ],lines:['M50 17 V20','M17 33 V36','M81 33 V36','M17 55 V67'],notes:'실내온실: 가운데 분수, 서쪽 연못과 벤치, 동쪽 라탄 소파와 티 테이블, 안쪽 열대 식물. 갤러리 가운데는 중앙 홀 위의 열린 공간입니다. 북쪽 온실, 동쪽 열람실, 남서쪽 다락 계단으로 이어집니다.'},
  {name:'3층',rooms:[
   ['attic','다락방','',9,10,82,24,'다락방'],
-  ['atticbed','다락 침대','',9,42,82,23],
+  ['atticbed','다락 침대','',9,42,39,23],
+  ['terrace','별빛 테라스','',52,42,39,23,'별빛 테라스'],
   ['mezzanine','2층 갤러리로','다락 계단을 따라 ↓',36,77,55,16],
  ],lines:['M77 65 V77'],notes:'책을 들고 안락의자나 데이베드에 다가가 E를 누르면 앉아 읽을 수 있습니다.'},
 ]
 FLOORS.push({name:'지하',rooms:[['basement','숲 라운지','',5,27,48,55,'지하 숲 라운지'],['bathroom','숲 전망 욕실','',58,27,37,55,'숲 전망 욕실'],['basementstairs','1층 중앙 홀로','',5,5,90,15,'지하 계단']],lines:['M27 20 V27','M53 52 H58'],notes:'중앙 홀 북동쪽 목재 계단으로 내려옵니다. 지하 남쪽은 경사지에 열린 숲과 연못 전망입니다.'})
-export function floorForZone(zone){return ['지하 숲 라운지','숲 전망 욕실','지하 계단'].includes(zone)?3: zone==='다락방'?2:['2층 갤러리','열람실','다락 계단','실내 온실'].includes(zone)?1:0}
+export function floorForZone(zone){return ['지하 숲 라운지','숲 전망 욕실','지하 계단'].includes(zone)?3: ['다락방','별빛 테라스'].includes(zone)?2:['2층 갤러리','열람실','다락 계단','실내 온실'].includes(zone)?1:0}
 export default function WorldMap({floor,onFloor,zone,onTravel,onClose}){
  const plan=FLOORS[floor]
  return <section className="world-map floating detailed-map" aria-label="저택 층별 지도">

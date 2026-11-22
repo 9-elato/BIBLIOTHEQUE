@@ -1,3 +1,4 @@
+import CinemaControls from './CinemaControls'
 import {localDateKey} from './activityRecords'
 import LibraryActivity from './LibraryActivity'
 import RecordPlayer,{RecordShelf} from './RecordPlayer'
@@ -65,7 +66,8 @@ function App(){const [blanket,setBlanket]=useState(false);const [experience,setE
  <div className="room-badge">⌂ {zone}</div>{interactHint&&<button className="interaction-hint" onClick={performInteract} aria-label="현재 위치에서 상호작용"><kbd>E</kbd>{interactHint}</button>}
  {heldBook&&<div className="holding-hud">{'📖 '+(books.find(b=>b.id===heldBook)?.title||'책')} {heldBook&&<button onClick={()=>readHeldBook(heldBook)}>읽기</button>}<button onClick={()=>{setHeldBook(null)}}>책 돌려놓기</button></div>}
  {(placementState.error||placementNotice)&&<div className="placement-notice" role="status">{placementState.error||placementNotice}{!placementState.error&&<button aria-label="배치 알림 닫기" onClick={()=>setPlacementNotice('')}>×</button>}</div>}
- {seatStatus&&<div className="seat-status" role="status">{seatStatus}<span> E · 일어나기</span>{seatStatus.includes('다락 데이베드')&&!/앉는 중|일어나는 중/.test(seatStatus)&&<button onClick={()=>{setMode('third');window.dispatchEvent(new CustomEvent('library-seat-pose',{detail:seatStatus.includes('누워')?'sitting':'lying'}))}}>{seatStatus.includes('누워')?'다시 앉기':'누워 읽기'}</button>}{heldBook&&<button onClick={()=>setExperience('reader')}>책 크게 보기</button>}{!heldBook&&<button onClick={()=>page('books')}>앉아서 읽을 책 고르기</button>}</div>}
+ <CinemaControls/>
+ {seatStatus&&<div className="seat-status" role="status">{seatStatus}<span> E · 일어나기</span>{seatStatus.includes('다락 데이베드')&&!/앉는 중|일어나는 중/.test(seatStatus)&&<button onClick={()=>{setMode('third');window.dispatchEvent(new CustomEvent('library-seat-pose',{detail:seatStatus.includes('누워')?'sitting':'lying'}))}}>{seatStatus.includes('누워')?'다시 앉기':'누워 읽기'}</button>}{seatStatus.includes('다락 데이베드')&&!/앉는 중|일어나는 중/.test(seatStatus)&&<button onClick={()=>{setMode('first');window.dispatchEvent(new CustomEvent('library-seat-pose',{detail:'cinema'}));window.dispatchEvent(new Event('library-cinema-open'))}}>누워 영화 보기</button>}{heldBook&&<button onClick={()=>setExperience('reader')}>책 크게 보기</button>}{!heldBook&&<button onClick={()=>page('books')}>앉아서 읽을 책 고르기</button>}</div>}
  {(blanket||/소파|안락의자/.test(seatStatus))&&<button className="blanket-action" onClick={()=>setBlanket(v=>!v)}>{blanket?"담요 내려놓기":"담요 덮기"}</button>}
  {experience&&<Experiences book={books.find(b=>b.id===heldBook)} kind={experience} onClose={()=>setExperience(null)}/>}
  <div className="version-label">v3.1 · {character==='labrador'?'labrador edition':character==='fox'?'fox edition':'ghost edition'}</div>
