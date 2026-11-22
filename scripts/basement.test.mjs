@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {BASEMENT_HEIGHT as H,BASEMENT_OPENING,cutFloor} from '../src/basementLayout.js'
+import {BASEMENT_HEIGHT as H,BASEMENT_OPENING,BASEMENT_PORTAL,BASEMENT_CEILING,SPRING_CURBS,cutFloor} from '../src/basementLayout.js'
 import {movePlayer,walkHeight,floorName} from '../src/navigation.js'
 import {SEATS} from '../src/seating.js'
 const world={end:45,entranceOpen:true,gateReady:true}
@@ -33,4 +33,16 @@ test('forest spring dry promenade loops around pool without entering water or ga
  for(const [x,z] of route){p=movePlayer(p,x-p.x,z-p.z,world);assert.ok(Math.hypot(p.x-x,p.z-z)<.03,`spring promenade blocked at ${x},${z}`)}
  for(const [x,z] of [[22,5],[22,8],[22,10.5],[26.2,9]])assert.equal(walkHeight(x,z,H,world),null)
  const towardWater=movePlayer({x:18.7,z:5,level:H},5,0,world);assert.ok(towardWater.x<19.3)
+})
+
+test('stairwell lining blocks underground shortcuts while its landing remains open',()=>{
+ for(const z of [-5.74,-3.86])assert.equal(walkHeight(11,z,H,world),null)
+ let p={x:13.6,z:-4.8,level:H};p=movePlayer(p,0,2.5,world);assert.ok(Math.abs(p.z+2.3)<.01)
+ assert.ok(BASEMENT_PORTAL.clearHeight>=4.65)
+ assert.ok(H+BASEMENT_PORTAL.clearHeight<BASEMENT_CEILING)
+})
+test('spring curb collision matches the visible stone boundary and leaves the loop clear',()=>{
+ for(const curb of SPRING_CURBS){const [l,r,b,f]=curb.rect;assert.equal(walkHeight((l+r)/2,(b+f)/2,H,world),null)}
+ const p=movePlayer({x:22,z:9.3,level:H},0,3,world);assert.ok(p.z<10)
+ for(const [x,z] of [[18.7,9.3],[25.45,9.3]])assert.equal(walkHeight(x,z,H,world),H)
 })
