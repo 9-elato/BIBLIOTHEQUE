@@ -295,8 +295,8 @@ function ArchiveScene({blanket,onBlanket,onMusic,onExperience,books=[],placement
   return <Canvas frameloop={blocked?'demand':'always'} camera={{fov:69,near:.065,far:190,position:[0,2,25]}} shadows dpr={1} gl={{powerPreference:'high-performance'}}>
     <color attach="background" args={[({morning:'#b9ced0',afternoon:'#becbc0',evening:'#708097',night:'#182438'})[time]]}/>
     {!map&&<fog attach="fog" args={[decorTime==='evening'?'#928b84':'#cbbfa7',31,105]}/>}
-    <ambientLight color={time==='night'?'#829bc2':time==='morning'?'#fff1d5':'#ffffff'} intensity={inGreenhouse?(time==='night'?.12:weather==='sunny'?.25:.4):inLounge?(decorTime==='evening'?.22:.4):(decorTime==='evening'?(outside?.27:.65):.97)}/>
-    <hemisphereLight args={['#fff1d8','#7a6655',inGreenhouse?(time==='night'?.18:.45):inLounge?(decorTime==='evening'?.38:.7):(decorTime==='evening'?(outside?.48:1.05):1.68)]}/>
+    <ambientLight color={time==='night'?'#829bc2':time==='morning'?'#fff1d5':'#ffffff'} intensity={inGreenhouse?(decorTime==='evening'?.22:weather==='sunny'?.25:.4):inLounge?(decorTime==='evening'?.22:.4):(decorTime==='evening'?(outside?.27:.65):.97)}/>
+    <hemisphereLight args={['#fff1d8','#7a6655',inGreenhouse?(decorTime==='evening'?.28:.45):inLounge?(decorTime==='evening'?.38:.7):(decorTime==='evening'?(outside?.48:1.05):1.68)]}/>
     <directionalLight color={time==='night'?'#95afd8':time==='morning'?'#ffe5bc':'#ffffff'} position={time==='morning'?[12,12,8]:[-10,18,9]} intensity={inGreenhouse?0:inLounge?.65:(decorTime==='evening'?(outside?.45:1):2.15)}/>
     <group scale={[1,WORLD_HEIGHT_SCALE,1]}><EstateLandscape time={time} weather={weather}/><Basement time={time} visible={outside||map||['중앙 홀','서가','지하 계단','지하 숲 라운지','숲 전망 욕실'].includes(localZone)}/>
     {!map&&<><WorldAdditions weather={weather} time={decorTime} entranceOpen={entranceOpen} onEntranceToggle={setEntranceOpen} season={season}/><Suspense fallback={null}><FacadeModel visible={outside}/></Suspense></>}

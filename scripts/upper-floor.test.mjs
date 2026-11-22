@@ -1,0 +1,24 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import {movePlayer,GALLERY_HEIGHT as level} from '../src/navigation.js'
+import {GREENHOUSE_SIDE_PANELS as panels,GREENHOUSE_GABLE as g} from '../src/greenhouseLayout.js'
+import {gardenRoofY} from '../src/greenhouseClimate.js'
+const world={end:45,gateReady:true,entranceOpen:true,glassDoor:{open:true,amount:1}}
+test('second-floor gallery connects stair landing, reading aisle and conservatory both ways',()=>{
+ const route=[[-6.35,-5.7],[0,-5.7],[6.4,-5.7],[6.4,0],[8.3,0],[8.3,4],[12.5,4],[12.5,-4],[8.3,-4],[8.3,-4.55],[6.4,-4.55],[6.4,5.7],[-7.1,5.7]]
+ for(const points of [route,[...route].reverse()]){
+  let p={x:points[0][0],z:points[0][1],level}
+  for(const [x,z] of points.slice(1)){p=movePlayer(p,x-p.x,z-p.z,world);assert.ok(Math.hypot(p.x-x,p.z-z)<.03,`gallery route blocked at ${x},${z}`)}
+ }
+ let p={x:0,z:-5.7,level};p=movePlayer(p,0,-4.3,world);assert.ok(Math.abs(p.z+10)<.03);p=movePlayer(p,0,4.3,world);assert.ok(Math.abs(p.z+5.7)<.03)
+})
+test('conservatory side panes close the shell up to alcoves and gable roof',()=>{
+ const spans=panels.map(p=>[p.z-p.w/2,p.z+p.w/2])
+ assert.ok(Math.abs(spans[0][0]+11)<1e-9)
+ assert.ok(Math.abs(spans[0][1]-g.front)<1e-9)
+ assert.ok(Math.abs(spans[1][0]-g.back)<1e-9)
+ assert.ok(Math.abs(spans[1][1]+17.2)<1e-9)
+ assert.ok(Math.abs(g.eave-gardenRoofY(g.halfWidth))<.04)
+ assert.ok(Math.abs(g.ridge-gardenRoofY(0))<.04)
+})
+

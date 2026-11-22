@@ -40,3 +40,7 @@ export function toggleGlassDoor(door,player){
  if(Math.abs(player.x)<1.7&&player.z<-6.5&&player.z>-8.8)return false
  door.open=!door.open;return true
 }
+
+// Side glazing exactly meets the side alcove returns and the rear gable.
+export const GREENHOUSE_SIDE_PANELS=[{z:-8.9,w:4.2},{z:-20.8,w:7.2}]
+export const GREENHOUSE_GABLE={halfWidth:5.4,eave:4.35,ridge:6.46,front:-6.8,back:-24.4}

@@ -37,13 +37,18 @@ function Staircase({stair}){
 }
 function UpperReadingRoom({time}){const y=GALLERY_HEIGHT;return <group>
   {/* Genuine additional second-floor room beyond the east gallery, with a continuous floor. */}
-  <B p={[11.25,y-.13,0]} s={[7.5,.26,10.2]} c="#765038"/>
+  <B p={[11.3,y-.13,0]} s={[7.6,.26,10.2]} c="#765038"/>
   <B p={[11.25,y+.014,0]} s={[7.42,.035,10.1]} c="#a4774f"/>
   {/* Plastered walls and decorative walnut wainscoting. West side stays open into the balcony. */}
   <B p={[15.18,y+1.9,0]} s={[.24,3.8,10.2]} c="#e2d1bc"/>
   {[-5.02,5.02].map(z=><group key={z}><B p={[11.25,y+1.9,z]} s={[7.65,3.8,.22]} c="#e3d5c3"/>
     <B p={[11.25,y+.61,z+(z<0?.14:-.14)]} s={[7.45,1.2,.10]} c="#654735"/></group>)}
   <B p={[11.25,y+3.9,0]} s={[7.7,.16,10.2]} c="#d2b794"/>
+  {/* Continuous cornice and exposed beams join the plaster shell to the gallery. */}
+  {[-4.86,4.86].map(z=><B key={'cornice'+z} p={[11.25,y+3.72,z]} s={[7.7,.18,.22]} c={trim}/>)}
+  {[7.55,15.02].map(x=><B key={'edge'+x} p={[x,y+3.72,0]} s={[.22,.18,9.8]} c={trim}/>)}
+  {[-3.05,0,3.05].map(z=><B key={'beam'+z} p={[11.25,y+3.62,z]} s={[7.65,.22,.18]} c={oak}/>)}
+  <B p={[7.57,y+.012,0]} s={[.18,.025,9.8]} c={trim}/>
   {/* Three collections with carved cap mouldings and grouped non-interactive books. */}
   {[-3.05,0,3.05].map((z,j)=><group key={z} position={[14.25,y,z]}>
     <B p={[0,1.2,0]} s={[.65,2.4,2.3]} c="#513528"/>

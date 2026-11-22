@@ -8,7 +8,7 @@ import {useFrame} from '@react-three/fiber'
 import * as THREE from 'three'
 import {Box as B} from './GroundFloor'
 import {WindowLandscape} from './WindowLandscape'
-import {GARDEN_LEVEL,HERBS,TROPICALS,FLOWERS,GARDEN_SEATING,FOUNTAIN,POND} from './greenhouseLayout'
+import {GREENHOUSE_SIDE_PANELS,GREENHOUSE_GABLE,GARDEN_LEVEL,HERBS,TROPICALS,FLOWERS,GARDEN_SEATING,FOUNTAIN,POND} from './greenhouseLayout'
 const iron='#254b3c',stone='#ded9c4',brass='#b79b58',rattan='#b7a07b'
 function Ball({p,s,c}){return <mesh position={p} scale={s}><sphereGeometry args={[1,12,8]}/><meshStandardMaterial color={c} roughness={.83}/></mesh>}
 function Tube({p,r,h,c=stone,top=r}){return <mesh position={p} receiveShadow><cylinderGeometry args={[top,r,h,24]}/><meshStandardMaterial color={c} roughness={.7}/></mesh>}
@@ -43,8 +43,23 @@ function FlowersSmall(){return <group>{[0,1,2,3,4,5].map(i=><Ball key={i} p={[Ma
 function Glazing({x,z,w=2.2,turn=0,time,weather,event}){return <group position={[x,0,z]} rotation={[0,turn,0]}>
  <B p={[0,.45,0]} s={[w,.9,.18]} c={stone}/><B p={[0,.94,0]} s={[w+.06,.12,.3]} c="#ece5d2"/>
  <group position={[0,2.65,-.04]} userData={{noBatch:true}}><WindowLandscape width={w-.1} height={3.25} celestial={x===0&&z<-24} time={time} weather={weather} event={event}/></group>
- {[-1,0,1].map(a=><B key={a} p={[a*w/2,2.65,.04]} s={[.06,3.5,.09]} c={iron}/>)}{[1,2.3,4.4].map(y=><B key={y} p={[0,y,.05]} s={[w,.06,.1]} c={iron}/>)}<B p={[0,2.7,.06]} s={[w,.025,.025]} c={brass}/>
+ {Array.from({length:Math.ceil(w/1.2)+1},(_,i)=>-w/2+i*w/Math.ceil(w/1.2)).map(x=><B key={x} p={[x,2.65,.04]} s={[.06,3.5,.09]} c={iron}/>)}{[1,2.3,4.4].map(y=><B key={y} p={[0,y,.05]} s={[w,.06,.1]} c={iron}/>)}<B p={[0,2.7,.06]} s={[w,.025,.025]} c={brass}/>
  </group>}
+function GableClosure(){
+ const g=GREENHOUSE_GABLE
+ const shape=useMemo(()=>{const s=new THREE.Shape();s.moveTo(-g.halfWidth,g.eave);s.lineTo(g.halfWidth,g.eave);s.lineTo(0,g.ridge);s.closePath();return s},[])
+ return <group>{[g.front,g.back].map(z=><group key={z}>
+  <mesh position={[0,0,z]}><shapeGeometry args={[shape]}/><meshStandardMaterial color="#c9e1d5" transparent opacity={.23} side={THREE.DoubleSide} depthWrite={false}/></mesh>
+  <B p={[0,g.eave,z]} s={[10.8,.09,.12]} c={iron}/>
+  <B p={[0,(g.eave+g.ridge)/2,z]} s={[.08,g.ridge-g.eave,.12]} c={iron}/>
+  {[-1,1].map(a=><B key={a} p={[a*2.7,(g.eave+g.ridge)/2,z]} s={[5.8,.10,.12]} rot={[0,0,-a*Math.atan2(g.ridge-g.eave,g.halfWidth)]} c={iron}/>)}
+ </group>)}
+ {/* Entry wall meets the eaves; glazing above the arched doorway closes the shell. */}
+ <B p={[0,3.85,-6.95]} s={[10.8,1.1,.06]} c="#c9e1d5" opacity={.23}/>
+ <B p={[0,2.95,-6.95]} s={[2.8,.7,.06]} c="#c9e1d5" opacity={.23}/>
+ <B p={[0,3.42,-6.95]} s={[10.8,.09,.12]} c={iron}/>
+ </group>
+}
 export default function Greenhouse({time,weather,event,door,active}){
  useGardenWater(active)
  useGreenhouseRain(active,weather)
@@ -55,7 +70,7 @@ export default function Greenhouse({time,weather,event,door,active}){
  <GreenhouseAtmosphere time={time} weather={weather} active={active}/><StaticBatch revision={`${time}:${weather}:${event}`}>
  <B p={[0,-.12,-15.55]} s={[10.8,.24,17.7]} c={stone}/>{[-1,1].map(a=><B key={a} p={[a*6.9,-.12,-14.05]} s={[3.3,.24,6.5]} c={stone}/>)}
  {Array.from({length:17},(_,j)=>Array.from({length:10},(_,i)=><B key={j+':'+i} p={[-4.78+i*1.06,.005,-7.3-j]} s={[1.03,.015,.97]} c={(i+j)%3?'#d5d5c7':'#bec4bb'}/>))}
- {[-1,1].map(a=><group key={a}>{Array.from({length:6},(_,i)=><Glazing key={i} x={a*5.35} z={i<2?-8-i*2:-18-i%4*1.7} w={i<2?2:1.7} turn={-a*Math.PI/2} time={time} weather={weather} event={event}/>)}
+ {[-1,1].map(a=><group key={a}>{GREENHOUSE_SIDE_PANELS.map(({z,w})=><Glazing key={z} x={a*5.35} z={z} w={w} turn={-a*Math.PI/2} time={time} weather={weather} event={event}/>)}
  {[-12,-14,-16].map(z=><Glazing key={z} x={a*8.5} z={z} w={2} turn={-a*Math.PI/2} time={time} weather={weather} event={event}/>)}
  {[-11,-17.2].map(z=><Glazing key={z} x={a*6.9} z={z} w={3.2} turn={z===-11?Math.PI:0} time={time} weather={weather} event={event}/>)}
  <B p={[a*2.7,5.4,-15.55]} s={[5.82,.045,17.7]} rot={[0,0,-a*.37]} c="#d1e7dc" opacity={.18}/>
@@ -67,6 +82,7 @@ export default function Greenhouse({time,weather,event,door,active}){
  <B p={[a*3.4,1.65,-6.95]} s={[3.9,3.3,.12]} c="#b9d3c5" opacity={.25}/><B p={[a*3.4,.45,-6.95]} s={[3.9,.9,.2]} c={stone}/>
  </group>)}
  {[-4.25,-2.12,0,2.12,4.25].map(x=><Glazing key={x} x={x} z={-24.3} w={2.12} time={time} weather={weather} event={event}/>)}
+ <GableClosure/>
  <B p={[0,6.46,-15.55]} s={[.12,.13,17.7]} c={brass}/>
  <mesh position={[0,6.43,-14]} scale={[1.3,.8,1.8]}><sphereGeometry args={[1,24,12,0,Math.PI*2,0,Math.PI/2]}/><meshStandardMaterial color="#badbd2" transparent opacity={.28} side={THREE.DoubleSide}/></mesh>
  <Ring p={[0,6.45,-14]} r={1.3} c={brass}/>
