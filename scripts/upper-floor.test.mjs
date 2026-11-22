@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {movePlayer,GALLERY_HEIGHT as level} from '../src/navigation.js'
-import {GREENHOUSE_SIDE_PANELS as panels,GREENHOUSE_GABLE as g} from '../src/greenhouseLayout.js'
+import {walkHeight,movePlayer,GALLERY_HEIGHT as level} from '../src/navigation.js'
+import {GREENHOUSE_HEIGHT_SCALE,GREENHOUSE_DOOR_HEIGHT,GREENHOUSE_CEILING_LAMP_Y,greenhouseCeilingAt,GREENHOUSE_SIDE_PANELS as panels,GREENHOUSE_GABLE as g} from '../src/greenhouseLayout.js'
 import {gardenRoofY} from '../src/greenhouseClimate.js'
 const world={end:45,gateReady:true,entranceOpen:true,glassDoor:{open:true,amount:1}}
 test('second-floor gallery connects stair landing, reading aisle and conservatory both ways',()=>{
@@ -22,3 +22,15 @@ test('conservatory side panes close the shell up to alcoves and gable roof',()=>
  assert.ok(Math.abs(g.ridge-gardenRoofY(0))<.04)
 })
 
+
+test('raised conservatory doorway and suspended lighting fit below the glass shell',()=>{
+ const doorTop=GREENHOUSE_DOOR_HEIGHT*GREENHOUSE_HEIGHT_SCALE
+ assert.ok(doorTop>4.7)
+ assert.ok((GREENHOUSE_DOOR_HEIGHT+.644)*GREENHOUSE_HEIGHT_SCALE<g.eave*GREENHOUSE_HEIGHT_SCALE)
+ assert.ok(greenhouseCeilingAt(3.4)>GREENHOUSE_CEILING_LAMP_Y+.5)
+ assert.ok(GREENHOUSE_CEILING_LAMP_Y>5)
+})
+test('gallery void and outer edges are blocked while stair landings remain usable',()=>{
+ for(const [x,z] of [[0,0],[5,0],[0,4.4],[0,-4.2],[8,6.9],[-6.4,0]])assert.equal(walkHeight(x,z,level,world),null)
+ for(const [x,z] of [[6.4,0],[0,-5.7],[0,5.7],[-6.35,-5.7],[-7.1,5.7]])assert.equal(walkHeight(x,z,level,world),level)
+})

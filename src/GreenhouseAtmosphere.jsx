@@ -1,3 +1,4 @@
+import {GREENHOUSE_HEIGHT_SCALE,GREENHOUSE_CEILING_LAMP_Y,greenhouseCeilingAt} from './greenhouseLayout'
 import React,{useEffect,useMemo,useRef} from 'react'
 import {useFrame} from '@react-three/fiber'
 import * as THREE from 'three'
@@ -24,8 +25,8 @@ function SunDust({visible}){const ref=useRef();const data=useMemo(()=>Float32Arr
 export default function GreenhouseAtmosphere({time,weather,active}){
  const c=gardenClimate(time,weather),target=useMemo(()=>{const o=new THREE.Object3D();o.position.set(0,0,-16);return o},[])
  return <group><primitive object={target}/><directionalLight position={c.position} target={target} color={c.color} intensity={active?c.sun:0} castShadow={active} shadow-mapSize={[1024,1024]} shadow-camera-left={-12} shadow-camera-right={12} shadow-camera-top={12} shadow-camera-bottom={-12} shadow-camera-near={.5} shadow-camera-far={40} shadow-bias={-.0003} shadow-normalBias={.025}/>
- <SunDust visible={c.dust}/>{c.butterflies&&<Butterflies/>}<group scale={[1,1.4,1]}><RoofWeather weather={weather}/></group>
- {[-1,1].map(a=><group key={a}><Lamp position={[a*3.4,4.5,-16]} kind="ceiling" on={c.lamps}/><Lamp position={[a*5.1,2.8,-11.2]} kind="wall" on={c.lamps}/><Lamp position={[a*3.1,.42,-20.1]} kind="low" on={c.lamps}/></group>)}
+ <SunDust visible={c.dust}/>{c.butterflies&&<Butterflies/>}<group scale={[1,GREENHOUSE_HEIGHT_SCALE,1]}><RoofWeather weather={weather}/></group>
+ {[-1,1].map(a=><group key={a}><B p={[a*3.4,(greenhouseCeilingAt(3.4)+GREENHOUSE_CEILING_LAMP_Y+.5)/2,-16]} s={[.025,greenhouseCeilingAt(3.4)-GREENHOUSE_CEILING_LAMP_Y-.5,.025]} c="#b59a59" metal={.65}/><Lamp position={[a*3.4,GREENHOUSE_CEILING_LAMP_Y,-16]} kind="ceiling" on={c.lamps}/><Lamp position={[a*5.1,2.8,-11.2]} kind="wall" on={c.lamps}/><Lamp position={[a*3.1,.42,-20.1]} kind="low" on={c.lamps}/></group>)}
  {weather==='sunny'&&!c.night&&[-1,1].map(a=><mesh key={a} position={[a*5.27,3.2,-19.4]} rotation={[0,Math.PI/2,0]}><planeGeometry args={[2.7,.045]}/><meshBasicMaterial color={c.color} transparent opacity={.32} side={THREE.DoubleSide} depthWrite={false}/></mesh>)}
  </group>
 }

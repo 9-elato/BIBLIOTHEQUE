@@ -44,3 +44,8 @@ export function toggleGlassDoor(door,player){
 // Side glazing exactly meets the side alcove returns and the rear gable.
 export const GREENHOUSE_SIDE_PANELS=[{z:-8.9,w:4.2},{z:-20.8,w:7.2}]
 export const GREENHOUSE_GABLE={halfWidth:5.4,eave:4.35,ridge:6.46,front:-6.8,back:-24.4}
+
+export const GREENHOUSE_HEIGHT_SCALE=1.4
+export const GREENHOUSE_DOOR_HEIGHT=3.4
+export const GREENHOUSE_CEILING_LAMP_Y=5.7
+export const greenhouseCeilingAt=x=>(6.44-Math.abs(x)*.389)*GREENHOUSE_HEIGHT_SCALE

@@ -10,8 +10,9 @@ import * as THREE from 'three'
 const oak='#815539', trim='#c59b66', rail='#9b6746'
 function B({p,s,c=oak,rot=[0,0,0],onClick}){return <mesh position={p} rotation={rot} castShadow receiveShadow onClick={onClick}><boxGeometry args={s}/><meshStandardMaterial color={c} roughness={.78}/></mesh>}
 function Plate({title,p,rotation=[0,0,0]}){return <Text position={p} rotation={rotation} color="#f6dfad" fontSize={.21} anchorX="center" maxWidth={3.3}>{title}</Text>}
-function HandRail({axis='z',constant=0,start=-6.5,end=6.5,level=GALLERY_HEIGHT,omit=[]}){const alongZ=axis==='z',length=end-start,amount=Math.max(2,Math.ceil(length/1.05));return <group>
+function HandRail({axis='z',constant=0,start=-6.5,end=6.5,level=GALLERY_HEIGHT,omit=[]}){const alongZ=axis==='z',length=end-start,amount=Math.max(2,Math.ceil(length/.35));return <group>
   <B p={alongZ?[constant,level+1.12,(start+end)/2]:[(start+end)/2,level+1.12,constant]} s={alongZ?[.12,.12,length]:[length,.12,.12]} c={trim}/>
+  <B p={alongZ?[constant,level+.12,(start+end)/2]:[(start+end)/2,level+.12,constant]} s={alongZ?[.10,.14,length]:[length,.14,.10]} c={oak}/>
   {Array.from({length:amount+1},(_,i)=>{const t=i/amount,a=start+t*length;if(omit.some(([lo,hi])=>a>lo&&a<hi))return null;return <group key={i}><B p={alongZ?[constant,level+.55,a]:[a,level+.55,constant]} s={[.105,1.13,.105]} c={rail}/><B p={alongZ?[constant,level+.62,a]:[a,level+.62,constant]} s={[.20,.10,.20]} c={trim}/></group>})}
  </group>}
 function Rail({a,b,r=.045,color=trim}){
@@ -50,6 +51,12 @@ function UpperReadingRoom({time}){const y=GALLERY_HEIGHT;return <group>
   {[7.55,15.02].map(x=><B key={'edge'+x} p={[x,y+RH-.08,0]} s={[.22,.18,9.8]} c={trim}/>)}
   {[-3.05,0,3.05].map(z=><B key={'beam'+z} p={[11.25,y+RH-.18,z]} s={[7.65,.22,.18]} c={oak}/>)}
   <B p={[7.57,y+.012,0]} s={[.18,.025,9.8]} c={trim}/>
+  {/* Brass reading pendants hang from the ceiling rather than floating at the old height. */}
+  {[-2.1,2.1].map(z=><group key={'reading-pendant'+z}>
+   <B p={[10.25,y+(RH+4.45)/2,z]} s={[.025,RH-4.45,.025]} c={trim}/>
+   <mesh position={[10.25,y+4.32,z]}><cylinderGeometry args={[.17,.33,.24,18,1,true]}/><meshStandardMaterial color="#a58a55" side={THREE.DoubleSide} roughness={.45} metalness={.45}/></mesh>
+   <mesh position={[10.25,y+4.22,z]}><sphereGeometry args={[.085,12,8]}/><meshStandardMaterial color="#ffe9be" emissive="#ffd08d" emissiveIntensity={time==='evening'?1.1:.35}/></mesh>
+  </group>)}
   {/* Three collections with carved cap mouldings and grouped non-interactive books. */}
   {[-3.05,0,3.05].map((z,j)=><group key={z} position={[14.25,y,z]}>
     <B p={[0,1.2,0]} s={[.65,2.4,2.3]} c="#513528"/>
