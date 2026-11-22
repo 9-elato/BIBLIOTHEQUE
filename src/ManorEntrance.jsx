@@ -81,7 +81,15 @@ export default function ManorEntrance({open=false,onToggle=()=>{},season='spring
  const snow=season==='winter'||season==='christmas', autumn=season==='autumn'||season==='halloween';
  return <group><FrontDoor open={open} onToggle={onToggle}/><StaticBatch revision={season+evening}>
   {/* A level garden ground and a continuous stone footpath. The starting position is z=23. */}
-  <MeshBox p={[0,-.26,21.5]} s={[27,.32,25]} c="#788c65"/>
+  <MeshBox p={[-3.35,-.26,21.5]} s={[20.3,.32,25]} c="#788c65"/>
+  <MeshBox p={[10.15,-.26,25.55]} s={[6.7,.32,16.9]} c="#788c65"/>
+  {/* The eastern sunken garden opens daylight to the basement glazing. */}
+  <MeshBox p={[6.8,-2.85,13]} s={[.32,5.4,8.2]} c="#858573"/>
+  <MeshBox p={[10.15,-2.85,17.1]} s={[6.7,5.4,.32]} c="#858573"/>
+  <MeshBox p={[6.8,1,13]} s={[.08,.08,8.2]} c="#65533b"/>
+  <MeshBox p={[10.15,1,17.1]} s={[6.7,.08,.08]} c="#65533b"/>
+  {[9,11,13,15,17].map(z=><MeshBox key={'well'+z} p={[6.8,.5,z]} s={[.08,1,.08]} c="#65533b"/>)}
+  {[8,10,12,13.5].map(x=><MeshBox key={'edge'+x} p={[x,.5,17.1]} s={[.08,1,.08]} c="#65533b"/>)}
   <MeshBox p={[0,-.025,20.5]} s={[3.8,.1,17]} c="#c7b7a1"/>
   <MeshBox p={[0,-.025,11.75]} s={[3.8,.1,.5]} c="#aa8360"/>
   {[-1,1].map(side=><group key={side}>

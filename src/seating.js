@@ -13,6 +13,8 @@ function seat(id,label,x,z,turn,level,height,side=0,front=.24,approach=1.12){
 }
 const sofaNames=['버건디 긴 소파','딥그린 소파','가죽 소파','독서 안락의자']
 export const SEATS=[
+ seat('basement-sofa-west','지하 크림 소파',9.7,4.4,Math.PI,-5.2,.68,0,.14,1.25),
+ seat('basement-sofa-east','지하 숲 전망 소파',14,4.4,Math.PI,-5.2,.68,0,.14,1.25),
  seat('forest-sofa-west','숲 전망 소파',9.3,4.05,Math.PI,0,.75,0,.16,1.15),
  seat('forest-sofa-center','숲 전망 소파 가운데',10.7,4.05,Math.PI,0,.75,0,.16,1.15),
  seat('veranda-west','바다 마루 서쪽 방석',-17.5,-11.8,Math.PI,0,.24,0,0,1.12),

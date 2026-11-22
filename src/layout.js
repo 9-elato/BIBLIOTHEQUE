@@ -13,6 +13,7 @@ export function genreOf(category) {
 }
 
 export const ROOM_SPOTS = {
+  basement:[14,-3.4,-5.2,0],bathroom:[19.3,0,-5.2,Math.PI],basementstairs:[3,-4.8,0,-Math.PI/2],
   veranda:[-10.2,-8.5,0,0], greenhouse:[0,-6,7.2,0], vestibule:[0,9.3,0,0], 'garden-west':[-5.6,17.75,0,Math.PI], 'garden-east':[5.6,23.75,0,Math.PI],
   estate:[0,23,0,0], main:[0,5.5,0,0], lounge:[-8.8,0,0,-Math.PI/2],
   stacks:[8.4,0,0,Math.PI/2], corridor:[0,-9,0,0], secret:[0,-20,0,0],
@@ -76,6 +77,7 @@ export function canWalk(x,z,{end,gateReady,entranceOpen,verandaDoor}) {
   }
   const ax = Math.abs(x)
   if (z > 11.3) {
+    if(z<17.4&&x>6.55)return false
     if (z < 12.25) return entranceOpen && ax < 1.23
     return ax < 12.8 && z < 33.5
   }

@@ -1,12 +1,12 @@
 import React,{useEffect} from 'react'
-import {paintLandscape} from './storyLandscape'
+import {forestTexture} from './ForestReadingNook'
 // Reusable exterior view. Its inputs remain independent of the window frame.
 const paintedViews=new Map()
 export function WindowLandscape({time='afternoon',weather='sunny',event='none',season,celestial=true,width=1.5,height=4}){
  const shape=useMemoShape(width,height)
  const variant=Math.round(width*13+height*7)%5
  const key=[time,weather,event,season,celestial,variant].join(':')
- const map=useMemo(()=>{let entry=paintedViews.get(key);if(!entry){entry={map:paintLandscape({time,weather,event,season,celestial,variant}),users:0};paintedViews.set(key,entry)}return entry},[key])
+ const map=useMemo(()=>{let entry=paintedViews.get(key);if(!entry){entry={map:forestTexture(time,weather),users:0};paintedViews.set(key,entry)}return entry},[key])
  useEffect(()=>{map.users++;return()=>{if(--map.users===0){map.map.dispose();paintedViews.delete(key)}}},[map,key])
  return <mesh geometry={shape}><meshBasicMaterial map={map.map}/></mesh>
 }

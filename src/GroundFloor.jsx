@@ -1,3 +1,4 @@
+import {cutFloor} from './basementLayout'
 import {advanceGate,gatePose} from './secretGate'
 import React, {useEffect,useMemo,useRef} from 'react'
 import {useFrame} from '@react-three/fiber'
@@ -38,7 +39,8 @@ function Plate({p,label,w=1.65,h=.32,c=gold,onClick}) {
     <mesh position={[0,0,.038]}><planeGeometry args={[w*.97,h*.93]}/><meshBasicMaterial map={texture}/></mesh>
   </group>
 }
-function Floor({x,z,w,d,c=oak}) {
+function Floor({x,z,w,d,c=oak,opening=false}) {
+  if(opening)return <group>{cutFloor([x-w/2,x+w/2,z-d/2,z+d/2]).map(([l,r,b,f],i)=><Floor key={i} x={(l+r)/2} z={(b+f)/2} w={r-l} d={f-b} c={c}/>)}</group>
   return <group>
     <Box p={[x,-.14,z]} s={[w,.27,d]} c={c}/>
     {Array.from({length:Math.ceil(d/.75)-1},(_,i)=><Box key={i} p={[x,.001,z-d/2+(i+1)*.75]} s={[w,.008,.012]} c="#4b3026"/>)}
@@ -160,7 +162,7 @@ function Bookcase({item,genre,onGenre,onPick,heldBook}) {
 function Stacks({layout,onGenre,onPick,heldBook}) {
   const w=layout.end-7.15,x=7.15+w/2
   return <group>
-    <Floor x={x} z={0} w={w} d={11.65} c="#825e43"/>
+    <Floor opening x={x} z={0} w={w} d={11.65} c="#825e43"/>
     {[-5.85,5.85].map(z=><Wall key={z} x={x} z={z} w={w} d={.26} h={8.8}/>)}
     <Wall x={layout.end+.1} z={0} w={.28} d={11.8} h={8.8}/>
     {DESKS.map(([a,z])=><Desk key={a+'/'+z} x={a} z={z}/>)}
@@ -236,7 +238,7 @@ export default function GroundFloor({sceneTime,event,layout,map,weather,time,ope
   return <group>
     <Floor x={0} z={7.39} w={5.6} d={.54} c="#76685c"/>
     {map&&<Floor x={0} z={9.45} w={5.6} d={4.5} c="#76685c"/>}
-    <Floor x={0} z={.15} w={15} d={14.1} c="#8a654a"/>
+    <Floor opening x={0} z={.15} w={15} d={14.1} c="#8a654a"/>
     <Rug x={0} z={0} w={5.1} d={4.7} c="#684a41"/>
     {[-1,1].map(a=><group key={a}>
       <Wall x={a*4.79} z={-6.8} w={5.44} d={.28} h={7.2}/>

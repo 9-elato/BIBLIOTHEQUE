@@ -7,6 +7,7 @@ const FLOORS=[
   ['stacks','서가','',69,22,29,21,'서가'],
   ['veranda','바다 마루','',2,3,29,13,'바다 마루'],
   ['stairs','중앙 계단','2층으로 ↑',2,47,29,12,'중앙 계단'],
+  ['basementstairs','지하 계단','',69,49,29,12,'지하 계단'],
   ['vestibule','현관','',35,49,30,12,'현관'],
   ['estate','정원 산책로','',35,70,30,25,'저택 정원'],
   ['garden-west','서쪽 벤치','',2,70,29,16],
@@ -25,7 +26,8 @@ const FLOORS=[
   ['mezzanine','2층 갤러리로','다락 계단을 따라 ↓',36,77,55,16],
  ],lines:['M77 65 V77'],notes:'책을 들고 안락의자나 데이베드에 다가가 E를 누르면 앉아 읽을 수 있습니다.'},
 ]
-export function floorForZone(zone){return zone==='다락방'?2:['2층 갤러리','열람실','다락 계단','실내 온실'].includes(zone)?1:0}
+FLOORS.push({name:'지하',rooms:[['basement','숲 라운지','',5,27,48,55,'지하 숲 라운지'],['bathroom','숲 전망 욕실','',58,27,37,55,'숲 전망 욕실'],['basementstairs','1층 중앙 홀로','',5,5,90,15,'지하 계단']],lines:['M27 20 V27','M53 52 H58'],notes:'중앙 홀 북동쪽 목재 계단으로 내려옵니다. 지하 남쪽은 경사지에 열린 숲과 연못 전망입니다.'})
+export function floorForZone(zone){return ['지하 숲 라운지','숲 전망 욕실','지하 계단'].includes(zone)?3: zone==='다락방'?2:['2층 갤러리','열람실','다락 계단','실내 온실'].includes(zone)?1:0}
 export default function WorldMap({floor,onFloor,zone,onTravel,onClose}){
  const plan=FLOORS[floor]
  return <section className="world-map floating detailed-map" aria-label="저택 층별 지도">

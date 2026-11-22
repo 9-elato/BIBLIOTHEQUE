@@ -4,7 +4,7 @@ import {Box as B} from './GroundFloor'
 import {CarvedBox, WovenRug,AntiqueLamp,Folios} from './StorybookDecor'
 import StaticBatch from './StaticBatch'
 const forestViews=new Map()
-function forestTexture(time,weather){
+export function forestTexture(time,weather){
  const c=document.createElement('canvas');c.width=768;c.height=768;const x=c.getContext('2d'),evening=time==='evening'
  const sky=x.createLinearGradient(0,0,0,768);sky.addColorStop(0,evening?'#3b5864':'#c6d9b6');sky.addColorStop(1,evening?'#1c3531':'#577a50');x.fillStyle=sky;x.fillRect(0,0,768,768)
  for(let layer=0;layer<3;layer++)for(let i=0;i<18;i++){

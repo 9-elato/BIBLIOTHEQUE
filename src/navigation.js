@@ -1,3 +1,4 @@
+import {BASEMENT_HEIGHT,BASEMENT_STAIR,BASEMENT_BOUNDS,BASEMENT_SOLIDS} from './basementLayout.js'
 import {GREENHOUSE_REGIONS,GARDEN_SOLIDS as CONSERVATORY_SOLIDS,gardenWaterBlocks,glassDoorBlocks} from './greenhouseLayout.js'
 import {studyDoorBlocks} from './studyLayout.js'
 import {atticX} from './atticLayout.js'
@@ -11,6 +12,7 @@ export const ATTIC_HEIGHT=10.6
 export const ATTIC_ORIGIN=[-15.6,ATTIC_HEIGHT,0]
 export const PLAYER_RADIUS=.23
 export const STAIRS=[
+ BASEMENT_STAIR,
   {id:'main',from:[-6.35,0,5.25],to:[-6.35,GALLERY_HEIGHT,-4.85],width:1.9,steps:36},
   {id:'attic',from:[-7.2,GALLERY_HEIGHT,5.65],to:[-11.45,ATTIC_HEIGHT,5.65],width:1.7,steps:18},
 ]
@@ -30,6 +32,7 @@ const upperRegions=[...GREENHOUSE_REGIONS,[-7.6,-5.3,-6.7,-4.85],[-7.6,-5.3,5.25
   [5.3,7.6,-6.7,6.7],[-7.6,7.6,-6.7,-4.45],[-7.6,7.6,4.9,6.7],[7.3,15,-4.85,4.85]]
 // Bounds match the actual furniture footprints. Each box has its floor's height.
 export const FURNITURE=[
+ ...BASEMENT_SOLIDS.map(s=>({...s,floor:BASEMENT_HEIGHT})),
  {floor:0,id:'forest-sofa',rect:[8.45,12.95,3.4,4.7]},
  {floor:0,id:'forest-chaise',rect:[11.5,12.9,2.4,3.45]},
  {floor:0,id:'forest-table',rect:[9.425,10.775,1.475,2.225]},
@@ -81,13 +84,14 @@ export function walkHeight(x,z,previousY,world){
   let onStair=false
   for(const stair of STAIRS){
     const {t,side}=stairCoordinates(stair,x,z)
-    if(t>=0&&t<=1&&Math.abs(side)<=stair.width/2){
+    if(t>=0&&t<=1&&Math.abs(side)<=stair.width/2&&previousY<=Math.max(stair.from[1],stair.to[1])+.18){
       onStair=true
       if(Math.abs(side)<=stair.width/2-PLAYER_RADIUS)candidates.push(stair.from[1]+t*(stair.to[1]-stair.from[1]))
     }
   }
   if(!onStair){
     if(canWalk(x,z,world))candidates.push(0)
+    if(supported([BASEMENT_BOUNDS],x,z))candidates.push(BASEMENT_HEIGHT)
     if(supported(upperRegions,x,z))candidates.push(GALLERY_HEIGHT)
     // Doorway is open only at the top landing of the attic stair.
     const attic=[[atticX(-19.5),-11.65,-6.35,6.35],[-12,-11.43,5.03,6.27]]
@@ -123,6 +127,8 @@ export function movePlayer(position,dx,dz,world){
   return next
 }
 export function floorName(x,z,y){
+  if(y<-.12&&y>BASEMENT_HEIGHT+.12)return '지하 계단'
+  if(y<=BASEMENT_HEIGHT+.12)return x>17.8?'숲 전망 욕실':'지하 숲 라운지'
   if(y>.12&&y<GALLERY_HEIGHT-.12)return '중앙 계단'
   if(y>GALLERY_HEIGHT+.12&&y<ATTIC_HEIGHT-.12)return '다락 계단'
   if(y>=ATTIC_HEIGHT-.12)return '다락방'

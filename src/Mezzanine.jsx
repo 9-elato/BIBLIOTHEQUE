@@ -71,7 +71,7 @@ export default function Mezzanine({time}){const y=GALLERY_HEIGHT;return <group>
   <HandRail axis="x" constant={6.65} start={-7.5} end={7.5}/>
   {/* Guard the upper balcony's dead-end above the foot of the stair. */}
   <HandRail axis="x" constant={5.28} start={-7.45} end={-5.35}/>
-  {STAIRS.map(stair=><Staircase key={stair.id} stair={stair}/>)}
+  {STAIRS.filter(stair=>stair.id!=='basement').map(stair=><Staircase key={stair.id} stair={stair}/>)}
   <Plate title="2층 · 걸어서 올라가기" p={[-5.15,1.3,5.4]}/>
   <Plate title="다락 · 연결 계단" p={[-7.25,y+1.5,6.5]}/>
  </group>}
