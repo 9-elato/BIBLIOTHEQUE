@@ -72,7 +72,7 @@ export default function Greenhouse({time,weather,event,door,active}){
  {Array.from({length:17},(_,j)=>Array.from({length:10},(_,i)=><B key={j+':'+i} p={[-4.78+i*1.06,.005,-7.3-j]} s={[1.03,.015,.97]} c={(i+j)%3?'#d5d5c7':'#bec4bb'}/>))}
  <group scale={[1,GREENHOUSE_HEIGHT_SCALE,1]}>
  {[-1,1].map(a=><group key={a}>{GREENHOUSE_SIDE_PANELS.map(({z,w})=><Glazing key={z} x={a*5.35} z={z} w={w} turn={-a*Math.PI/2} time={time} weather={weather} event={event}/>)}
- {[-12,-14,-16].map(z=><Glazing key={z} x={a*8.5} z={z} w={2} turn={-a*Math.PI/2} time={time} weather={weather} event={event}/>)}
+ {(a<0?[-12,-14,-16]:[-12,-14]).map(z=><Glazing key={z} x={a*8.5} z={z} w={2} turn={-a*Math.PI/2} time={time} weather={weather} event={event}/>)}
  {[-11,-17.2].map(z=><Glazing key={z} x={a*6.9} z={z} w={3.2} turn={z===-11?Math.PI:0} time={time} weather={weather} event={event}/>)}
  <B p={[a*2.7,5.4,-15.55]} s={[5.82,.045,17.7]} rot={[0,0,-a*.37]} c="#d1e7dc" opacity={.18}/>
  {[-7,-9,-11,-13,-15,-17,-19,-21,-23,-24.3].map(z=><group key={z}><B p={[a*2.7,5.4,z]} s={[5.82,.075,.075]} rot={[0,0,-a*.37]} c={iron}/><Ball p={[a*5.35,4.38,z]} s={[.1,.1,.1]} c={brass}/></group>)}

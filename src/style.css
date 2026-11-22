@@ -145,3 +145,22 @@ canvas { touch-action:none; }
 .music-dock{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:85;color:#f6e6c8}.music-controls{display:flex;align-items:center;gap:4px;padding:5px 8px;border-radius:24px;background:#493629ed;box-shadow:0 3px 12px #0003}.music-controls button{background:transparent;border:0;color:inherit;padding:6px 9px;font-size:13px;cursor:pointer}.music-controls button:disabled{opacity:.4}.music-video{background:#f7ecda;color:#493629;border-radius:12px;padding:10px;width:340px;max-width:95vw;box-shadow:0 6px 20px #0003;margin-top:8px}.music-video iframe{border:0;width:320px;max-width:100%;height:200px}.music-video p,.music-video a{font-size:12px}.music-video.collapsed{position:absolute;visibility:hidden;pointer-events:none}.music-video.expanded{visibility:visible}@media(max-width:600px){.music-dock{top:83px}.record-shelf{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}}
 
 .activity-tabs,.activity-links,.activity-counts{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0}.activity-tabs button,.activity-links button{display:flex;align-items:center;gap:7px;padding:12px;border:1px solid #ccb893;border-radius:10px;background:#f4ead5;color:#584432}.activity-tabs button[aria-pressed=true]{background:#526b57;color:#fff7df}.activity-counts span{padding:9px 14px;background:#e7ddc6;border-radius:8px;font-size:13px}.stamp-button{display:flex;align-items:center;gap:12px;border:2px dashed #a26a54;border-radius:12px;background:#faf1df;color:#7a4a37;padding:18px;font-weight:bold}.stamp-button:disabled{opacity:.75}.attendance-calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;max-width:500px;margin:24px 0}.attendance-calendar>b{text-align:center;color:#8b795e}.attendance-calendar>div{min-height:60px;border:1px solid #e1d2b8;border-radius:8px;padding:5px;display:flex;flex-direction:column;align-items:center;gap:3px}.attendance-calendar .stamped{color:#975c42;background:#eee0c4;transform:rotate(-3deg)}.activity-ledger{margin:20px 0;border-top:2px solid #ac936c}.activity-ledger>button{display:grid;grid-template-columns:40px 1fr auto;text-align:left;align-items:center;gap:12px;width:100%;padding:16px 4px;border:0;border-bottom:1px solid #d5c6a9;background:transparent;color:#554333}.activity-ledger small{display:block;color:#8b7a61;font-size:12px;margin-top:5px}
+.site-header .top-tools .archive-trigger{width:36px;height:36px}
+.record-popover{position:absolute;top:calc(100% + 8px);right:0;width:132px;padding:5px;color:#654630;text-shadow:none}
+.record-popover:not([hidden]){display:grid;gap:2px}
+.record-popover button{display:flex;width:100%;align-items:center;gap:8px;border:0;border-radius:9px;padding:8px 9px;background:transparent;color:inherit;font-size:12px;text-align:left}
+.record-popover button:hover,.record-popover button:focus-visible{background:#ebdfc9}
+.floor-drawing{display:block;width:100%;height:clamp(260px,49vh,475px);margin-top:12px;border:1px solid #cbb894;border-radius:12px;background:#f1e7d3}
+.plan-room{fill:#f8e7c8;stroke:#785d42;stroke-width:.22}
+.plan-room.outdoor{fill:#d9e3bb;stroke:#708755}.plan-room.glass{fill:#d5e6d8;stroke:#5f806e}.plan-room.water,.plan-water{fill:#a9cbd0;stroke:#557a80;stroke-width:.15}
+.plan-room.void{fill:#e6ded1;stroke:#a5927d;stroke-dasharray:.7 .35}.plan-room.is-current{stroke:#56813c;stroke-width:.43}
+.plan-door{stroke:#ad653c;stroke-width:.48;stroke-linecap:round}
+.plan-furniture{fill:#b99171;stroke:#8b694e;stroke-width:.08}.plan-shelf{fill:#886044}
+.plan-stair rect{fill:#dfc69f;stroke:#846349;stroke-width:.16}.plan-stair line{stroke:#a7835d;stroke-width:.085}.plan-stair .plan-up{fill:none;stroke:#846349;stroke-width:.13;marker-end:var(--plan-arrow)}
+.plan-label{fill:#4c3827;font-weight:700;paint-order:stroke;stroke:#f9eed8;stroke-width:.24;stroke-linejoin:round}.plan-label.current{fill:#365722}
+.plan-destinations{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.plan-destinations button{border:1px solid #d2bd97;border-radius:6px;background:#fff7e7;color:#61462e;font-size:11px;padding:5px 7px}
+.plan-destinations button:hover,.plan-destinations button[aria-current=location]{background:#e5e9d2;border-color:#8c996f}
+
+.experience-backdrop{position:absolute;inset:0;z-index:20;background:#171522b8;display:grid;place-items:center;padding:15px;backdrop-filter:blur(5px)}
+.experience-dialog{position:relative;width:min(620px,100%);max-height:94dvh;overflow:auto;padding:24px;border:1px solid #c4a56c;border-radius:20px;background:#f4e8cf;color:#634934;box-shadow:0 18px 70px #0006}

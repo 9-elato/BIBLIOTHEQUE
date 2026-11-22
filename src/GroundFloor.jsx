@@ -1,3 +1,4 @@
+import {STACKS_EXIT} from './eastMeadowLayout'
 import {HALL_ARCH,archInfillPoints,SECRET_BOOKCASE_SCALE,SECRET_BOOKCASE_TOP,CORRIDOR_TOP} from './groundArchitecture'
 import {cutFloor} from './basementLayout'
 import {advanceGate,gatePose} from './secretGate'
@@ -167,7 +168,9 @@ function Stacks({layout,onGenre,onPick,heldBook}) {
   const w=layout.end-7.15,x=7.15+w/2
   return <group>
     <Floor opening x={x} z={0} w={w} d={11.65} c="#825e43"/>
-    {[-5.85,5.85].map(z=><Wall key={z} x={x} z={z} w={w} d={.26} h={10.3}/>)}
+    <Wall x={x} z={5.85} w={w} d={.26} h={10.3}/>
+    {[[7.15,STACKS_EXIT.x-STACKS_EXIT.width/2],[STACKS_EXIT.x+STACKS_EXIT.width/2,layout.end]].map(([a,b])=><Wall key={a} x={(a+b)/2} z={STACKS_EXIT.z} w={b-a} d={.26} h={10.3}/>)}
+    <Box p={[STACKS_EXIT.x,6.6,STACKS_EXIT.z]} s={[STACKS_EXIT.width,7.4,.26]} c={cream}/>
     <Wall x={layout.end+.1} z={0} w={.28} d={11.8} h={10.3}/>
     {DESKS.map(([a,z])=><Desk key={a+'/'+z} x={a} z={z}/>)}
     {layout.sections.map(({genre,cases,start})=><group key={genre.id}>
@@ -227,7 +230,7 @@ function North({open,onKey,onReady,onNote}) {
       {[-1,1].map(a=><group key={a}>
         <Wall x={a*1.47} z={-16.95} w={.21} d={4.08} h={5.9}/>
         <Wall x={a*4.3} z={-19} w={5.6} d={.23} h={7.6}/>
-        <Wall x={a*7.23} z={-24.3} w={.23} d={10.62} h={7.6}/>
+        {a<0&&<Wall x={a*7.23} z={-24.3} w={.23} d={10.62} h={7.6}/>}
         <group position={[a*5.55,0,-29]}><Box p={[0,1.25,0]} s={[2,2.5,.55]} c="#593a2d"/>{[.46,1.15,1.84].map(y=><Box key={y} p={[0,y,.25]} s={[1.8,.11,.4]} c="#ac7e55"/>)}</group>
       </group>)}
       <Wall x={0} z={-29.63} w={14.6} d={.24} h={7.6}/>

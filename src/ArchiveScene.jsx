@@ -2,6 +2,7 @@ import {THIRD_PERSON_ELEVATION} from './upperArchitecture'
 import DriftingClouds from './DriftingClouds'
 import {sceneLighting} from './natureMood'
 import Basement from './Basement'
+import {EastMeadow} from './EastMeadow'
 import EstateLandscape from './EstateLandscape'
 import SeaVeranda from './SeaVeranda'
 import {tourEnabled} from './FurnitureTourPanel'
@@ -189,8 +190,8 @@ function WalkControl({playerPosition,verandaDoor,blanket,onBlanket,glassDoor,stu
       if(!tour.current.running)Object.assign(s,tour.current.saved,{seated:null})
     }
     advanceLadders(ladders,dt,s)
-    if(s.level===0&&s.z<-15.5)visitedSecret.current=true
-    if(visitedSecret.current&&s.z>-13.1&&!tour.current?.running){visitedSecret.current=false;onCloseSecret()}
+    if(s.level===0&&Math.abs(s.x)<7&&s.z<-15.5)visitedSecret.current=true
+    if(visitedSecret.current&&s.x<7.65&&s.z>-13.1&&!tour.current?.running){visitedSecret.current=false;onCloseSecret()}
     const len=s.seated||tour.current?.running?0:Math.hypot(front,side)
     const viewYaw=s.yaw+(s.seated&&mode==='first'?Math.PI:0)
     const sin=Math.sin(viewYaw),cos=Math.cos(viewYaw)
@@ -286,7 +287,7 @@ function ArchiveScene({blanket,onBlanket,onMusic,onExperience,books=[],placement
   const outside=['저택 정원','현관','잔디 동산'].includes(localZone)
   const inGreenhouse=localZone==='실내 온실'
   const inLounge=['지하 숲 라운지','숲 온천','지하 계단','벽난로 라운지','열람실','다락방'].includes(localZone)
-  const upperVisible=['중앙 계단','2층 갤러리','열람실','실내 온실','다락 계단'].includes(localZone)
+  const upperVisible=['중앙 계단','2층 갤러리','열람실','실내 온실','다락 계단','동쪽 잔디 들판','온실 계단'].includes(localZone)
   const nearAttic=['중앙 계단','2층 갤러리','열람실','실내 온실','다락 계단','다락방','별빛 테라스'].includes(localZone)
   const [atticLoaded,setAtticLoaded]=useState(false)
   useEffect(()=>{if(nearAttic)setAtticLoaded(true)},[nearAttic])
@@ -308,7 +309,7 @@ function ArchiveScene({blanket,onBlanket,onMusic,onExperience,books=[],placement
     <ambientLight color={light.evening?'#b9c5d4':'#f4f0e2'} intensity={light.ambient}/>
     <hemisphereLight args={[light.sky,'#665b48',light.hemisphere]}/>
     <directionalLight color={light.sun} position={light.evening?[-18,11,9]:[-10,18,9]} intensity={light.direct}/>
-    <group scale={[1,WORLD_HEIGHT_SCALE,1]}><EstateLandscape time={time} weather={weather}/><Basement time={time} visible={outside||map||['중앙 홀','서가','지하 계단','지하 숲 라운지','숲 온천'].includes(localZone)}/>
+    <group scale={[1,WORLD_HEIGHT_SCALE,1]}><EstateLandscape time={time} weather={weather}/><EastMeadow studyOpen={gateReady}/><Basement time={time} visible={outside||map||['중앙 홀','서가','지하 계단','지하 숲 라운지','숲 온천'].includes(localZone)}/>
     {!map&&<><WorldAdditions weather={weather} time={decorTime} entranceOpen={entranceOpen} onEntranceToggle={setEntranceOpen} season={season}/><Suspense fallback={null}><FacadeModel visible={outside} time={time} weather={weather}/></Suspense></>}
     {(showInterior||interiorLoaded)&&<group visible={showInterior}>
     <SeaVeranda door={verandaDoor} time={time} weather={weather} onExperience={onExperience}/><GroundFloor event={season} sceneTime={time} heldBook={heldBook} map={map} layout={layout} weather={weather} time={decorTime} open={open} onKey={unlock} onReady={()=>setGateReady(true)} onGenre={onGenre} onPick={onPick} onNote={onOpenNotes}/>

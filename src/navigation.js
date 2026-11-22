@@ -1,3 +1,4 @@
+import {MEADOW_STAIRS} from './eastMeadowLayout.js'
 import {inMeadow,meadowHeight} from './meadowLayout.js'
 import {SPRING_WALK_REGION,BASEMENT_HEIGHT,BASEMENT_STAIR,BASEMENT_BOUNDS,BASEMENT_SOLIDS} from './basementLayout.js'
 import {GREENHOUSE_REGIONS,GARDEN_SOLIDS as CONSERVATORY_SOLIDS,gardenWaterBlocks,glassDoorBlocks} from './greenhouseLayout.js'
@@ -13,7 +14,7 @@ export const ATTIC_HEIGHT=10.6
 export const ATTIC_ORIGIN=[-15.6,ATTIC_HEIGHT,0]
 export const PLAYER_RADIUS=.23
 export const STAIRS=[
- BASEMENT_STAIR,
+ BASEMENT_STAIR,MEADOW_STAIRS,
   {id:'main',from:[-6.35,0,5.25],to:[-6.35,GALLERY_HEIGHT,-4.85],width:1.9,steps:36},
   {id:'attic',from:[-7.2,GALLERY_HEIGHT,5.65],to:[-11.45,ATTIC_HEIGHT,5.65],width:1.7,steps:18},
 ]
@@ -41,7 +42,7 @@ export const FURNITURE=[
  ...[-17.5,-12.5].map(x=>({floor:0,id:`veranda-cushion-${x}`,rect:[x-.7,x+.7,-12.45,-11.15]})),
  {floor:0,id:'veranda-lantern',rect:[-19.2,-18.8,-13,-12.6]},
  ...[-1,1].map(a=>({floor:0,id:`estate-portico-${a}`,rect:[a*2.05-.325,a*2.05+.325,11.05,13.15]})),
- {floor:0,rect:[5.78,6.74,-22.2,-19.2],id:'study-bench'},
+ {floor:0,rect:[-6.51,-4.29,-20.27,-19.43],id:'study-bench'},
  {floor:0,rect:[5.8,7,-29.47,-22.33],id:'study-lp'},
 
  {floor:0,rect:[-1.6,1.6,-29.245,-27.595],id:'study-writing-desk'},
@@ -95,7 +96,8 @@ export function walkHeight(x,z,previousY,world){
   if(!onStair){
     if(canWalk(x,z,world))candidates.push(inMeadow(x,z)?meadowHeight(x,z):0)
     if(supported([BASEMENT_BOUNDS,SPRING_WALK_REGION],x,z))candidates.push(BASEMENT_HEIGHT)
-    if(supported(upperRegions,x,z))candidates.push(GALLERY_HEIGHT)
+    const {to,width}=MEADOW_STAIRS
+    if(supported(upperRegions,x,z)||(x>=to[0]-PLAYER_RADIUS&&x<=to[0]&&Math.abs(z-to[2])<=width/2-PLAYER_RADIUS))candidates.push(GALLERY_HEIGHT)
     // Doorway is open only at the top landing of the attic stair.
     const attic=[[atticX(-19.5),atticX(-11.65),6.7,10.8],[atticX(-13.6),atticX(-12),6.05,7.1],[atticX(-19.5),-11.65,-6.35,6.35],[-12,-11.43,5.03,6.27]]
     if(supported(attic,x,z)||inRect(x,z,[-11.7,-11.43,5.15,6.15]))candidates.push(ATTIC_HEIGHT)
@@ -130,6 +132,7 @@ export function movePlayer(position,dx,dz,world){
   return next
 }
 export function floorName(x,z,y){
+  if(x>8.4&&Math.abs(z-MEADOW_STAIRS.from[2])<1&&y>.12&&y<GALLERY_HEIGHT-.12)return '온실 계단'
   if(y<-.12&&y>BASEMENT_HEIGHT+.12)return '지하 계단'
   if(y<=BASEMENT_HEIGHT+.12)return x>17.8?'숲 온천':'지하 숲 라운지'
   if(y>.12&&y<GALLERY_HEIGHT-.12)return '중앙 계단'
