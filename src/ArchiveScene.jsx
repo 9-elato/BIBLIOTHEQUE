@@ -1,3 +1,4 @@
+import {sceneLighting} from './natureMood'
 import Basement from './Basement'
 import EstateLandscape from './EstateLandscape'
 import SeaVeranda from './SeaVeranda'
@@ -293,14 +294,15 @@ function ArchiveScene({blanket,onBlanket,onMusic,onExperience,books=[],placement
   const [interiorLoaded,setInteriorLoaded]=useState(false)
   useEffect(()=>{if(showInterior)setInteriorLoaded(true)},[showInterior])
   const unlock=()=>{if(!open)setOpen(true)}
+  const light=sceneLighting({time,weather,outside,greenhouse:inGreenhouse,cozy:inLounge})
   return <Canvas frameloop={blocked?'demand':'always'} camera={{fov:69,near:.065,far:190,position:[0,2,25]}} shadows dpr={1} gl={{powerPreference:'high-performance'}}>
-    <color attach="background" args={[({morning:'#b9ced0',afternoon:'#becbc0',evening:'#708097',night:'#182438'})[time]]}/>
-    {!map&&<fog attach="fog" args={[decorTime==='evening'?'#928b84':'#cbbfa7',31,105]}/>}
-    <ambientLight color={time==='night'?'#829bc2':time==='morning'?'#fff1d5':'#ffffff'} intensity={inGreenhouse?(decorTime==='evening'?.22:weather==='sunny'?.25:.4):inLounge?(decorTime==='evening'?.22:.4):(decorTime==='evening'?(outside?.27:.65):.97)}/>
-    <hemisphereLight args={['#fff1d8','#7a6655',inGreenhouse?(decorTime==='evening'?.28:.45):inLounge?(decorTime==='evening'?.38:.7):(decorTime==='evening'?(outside?.48:1.05):1.68)]}/>
-    <directionalLight color={time==='night'?'#95afd8':time==='morning'?'#ffe5bc':'#ffffff'} position={time==='morning'?[12,12,8]:[-10,18,9]} intensity={inGreenhouse?0:inLounge?.65:(decorTime==='evening'?(outside?.45:1):2.15)}/>
+    <color attach="background" args={[light.sky]}/>
+    {!map&&<fog attach="fog" args={[light.fog,light.fogNear,light.fogFar]}/>}
+    <ambientLight color={light.evening?'#b9c5d4':'#f4f0e2'} intensity={light.ambient}/>
+    <hemisphereLight args={[light.sky,'#665b48',light.hemisphere]}/>
+    <directionalLight color={light.sun} position={light.evening?[-18,11,9]:[-10,18,9]} intensity={light.direct}/>
     <group scale={[1,WORLD_HEIGHT_SCALE,1]}><EstateLandscape time={time} weather={weather}/><Basement time={time} visible={outside||map||['중앙 홀','서가','지하 계단','지하 숲 라운지','숲 온천'].includes(localZone)}/>
-    {!map&&<><WorldAdditions weather={weather} time={decorTime} entranceOpen={entranceOpen} onEntranceToggle={setEntranceOpen} season={season}/><Suspense fallback={null}><FacadeModel visible={outside}/></Suspense></>}
+    {!map&&<><WorldAdditions weather={weather} time={decorTime} entranceOpen={entranceOpen} onEntranceToggle={setEntranceOpen} season={season}/><Suspense fallback={null}><FacadeModel visible={outside} time={time} weather={weather}/></Suspense></>}
     {(showInterior||interiorLoaded)&&<group visible={showInterior}>
     <SeaVeranda door={verandaDoor} time={time} weather={weather} onExperience={onExperience}/><GroundFloor event={season} sceneTime={time} heldBook={heldBook} map={map} layout={layout} weather={weather} time={decorTime} open={open} onKey={unlock} onReady={()=>setGateReady(true)} onGenre={onGenre} onPick={onPick} onNote={onOpenNotes}/>
     {!map&&<>

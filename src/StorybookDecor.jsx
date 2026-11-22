@@ -1,10 +1,14 @@
-import React from 'react'
+import {surfaceRelief} from './surfaceRelief'
+import React,{useMemo,useEffect} from 'react'
 import {RoundedBox} from '@react-three/drei'
 import * as THREE from 'three'
 export function CarvedBox({p=[0,0,0],s,c='#624331',r=.035,rot=[0,0,0],metal=0,finish}){
  return <RoundedBox position={p} args={s} radius={Math.min(r,...s.map(v=>v*.35))} smoothness={2} rotation={rot} castShadow receiveShadow>{finish?<meshPhysicalMaterial color={c} metalness={metal} {...finish}/>:<meshStandardMaterial color={c} roughness={metal?.36:.82} metalness={metal}/>}</RoundedBox>
 }
 export function ReadingChair({item,finish}){
+ const weave=useMemo(()=>surfaceRelief('fabric'),[])
+ useEffect(()=>()=>weave.dispose(),[weave])
+ const upholstery=finish||{bumpMap:weave,bumpScale:.009,roughness:.90,sheen:.3,sheenRoughness:.8,sheenColor:'#d7cbb1'}
  const {x,z,level,turn,color}=item
  return <group position={[x,level,z]} rotation={[0,turn,0]}>
   {[-.46,.46].flatMap(a=>[-.34,.34].map(b=><group key={`${a}/${b}`}>
@@ -12,13 +16,13 @@ export function ReadingChair({item,finish}){
    <CarvedBox p={[a,.10,b]} s={[.15,.07,.15]} c="#b39562" metal={.5}/>
   </group>))}
   <CarvedBox p={[0,.42,0]} s={[1.22,.18,.98]}/>
-  <CarvedBox p={[0,.545,.06]} s={[1.08,.15,.88]} c={color} finish={finish} r={.065}/>
+  <CarvedBox p={[0,.545,.06]} s={[1.08,.15,.88]} c={color} finish={upholstery} r={.065}/>
   <CarvedBox p={[0,1.12,-.41]} s={[1.22,1.19,.17]}/>
-  <CarvedBox p={[0,1.13,-.30]} s={[1.03,1.04,.16]} c={color} finish={finish} r={.07}/>
+  <CarvedBox p={[0,1.13,-.30]} s={[1.03,1.04,.16]} c={color} finish={upholstery} r={.07}/>
   {[-.53,.53].map(a=><group key={a}>
-   <CarvedBox p={[a,.8,.03]} s={[.16,.45,.96]} c={color} finish={finish} r={.06}/>
+   <CarvedBox p={[a,.8,.03]} s={[.16,.45,.96]} c={color} finish={upholstery} r={.06}/>
    <CarvedBox p={[a,1.02,.06]} s={[.19,.10,.99]} c="#79543a"/>
-   <CarvedBox p={[a,1.37,-.22]} s={[.16,.55,.32]} c={color} finish={finish} r={.07}/>
+   <CarvedBox p={[a,1.37,-.22]} s={[.16,.55,.32]} c={color} finish={upholstery} r={.07}/>
    {[.97,1.32].map(y=><mesh key={y} position={[a*.5,y,-.205]}><sphereGeometry args={[.027,10,8]}/><meshStandardMaterial color="#c6a26a" metalness={.4} roughness={.5}/></mesh>)}
   </group>)}
   <CarvedBox p={[0,.59,.505]} s={[.95,.012,.012]} c="#d4ba8b"/>

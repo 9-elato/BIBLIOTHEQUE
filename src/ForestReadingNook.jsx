@@ -1,28 +1,11 @@
-import React,{useMemo,useEffect} from 'react'
-import * as THREE from 'three'
+import ForestVista from './ForestVista'
+import React from 'react'
 import {Box as B} from './GroundFloor'
 import {CarvedBox, WovenRug,AntiqueLamp,Folios} from './StorybookDecor'
 import StaticBatch from './StaticBatch'
-const forestViews=new Map()
-export function forestTexture(time,weather){
- const c=document.createElement('canvas');c.width=768;c.height=768;const x=c.getContext('2d'),evening=time==='evening'
- const sky=x.createLinearGradient(0,0,0,768);sky.addColorStop(0,evening?'#3b5864':'#c6d9b6');sky.addColorStop(1,evening?'#1c3531':'#577a50');x.fillStyle=sky;x.fillRect(0,0,768,768)
- for(let layer=0;layer<3;layer++)for(let i=0;i<18;i++){
-  const a=(i*127.37+layer*71)%840-35,b=120+(i*83.2)%450,w=3+layer*5
-  x.globalAlpha=.45+layer*.2;x.fillStyle=evening?['#536b69','#304d48','#172d28'][layer]:['#9aaf91','#658366','#364e39'][layer];x.fillRect(a,0,w,768)
-  for(let j=0;j<16;j++){const px=a+Math.sin(j*2.4+i)*60,py=b+(j-8)*27;x.beginPath();x.ellipse(px,py,35+layer*11,18+layer*8,j*.4,0,7);x.fill()}
- }
- x.globalAlpha=1
- if(weather==='rain'||weather==='snow'){x.strokeStyle='#d8e4de';x.globalAlpha=.3;for(let i=0;i<150;i++){const a=i*137%768,b=i*79%768;x.beginPath();x.moveTo(a,b);x.lineTo(a-3,b+(weather==='rain'?20:3));x.stroke()}}
- const map=new THREE.CanvasTexture(c);map.colorSpace=THREE.SRGBColorSpace;return map
-}
 export function ForestWindow({x,z=5.62,width,height=6.8,y=4.25,time,weather}){
- const key=time+':'+weather
- const entry=useMemo(()=>{let v=forestViews.get(key);if(!v){v={map:forestTexture(time,weather),users:0};forestViews.set(key,v)}return v},[key])
- useEffect(()=>{entry.users++;return()=>{if(--entry.users===0){entry.map.dispose();forestViews.delete(key)}}},[entry,key])
- const map=entry.map
  return <group position={[x,y,z]} rotation={[0,Math.PI,0]} userData={{noBatch:true}}>
-  <mesh><planeGeometry args={[width,height]}/><meshBasicMaterial map={map} fog={false}/></mesh>
+  <ForestVista width={width} height={height} time={time} weather={weather}/>
   {[-.5,0,.5].map(a=><B key={a} p={[a*width,0,.05]} s={[.10,height+.15,.15]} c="#735739"/>)}
   {[-.5,.5].map(a=><B key={a} p={[0,a*height,.05]} s={[width,.14,.15]} c="#806343"/>)}
   <mesh position={[0,0,.025]}><planeGeometry args={[width,height]}/><meshStandardMaterial transparent opacity={.035} color="#e2f1de" roughness={.16} metalness={.25} depthWrite={false}/></mesh>

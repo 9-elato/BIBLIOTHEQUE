@@ -1,14 +1,8 @@
 import React,{useEffect} from 'react'
-import {forestTexture} from './ForestReadingNook'
-// Reusable exterior view. Its inputs remain independent of the window frame.
-const paintedViews=new Map()
-export function WindowLandscape({time='afternoon',weather='sunny',event='none',season,celestial=true,width=1.5,height=4}){
+import ForestVista from './ForestVista'
+export function WindowLandscape({time='afternoon',weather='sunny',width=1.5,height=4}){
  const shape=useMemoShape(width,height)
- const variant=Math.round(width*13+height*7)%5
- const key=[time,weather,event,season,celestial,variant].join(':')
- const map=useMemo(()=>{let entry=paintedViews.get(key);if(!entry){entry={map:forestTexture(time,weather),users:0};paintedViews.set(key,entry)}return entry},[key])
- useEffect(()=>{map.users++;return()=>{if(--map.users===0){map.map.dispose();paintedViews.delete(key)}}},[map,key])
- return <mesh geometry={shape}><meshBasicMaterial map={map.map}/></mesh>
+ return <ForestVista geometry={shape} time={time} weather={weather}/>
 }
 export default function StoryWindow({position,rotation=[0,0,0],width=1.5,height=5,time,weather,event,season,curtain='#294b3d',curtainFinish}){
  const r=width/2,base=height/2-r

@@ -1,9 +1,11 @@
+import {natureMood} from './natureMood'
 import * as THREE from 'three'
 export function paintOcean(time,weather){
+ const mood=natureMood(time,weather)
  const c=document.createElement('canvas');c.width=1024;c.height=512
  const x=c.getContext('2d'),evening=['evening','night'].includes(time),rain=weather==='rain'
  const sky=x.createLinearGradient(0,0,0,252)
- sky.addColorStop(0,evening?'#254f86':rain?'#718fa9':'#178fe5');sky.addColorStop(1,evening?'#efc2ac':'#bcecff')
+ sky.addColorStop(0,mood.sky);sky.addColorStop(1,mood.horizon)
  x.fillStyle=sky;x.fillRect(0,0,1024,252)
  // Layered soft cumulus: shaded undersides and sunlit rounded crowns.
  for(const [cx,cy,scale] of [[95,100,1],[380,67,.8],[790,110,1.4],[1030,55,.8]]){
@@ -13,10 +15,10 @@ export function paintOcean(time,weather){
    x.fillStyle=g;x.beginPath();x.ellipse(px,py,r,r*.7,0,0,7);x.fill()
   }
  }
- const sea=x.createLinearGradient(0,252,0,512);sea.addColorStop(0,evening?'#336ba5':'#126bd3');sea.addColorStop(.5,evening?'#175780':'#128ee1');sea.addColorStop(1,evening?'#123b68':'#13a7d2');x.fillStyle=sea;x.fillRect(0,252,1024,260)
+ const sea=x.createLinearGradient(0,252,0,512);sea.addColorStop(0,evening?'#526f8a':rain?'#6b8c98':'#4c91b2');sea.addColorStop(.5,mood.sea);sea.addColorStop(1,evening?'#183e55':rain?'#3b666f':'#187e96');x.fillStyle=sea;x.fillRect(0,252,1024,260)
  // Far headlands lose contrast in sea haze; tiny sails establish distance.
  x.fillStyle=evening?'#6b849d':'#8ebace';x.beginPath();x.moveTo(0,252);x.bezierCurveTo(60,235,85,220,150,239);x.bezierCurveTo(190,230,225,248,270,252);x.fill()
- x.fillStyle=evening?'#c4d1d8':'#e7f5ff';x.fillRect(0,251,1024,2)
+ x.fillStyle=evening?'#c4d1d8':'#e7f5ff';x.globalAlpha=.35;x.fillRect(0,248,1024,5);x.globalAlpha=1
  for(const [a,b,r] of [[355,263,7],[815,270,10]]){x.fillStyle='#fff6df';x.beginPath();x.moveTo(a,b-r);x.lineTo(a-r*.7,b);x.lineTo(a,b);x.fill();x.fillStyle='#4c7186';x.fillRect(a-r*.8,b+1,r*1.5,1)}
  for(let i=0;i<560;i++){
   const a=(i*137.7)%1024,b=254+((i*31.3)%258/258)**1.8*258,depth=(b-252)/260
