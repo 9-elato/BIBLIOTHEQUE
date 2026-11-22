@@ -14,7 +14,7 @@ import {toggleGlassDoor} from './greenhouseLayout'
 import StudyRoom from './StudyRoom'
 import {toggleStudyDoor} from './studyLayout'
 import {movementVector,facingForMovement,frontViewYaw} from './cameraMovement'
-import {ATTIC_EXPANSION} from './atticLayout'
+import {ATTIC_EXPANSION,ATTIC_SCREEN_TARGET} from './atticLayout'
 import PaperSpirits from './PaperSpirits'
 import AtmosphereDetails from './AtmosphereDetails'
 import TallStacks from './TallStacks'
@@ -256,7 +256,7 @@ function WalkControl({playerPosition,verandaDoor,blanket,onBlanket,glassDoor,stu
     if(mode==='third')look.set(s.x,eye.y+s.pitch*3,s.z)
     if(mode==='third'&&pose.current.recline>.1)look.copy(eye)
     if(s.skyGaze&&s.seated?.seat.id==='meadow-rest'&&s.seated.phase==='seated'){camera.position.set(s.x,visualY+.35,s.z);look.set(s.x+Math.sin(s.yaw)*4,visualY+8,s.z-Math.cos(s.yaw)*4);avatar.current.visible=false}
-    if(s.cinema&&s.seated?.posture==='lying'){camera.position.copy(eye);look.set(-13.634,(ATTIC_HEIGHT+4.7)*WORLD_HEIGHT_SCALE,-.4)}
+    if(s.cinema&&s.seated?.posture==='lying'){camera.position.copy(eye);look.set(ATTIC_SCREEN_TARGET[0],ATTIC_SCREEN_TARGET[1]*WORLD_HEIGHT_SCALE,ATTIC_SCREEN_TARGET[2])}
     const desiredFov=mode==='third'?73:69
     if(Math.abs(camera.fov-desiredFov)>.05){camera.fov=THREE.MathUtils.damp(camera.fov,desiredFov,7,dt);camera.updateProjectionMatrix()}
     camera.lookAt(look)

@@ -1,11 +1,12 @@
+import {ATTIC_MOBILE} from './atticLayout'
 import React,{useRef} from 'react'
 import {useFrame} from '@react-three/fiber'
 const planets=[['Mercury',.035,.34,'#a99c8d'],['Venus',.065,.49,'#ddb075'],['Earth',.072,.66,'#377fc1'],['Mars',.05,.83,'#be6445'],['Jupiter',.17,1.10,'#d4ac87'],['Saturn',.14,1.46,'#d6c18b'],['Uranus',.095,1.78,'#86c8c7'],['Neptune',.09,2.02,'#456cce']]
 export default function SolarMobile(){
  const orbit=useRef()
  useFrame((_,dt)=>{if(orbit.current)orbit.current.rotation.y+=Math.min(dt,.05)*.035})
- return <group position={[0,4.35,-.6]} userData={{noBatch:true}}>
-  <mesh position={[0,.8,0]}><cylinderGeometry args={[.014,.014,1.6,8]}/><meshStandardMaterial color="#ad8b56" metalness={.65}/></mesh>
+ return <group position={ATTIC_MOBILE} userData={{noBatch:true}}>
+  <mesh position={[0,1.41,0]}><cylinderGeometry args={[.014,.014,2.82,8]}/><meshStandardMaterial color="#ad8b56" metalness={.65}/></mesh>
   <mesh><sphereGeometry args={[.24,24,16]}/><meshStandardMaterial color="#ffd067" emissive="#ffb438" emissiveIntensity={1.3} roughness={.65}/></mesh>
   <group ref={orbit}>{planets.map(([name,r,radius,color],i)=>{
    const a=i*2.4,p=[Math.cos(a)*radius,-.12-(i%3)*.10,Math.sin(a)*radius]

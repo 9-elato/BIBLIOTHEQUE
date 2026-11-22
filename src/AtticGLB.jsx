@@ -1,3 +1,4 @@
+import {ATTIC_SHELL_SCALE,ATTIC_MODEL_SCALE,replaceAtticEndWall,atticArchitecture} from './atticLayout'
 import AtticTerraceCinema from './AtticTerraceCinema'
 import AtticSky,{PanoramicRoofFrame} from './AtticSky'
 import AtticCosmos from './AtticCosmos'
@@ -18,7 +19,9 @@ export default function AtticGLB({time,weather,event}){
  const model=useMemo(()=>{
   const copy=scene.clone(true)
   copy.traverse(object=>{
-   if(/^SKYLIGHT/.test(object.name)||/^ROOF.*left/.test(object.name)||/^RAFTER.*side.-1.(0\.3|3\.4)/.test(object.name))object.visible=false
+   if(replaceAtticEndWall(object.name,object.position.z))object.visible=false
+   if(/^RAFTER/.test(object.name)&&object.position.x<0&&object.position.z>-.4&&object.position.z<5.8)object.visible=false
+   if(/^SKYLIGHT/.test(object.name)||/^ROOF.*left/.test(object.name))object.visible=false
    if(/^(DAYBED|TELESCOPE)/.test(object.name))object.visible=false
    if(/^SKYLIGHT/.test(object.name)&&/mid.mullion/.test(object.name))object.visible=false
    if(/^DAYBED/.test(object.name)&&/pillow|fallen.linen.throw/.test(object.name))object.visible=false
@@ -52,10 +55,10 @@ export default function AtticGLB({time,weather,event}){
   })
   const architecture=new THREE.Group(),parts=[]
   copy.updateMatrixWorld(true)
-  copy.traverse(o=>{if(o.isMesh&&/^(ROOF|WALL|WINDOW|SKYLIGHT)/.test(o.name))parts.push(o)})
+  copy.traverse(o=>{if(o.isMesh&&atticArchitecture(o.name))parts.push(o)})
   copy.add(architecture)
   parts.forEach(o=>{if(/rear.glazed/.test(o.name))o.visible=false;architecture.attach(o);if(o.visible){if(!o.userData.atticMaterial)o.material=o.material.clone();o.material.side=THREE.DoubleSide;o.userData.atticMaterial=true}})
-  architecture.scale.y=1.5
+  architecture.scale.y=ATTIC_MODEL_SCALE
   return copy
  },[scene,textures])
  useEffect(()=>()=>model.traverse(o=>{if(o.isMesh&&(o.userData.atticMaterial||/DAYBED.*carved.frame/.test(o.name)))o.material.dispose();if(o.userData.atticGeometry)o.geometry.dispose()}),[model])
@@ -67,8 +70,8 @@ export default function AtticGLB({time,weather,event}){
  useEffect(()=>()=>rearGable.dispose(),[rearGable])
  const panel=(p,s,color='#dfd2bd')=><mesh position={p} castShadow receiveShadow><boxGeometry args={s}/><meshStandardMaterial color={color} roughness={.85}/></mesh>
  return <group><AtticDetails time={time}/><group position={ATTIC_ORIGIN}>
-  <AtticTerraceCinema time={time} weather={weather}/><primitive object={model}/><mesh scale={[1,1.25,1]} position={[0,0,6.59]} geometry={rearGable}><meshStandardMaterial color="#dfd2bd" roughness={.95} side={THREE.DoubleSide}/></mesh><AtticTextiles fabric={textures.fabric}/><mesh position={[-3.67,2.8,-3.7]} rotation={[0,Math.PI/2,0]}><planeGeometry args={[2.87,2.09]}/><meshStandardMaterial map={textures.chalk} roughness={1}/></mesh><group scale={[1,1.25,1]}><AtticSky time={time} weather={weather}/><PanoramicRoofFrame map={textures.roof}/></group><AtticCosmos time={time} textures={textures}/><group scale={[1,1.25,1]} position={[0,4.525,6.56]} rotation={[0,Math.PI,0]}><WindowLandscape width={3.86} height={3.18} time={time} weather={weather} event={event}/></group>
-  <group scale={[1,1.25,1]}>
+  <AtticTerraceCinema time={time} weather={weather}/><primitive object={model}/><mesh scale={[1,ATTIC_SHELL_SCALE,1]} position={[0,0,6.59]} geometry={rearGable}><meshStandardMaterial color="#dfd2bd" roughness={.95} side={THREE.DoubleSide}/></mesh><AtticTextiles fabric={textures.fabric}/><mesh position={[-3.67,2.8,-3.7]} rotation={[0,Math.PI/2,0]}><planeGeometry args={[2.87,2.09]}/><meshStandardMaterial map={textures.chalk} roughness={1}/></mesh><group scale={[1,ATTIC_SHELL_SCALE,1]}><AtticSky time={time} weather={weather}/><PanoramicRoofFrame map={textures.roof}/></group><AtticCosmos time={time} textures={textures}/><group scale={[1,ATTIC_SHELL_SCALE,1]} position={[0,4.525,6.56]} rotation={[0,Math.PI,0]}><WindowLandscape width={3.86} height={3.18} time={time} weather={weather} event={event}/></group>
+  <group scale={[1,ATTIC_SHELL_SCALE,1]}>
   {panel([4.16,2.15,-.92],[.19,4.3,11.44])}
   {panel([4.16,2.15,6.56],[.19,4.3,.16])}
   {panel([4.16,3.48,5.64],[.19,1.64,1.68])}

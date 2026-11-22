@@ -1,3 +1,4 @@
+import {atticRoofY} from './atticLayout'
 import React,{useMemo,useRef} from 'react'
 import {useFrame} from '@react-three/fiber'
 import * as THREE from 'three'
@@ -8,6 +9,8 @@ export default function AtticCosmos({time,textures}){
  const tail=useMemo(()=>new THREE.CatmullRomCurve3([new THREE.Vector3(0,0,0),new THREE.Vector3(.45,.07,0),new THREE.Vector3(.9,.36,0),new THREE.Vector3(1.3,.42,0)]),[])
  useFrame(({clock})=>{moon.current.rotation.z=.14+Math.sin(clock.elapsedTime*.3)*.05;light.current.intensity=(night?4:1.2)*(1+Math.sin(clock.elapsedTime*.15)*.12)})
  return <group>
+  {[[2.85,5.45,-3.9],[1.05,5.95,1.3]].map(([x,bottom,z])=>{const top=atticRoofY(x)-.08;return <B key={z} p={[x,(bottom+top)/2,z]} s={[.014,top-bottom,.014]} c="#ac9161"/>})}
+
   {/* All additions sit on existing furniture or above walking headroom. */}
   <mesh position={[-4.035,2.63,-.4]} rotation={[0,Math.PI/2,0]}><planeGeometry args={[3.7,1.65]}/><meshStandardMaterial map={textures.wallpaper} color="#a7b79c" roughness={1}/></mesh>
   <mesh position={[0,2.43,-6.205]}><planeGeometry args={[7.7,2.0]}/><meshStandardMaterial map={textures.wallpaper} roughness={1}/></mesh>
