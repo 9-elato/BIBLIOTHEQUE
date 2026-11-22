@@ -33,8 +33,8 @@ export const FURNITURE=[
  ...[-17.5,-12.5].map(x=>({floor:0,id:`veranda-cushion-${x}`,rect:[x-.7,x+.7,-12.45,-11.15]})),
  {floor:0,id:'veranda-lantern',rect:[-19.2,-18.8,-13,-12.6]},
  ...[-1,1].map(a=>({floor:0,id:`estate-portico-${a}`,rect:[a*2.05-.325,a*2.05+.325,11.05,13.15]})),
- {floor:0,rect:[5.78,6.74,-22.8,-19.8],id:'study-bench'},
- {floor:0,rect:[5.8,7,-29.15,-23.45],id:'study-lp'},
+ {floor:0,rect:[5.78,6.74,-22.2,-19.2],id:'study-bench'},
+ {floor:0,rect:[5.8,7,-29.47,-22.33],id:'study-lp'},
 
  {floor:0,rect:[-.64,.64,-27.82,-26.78],id:'study-desk-chair'},
  ...CONSERVATORY_SOLIDS.map(s=>({...s,floor:GALLERY_HEIGHT})),

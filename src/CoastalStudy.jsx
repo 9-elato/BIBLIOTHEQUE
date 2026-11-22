@@ -24,10 +24,10 @@ export default function CoastalStudy({time,weather,onMusic}){return <group>
  <B p={[-6.45,.91,-24.80]} s={[.92,.18,7.9]} c="#715039"/>
  {[-5.7,-3.9,3.9,5.7].map(x=><group key={x}><B p={[x,.43,-28.75]} s={[1.3,.86,.8]} c="#493429"/>{[.25,.55,.8].map(y=><B key={y} p={[x,y,-28.31]} s={[.22,.025,.03]} c="#b2935d"/>)}</group>)}
  {[-27.5,-24.7,-21.5].map(z=><B key={z} p={[-6.45,.43,z]} s={[.8,.86,.7]} c="#4c382b"/>)}
- <group position={[6.53,0,-26.3]} rotation={[0,-Math.PI/2,0]}>
+ <group position={[6.53,0,-25.9]} rotation={[0,-Math.PI/2,0]} scale={[1.5,1,1]}>
   <B p={[0,.56,0]} s={[4.1,1.12,.85]} c="#3e3027"/><B p={[0,1.17,0]} s={[4.25,.13,.95]} c="#8b6746"/>
   {Array.from({length:38},(_,i)=><B key={i} p={[-1.9+i*.067,.57,.44]} s={[.035,.76,.045]} c={['#aa8a66','#716e65','#52665e','#8f5b56'][i%4]}/>)}
-  {[1.65,2.65,3.65].map((y,row)=><group key={y}><B p={[0,y,-.08]} s={[4.3,.10,.46]} c="#876244"/><B p={[0,y+.065,.14]} s={[4.1,.02,.025]} c="#f0ca85"/><mesh position={[0,y+.05,.17]}><boxGeometry args={[4.12,.015,.02]}/><meshBasicMaterial color="#ffd99a"/></mesh>{[0,1,2,3,4].map(i=><group key={i} position={[-1.65+i*.82,y+.43,.02]}><B s={[.73,.74,.055]} c={['#314b53','#ad9973','#814f49','#5f6b51','#383849'][(i+row)%5]}/><mesh position={[0,0,.035]}><ringGeometry args={[.10,.23,24]}/><meshStandardMaterial color={row%2?'#c3a973':'#d9c7a1'} roughness={.9}/></mesh><B p={[0,-.27,.04]} s={[.46,.018,.01]} c="#ddd0af"/></group>)}</group>)}
-  {[-1,1].map(a=><group key={a} position={[a*2.55,0,0]}><B p={[0,.73,0]} s={[.55,1.46,.60]} c="#282d2c"/>{[.42,.94].map(y=><mesh key={y} position={[0,y,.31]}><circleGeometry args={[.19,28]}/><meshStandardMaterial color="#151b1e" metalness={.25} roughness={.5}/></mesh>)}</group>)}
+  {[1.9,3.05].map((y,row)=><group key={y}><B p={[0,y,-.08]} s={[4.3,.10,.46]} c="#876244"/><B p={[0,y+.065,.14]} s={[4.1,.02,.025]} c="#f0ca85"/><mesh position={[0,y+.05,.17]}><boxGeometry args={[4.12,.015,.02]}/><meshBasicMaterial color="#ffd99a"/></mesh>{[0,1,2,3,4].map(i=><group key={i} position={[-1.65+i*.82,y+.60,.02]} scale={[1,1.5,1]} userData={{noBatch:true}} onClick={e=>{e.stopPropagation();onMusic(row*5+i)}}><B s={[.73,.74,.055]} c={['#314b53','#ad9973','#814f49','#5f6b51','#383849'][(i+row)%5]}/><mesh position={[0,0,.035]}><ringGeometry args={[.10,.23,24]}/><meshStandardMaterial color={row%2?'#c3a973':'#d9c7a1'} roughness={.9}/></mesh><B p={[0,-.27,.04]} s={[.46,.018,.01]} c="#ddd0af"/></group>)}</group>)}
+  {[-1,1].map(a=><group key={a} position={[a*2.1,0,0]}><B p={[0,.73,0]} s={[.55,1.46,.60]} c="#282d2c"/>{[.42,.94].map(y=><mesh key={y} position={[0,y,.31]}><circleGeometry args={[.19,28]}/><meshStandardMaterial color="#151b1e" metalness={.25} roughness={.5}/></mesh>)}</group>)}
  </group>
  </group>}
