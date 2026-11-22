@@ -277,7 +277,7 @@ function ArchiveScene({blanket,onBlanket,onMusic,onExperience,books=[],placement
   const reportZone=zone=>{setLocalZone(zone);onZone(zone)}
   const outside=['저택 정원','현관'].includes(localZone)
   const inGreenhouse=localZone==='실내 온실'
-  const inLounge=['지하 숲 라운지','숲 전망 욕실','지하 계단','벽난로 라운지','열람실','다락방'].includes(localZone)
+  const inLounge=['지하 숲 라운지','숲 온천','지하 계단','벽난로 라운지','열람실','다락방'].includes(localZone)
   const upperVisible=['중앙 계단','2층 갤러리','열람실','실내 온실','다락 계단'].includes(localZone)
   const nearAttic=['중앙 계단','2층 갤러리','열람실','실내 온실','다락 계단','다락방','별빛 테라스'].includes(localZone)
   const [atticLoaded,setAtticLoaded]=useState(false)
@@ -299,7 +299,7 @@ function ArchiveScene({blanket,onBlanket,onMusic,onExperience,books=[],placement
     <ambientLight color={time==='night'?'#829bc2':time==='morning'?'#fff1d5':'#ffffff'} intensity={inGreenhouse?(decorTime==='evening'?.22:weather==='sunny'?.25:.4):inLounge?(decorTime==='evening'?.22:.4):(decorTime==='evening'?(outside?.27:.65):.97)}/>
     <hemisphereLight args={['#fff1d8','#7a6655',inGreenhouse?(decorTime==='evening'?.28:.45):inLounge?(decorTime==='evening'?.38:.7):(decorTime==='evening'?(outside?.48:1.05):1.68)]}/>
     <directionalLight color={time==='night'?'#95afd8':time==='morning'?'#ffe5bc':'#ffffff'} position={time==='morning'?[12,12,8]:[-10,18,9]} intensity={inGreenhouse?0:inLounge?.65:(decorTime==='evening'?(outside?.45:1):2.15)}/>
-    <group scale={[1,WORLD_HEIGHT_SCALE,1]}><EstateLandscape time={time} weather={weather}/><Basement time={time} visible={outside||map||['중앙 홀','서가','지하 계단','지하 숲 라운지','숲 전망 욕실'].includes(localZone)}/>
+    <group scale={[1,WORLD_HEIGHT_SCALE,1]}><EstateLandscape time={time} weather={weather}/><Basement time={time} visible={outside||map||['중앙 홀','서가','지하 계단','지하 숲 라운지','숲 온천'].includes(localZone)}/>
     {!map&&<><WorldAdditions weather={weather} time={decorTime} entranceOpen={entranceOpen} onEntranceToggle={setEntranceOpen} season={season}/><Suspense fallback={null}><FacadeModel visible={outside}/></Suspense></>}
     {(showInterior||interiorLoaded)&&<group visible={showInterior}>
     <SeaVeranda door={verandaDoor} time={time} weather={weather} onExperience={onExperience}/><GroundFloor event={season} sceneTime={time} heldBook={heldBook} map={map} layout={layout} weather={weather} time={decorTime} open={open} onKey={unlock} onReady={()=>setGateReady(true)} onGenre={onGenre} onPick={onPick} onNote={onOpenNotes}/>

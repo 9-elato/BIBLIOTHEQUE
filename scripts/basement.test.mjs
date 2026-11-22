@@ -8,7 +8,7 @@ test('basement is reached by a continuous stair and returns to the hall',()=>{
  let p={x:3,z:-4.8,level:0}
  p=movePlayer(p,10.5,0,world);assert.ok(Math.abs(p.x-13.5)<.01);assert.equal(p.level,H)
  for(const [x,z] of [[14,-2],[16,-2],[16,0],[19,0],[22,0]]){p=movePlayer(p,x-p.x,z-p.z,world);assert.ok(Math.hypot(p.x-x,p.z-z)<.02)}
- assert.equal(floorName(p.x,p.z,p.level),'숲 전망 욕실')
+ assert.equal(floorName(p.x,p.z,p.level),'숲 온천')
  for(const [x,z] of [[19,0],[16,0],[16,-2],[14,-2],[13.5,-4.8],[3,-4.8]]){p=movePlayer(p,x-p.x,z-p.z,world);assert.ok(Math.hypot(p.x-x,p.z-z)<.02)}
  assert.equal(p.level,0)
 })
@@ -25,4 +25,12 @@ test('basement seating has clear approaches and bath cannot be walked through',(
  assert.equal(walkHeight(18,3,H,world),null)
  assert.equal(walkHeight(18,0,H,world),H)
  assert.equal(walkHeight(22,7,H,world),null)
+})
+
+test('forest spring dry promenade loops around pool without entering water or garden edges',()=>{
+ let p={x:19,z:0,level:H}
+ const route=[[18.7,0],[18.7,9.3],[25.45,9.3],[25.45,.2],[19,.2],[19,0]]
+ for(const [x,z] of route){p=movePlayer(p,x-p.x,z-p.z,world);assert.ok(Math.hypot(p.x-x,p.z-z)<.03,`spring promenade blocked at ${x},${z}`)}
+ for(const [x,z] of [[22,5],[22,8],[22,10.5],[26.2,9]])assert.equal(walkHeight(x,z,H,world),null)
+ const towardWater=movePlayer({x:18.7,z:5,level:H},5,0,world);assert.ok(towardWater.x<19.3)
 })

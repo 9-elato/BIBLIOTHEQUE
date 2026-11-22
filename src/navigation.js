@@ -1,4 +1,4 @@
-import {BASEMENT_HEIGHT,BASEMENT_STAIR,BASEMENT_BOUNDS,BASEMENT_SOLIDS} from './basementLayout.js'
+import {SPRING_WALK_REGION,BASEMENT_HEIGHT,BASEMENT_STAIR,BASEMENT_BOUNDS,BASEMENT_SOLIDS} from './basementLayout.js'
 import {GREENHOUSE_REGIONS,GARDEN_SOLIDS as CONSERVATORY_SOLIDS,gardenWaterBlocks,glassDoorBlocks} from './greenhouseLayout.js'
 import {studyDoorBlocks} from './studyLayout.js'
 import {atticX} from './atticLayout.js'
@@ -92,7 +92,7 @@ export function walkHeight(x,z,previousY,world){
   }
   if(!onStair){
     if(canWalk(x,z,world))candidates.push(0)
-    if(supported([BASEMENT_BOUNDS],x,z))candidates.push(BASEMENT_HEIGHT)
+    if(supported([BASEMENT_BOUNDS,SPRING_WALK_REGION],x,z))candidates.push(BASEMENT_HEIGHT)
     if(supported(upperRegions,x,z))candidates.push(GALLERY_HEIGHT)
     // Doorway is open only at the top landing of the attic stair.
     const attic=[[atticX(-19.5),atticX(-11.65),6.7,10.8],[atticX(-13.6),atticX(-12),6.05,7.1],[atticX(-19.5),-11.65,-6.35,6.35],[-12,-11.43,5.03,6.27]]
@@ -129,7 +129,7 @@ export function movePlayer(position,dx,dz,world){
 }
 export function floorName(x,z,y){
   if(y<-.12&&y>BASEMENT_HEIGHT+.12)return '지하 계단'
-  if(y<=BASEMENT_HEIGHT+.12)return x>17.8?'숲 전망 욕실':'지하 숲 라운지'
+  if(y<=BASEMENT_HEIGHT+.12)return x>17.8?'숲 온천':'지하 숲 라운지'
   if(y>.12&&y<GALLERY_HEIGHT-.12)return '중앙 계단'
   if(y>GALLERY_HEIGHT+.12&&y<ATTIC_HEIGHT-.12)return '다락 계단'
   if(y>=ATTIC_HEIGHT-.12)return z>6.7?'별빛 테라스':'다락방'
