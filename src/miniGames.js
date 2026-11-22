@@ -3,7 +3,7 @@ export const GAME_SPOTS=[
  {id:'shelves',title:'열람실 책 순서 퍼즐',x:10.25,z:0,y:8.07,level:7.2},
  {id:'cipher',title:'작업실 암호 자물쇠',x:.65,z:-28.72,y:1.12,level:0},
 ]
-export const HERBS=['민트','라벤더','로즈마리','타임']
+export const HERBS=['민트','라벤더','로즈마리','타임','바질','세이지','자스민','카모마일']
 export function shuffled(items,random=Math.random){
  const result=[...items]
  for(let i=result.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[result[i],result[j]]=[result[j],result[i]]}
@@ -12,10 +12,16 @@ export function shuffled(items,random=Math.random){
 export const ordered=items=>items.every((n,i)=>n===i+1)
 export function swapBooks(items,a,b){const next=[...items];[next[a],next[b]]=[next[b],next[a]];return next}
 export function cipherFeedback(guess,answer){
- if(!/^\d{3}$/.test(guess))return {error:'숫자 세 자리를 입력해 주세요.'}
+ if(!new RegExp('^\\d{'+answer.length+'}$').test(guess))return {error:`숫자 ${answer.length}자리를 입력해 주세요.`}
  let exact=0;const remaining=[],misplaced=[]
- for(let i=0;i<3;i++){if(guess[i]===answer[i])exact++;else{remaining.push(answer[i]);misplaced.push(guess[i])}}
+ for(let i=0;i<answer.length;i++){if(guess[i]===answer[i])exact++;else{remaining.push(answer[i]);misplaced.push(guess[i])}}
  let near=0
  for(const digit of misplaced){const i=remaining.indexOf(digit);if(i!==-1){near++;remaining.splice(i,1)}}
- return {exact,near,won:exact===3}
+ return {exact,near,won:exact===answer.length}
 }
+
+export const MEMORY_LIMIT=20
+export const CIPHER_LIMIT=8
+export function inversions(items){let n=0;for(let i=0;i<items.length;i++)for(let j=i+1;j<items.length;j++)if(items[i]>items[j])n++;return n}
+export function shelfPuzzle(random=Math.random){const items=shuffled([1,2,3,4,5,6,7,8],random);return inversions(items)<8?[8,3,6,1,7,2,5,4]:items}
+export function adjacentSwap(items,a,b){return Math.abs(a-b)===1?swapBooks(items,a,b):items}
