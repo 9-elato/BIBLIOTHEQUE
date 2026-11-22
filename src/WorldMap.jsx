@@ -9,7 +9,8 @@ const FLOORS=[
   ['stairs','중앙 계단','2층으로 ↑',2,47,29,12,'중앙 계단'],
   ['basementstairs','지하 계단','',69,49,29,12,'지하 계단'],
   ['vestibule','현관','',35,49,30,12,'현관'],
-  ['estate','정원 산책로','',35,70,30,25,'저택 정원'],
+  ['estate','정원 산책로','',35,70,30,13,'저택 정원'],
+  ['meadow','잔디 동산','',35,85,30,13,'잔디 동산'],
   ['garden-west','서쪽 벤치','',2,70,29,16],
   ['garden-east','동쪽 벤치','',69,79,29,16],
  ],lines:['M16 16 V22','M50 16 V22','M31 32 H35','M65 32 H69','M50 43 V70','M35 40 H33 V53 H31','M31 78 H35','M65 87 H69'],notes:'정원 → 현관 → 중앙 홀. 서쪽은 라운지, 동쪽은 서가입니다. 중앙 계단은 홀 서쪽에 있습니다.'},
@@ -41,6 +42,6 @@ export default function WorldMap({floor,onFloor,zone,onTravel,onClose}){
    {plan.rooms.map(([id,name,detail,x,y,w,h,location])=><button key={id} style={{left:x+'%',top:y+'%',width:w+'%',height:h+'%'}} aria-label={name+' 이동'} aria-current={zone===location?'location':undefined} onClick={()=>onTravel(id)}><b>{name}</b><small>{detail}</small>{zone===location&&<em>● 현재</em>}</button>)}
   </div>
   <div className="map-legend"><span>↑ 북쪽</span><span>─ 연결 동선</span><span>● 현재 공간</span></div>
-  <p>{plan.notes}</p><p className="map-help">공간 이름을 누르면 안전한 진입 지점으로 이동합니다.<br/>배치와 연결을 보여 주는 안내도이며 실제 축척과는 다릅니다.</p>
+  <p>{plan.notes}</p><p className="map-help">잔디 동산: Shift로 달리기, E로 눕기·일어나기, V로 하늘 보기. 모바일은 이동 조이스틱을 끝까지 밀면 달립니다. 공간 이름을 누르면 안전한 진입 지점으로 이동합니다.<br/>배치와 연결을 보여 주는 안내도이며 실제 축척과는 다릅니다.</p>
  </section>
 }

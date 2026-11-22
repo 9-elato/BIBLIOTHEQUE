@@ -1,3 +1,4 @@
+import {meadowRest} from './meadowLayout.js'
 import {canToggleStudyDoor} from './studyLayout.js'
 import {GAME_SPOTS} from './miniGames.js'
 import {atticX} from './atticLayout.js'
@@ -11,6 +12,8 @@ export function interactionAt(s, {entranceOpen, gateReady, gateOpening=false, bo
   if (s.seated) return s.seated.phase&&s.seated.phase!=='seated'?null:{type:'stand',label:heldBook?'책을 들고 일어나기':'일어나기'}
   if(s.level===0&&world?.verandaDoor&&near(-10.2,-6.7,2))return {type:'verandaDoor',label:world.verandaDoor.open?'바다 마루 문 닫기':'바다 마루 문 열기'}
   if(Math.abs(s.level-ATTIC_HEIGHT)<.1&&near(atticX(-16.8),9.3,1.65))return {type:'telescope',label:'테라스에서 별과 달 관측하기'}
+  const rest=meadowRest(s)
+  if(rest&&Math.abs(s.level-rest.level)<.15)return {type:'seat',seat:rest,label:'잔디에 누워 하늘 보기'}
   const seat=nearbySeat(s,world)
   if(seat)return {type:'seat',seat,label:seat.label+(heldBook?'에 앉아 읽기':'에 앉기')}
   if(Math.abs(s.level-7.2)<.1&&world?.glassDoor&&near(0,-6.95,2.65))return {type:'glassDoor',label:Math.abs(s.x)<1.7&&s.z<-6.5&&s.z>-8.8?'유리문에서 한 걸음 물러나기':world.glassDoor.open?'온실 유리문 닫기':'온실 유리문 열기'}

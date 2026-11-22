@@ -1,3 +1,4 @@
+import Meadow from './Meadow'
 import SeaWater from './SeaWater'
 import {useFrame} from '@react-three/fiber'
 import {natureMood} from './natureMood'
@@ -16,7 +17,7 @@ export default function EstateLandscape({time,weather}){
  useLayoutEffect(()=>{
   const o=new THREE.Object3D(),color=new THREE.Color()
   for(let i=0;i<64;i++){
-   const east=i<42,x=east?30+(i*7.31)%34:-35+(i*5.17)%67,z=east?-3+(i*11.67)%47:43+(i*7.13)%18
+   const east=i<42,x=east?30+(i*7.31)%34:-35+(i*5.17)%67,z=east?-3+(i*11.67)%47:120+(i*7.13)%18
    const ground=east?-5:0,height=5+(i%5)*1.3
    o.position.set(x,ground+height/2,z);o.scale.set(.22,height,.22);o.rotation.set(0,0,0);o.updateMatrix();trunks.current.setMatrixAt(i,o.matrix)
    for(let j=0;j<3;j++){o.position.set(x+Math.sin(i+j*2.1)*1.1,ground+height+(j-1)*1.2,z+Math.cos(i+j*2.1)*.9);o.scale.set(1.8+(i%3)*.25,2.5,1.8);o.updateMatrix();crowns.current.setMatrixAt(i*3+j,o.matrix);color.set(m.snow?'#c1cdbb':[m.near,m.mid,'#67865a'][(i+j)%3]);crowns.current.setColorAt(i*3+j,color)}
@@ -27,7 +28,7 @@ export default function EstateLandscape({time,weather}){
   for(let i=0;i<6;i++){o.position.set(70+i*8,-7,8+i*13);o.scale.set(20,16+(i%3)*6,25);o.rotation.set(0,i*.7,0);o.updateMatrix();hills.current.setMatrixAt(i,o.matrix)}
   for(const r of [trunks,crowns,rocks,hills]){r.current.instanceMatrix.needsUpdate=true;r.current.computeBoundingSphere()};crowns.current.instanceColor.needsUpdate=true
  },[weather,time])
- return <group>
+ return <group><Meadow time={time} weather={weather}/>
  <instancedMesh ref={trunks} args={[null,null,64]}><cylinderGeometry args={[1,1.3,1,7]}/><meshStandardMaterial color="#5f5039" roughness={1}/></instancedMesh>
  <instancedMesh ref={crowns} args={[null,null,192]} material={leafMaterial}><sphereGeometry args={[1,10,8]}/></instancedMesh>
  <instancedMesh ref={hills} args={[null,null,6]}><sphereGeometry args={[1,16,10]}/><meshStandardMaterial color={m.far} roughness={1}/></instancedMesh>

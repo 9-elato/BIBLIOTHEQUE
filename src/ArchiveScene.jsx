@@ -105,7 +105,7 @@ function WalkControl({playerPosition,verandaDoor,blanket,onBlanket,glassDoor,stu
       s.keys.clear()
       if(action.type==='place')ui.onPlaceNearby?.(action.target)
       else if(action.type==='stand')s.seated=startStanding(s.seated,ui.world)
-      else if(action.type==='seat'){s.seated=startSitting(s,action.seat);s.yaw=-action.seat.turn-.4;s.pitch=0}
+      else if(action.type==='seat'){s.skyGaze=false;s.seated=startSitting(s,action.seat);s.yaw=-action.seat.turn-.4;s.pitch=0}
       else if(action.type==='door'){
         // Do not swing the door through a visitor standing in its sweep.
         if(ui.entranceOpen&&s.z>10.1&&s.z<12.05&&Math.abs(s.x)<1.8)return
@@ -130,7 +130,8 @@ function WalkControl({playerPosition,verandaDoor,blanket,onBlanket,glassDoor,stu
     const keyDown=e=>{
       const ui=status.current
       if(ui.blocked||ui.mode==='overview'||e.target?.matches?.('input,textarea,select,[contenteditable]'))return
-      if(MOVE.includes(e.code)){e.preventDefault();s.keys.add(e.code)}
+      if(MOVE.includes(e.code)||e.code==='ShiftLeft'||e.code==='ShiftRight'){e.preventDefault();s.keys.add(e.code)}
+      if(e.code==='KeyV'&&!e.repeat&&s.seated?.seat.id==='meadow-rest')s.skyGaze=!s.skyGaze
       if(e.code==='KeyE'&&!e.repeat){e.preventDefault();interact()}
       if(e.code==='KeyF'&&!e.repeat&&!tour.current?.running){
         e.preventDefault()
@@ -153,6 +154,8 @@ function WalkControl({playerPosition,verandaDoor,blanket,onBlanket,glassDoor,stu
       s.lx=e.clientX;s.ly=e.clientY
     }
     const up=e=>{if(s.pointer===e.pointerId)s.pointer=null}
+    const skyView=()=>{if(s.seated?.seat.id==='meadow-rest')s.skyGaze=!s.skyGaze}
+    window.addEventListener('library-meadow-sky',skyView)
     const posture=e=>{if(s.seated?.phase==='seated'&&s.seated.seat.id==='attic-daybed'){s.seated={...s.seated,posture:['lying','cinema'].includes(e.detail)?'lying':'sitting'};s.cinema=e.detail==='cinema';s.yaw=e.detail==='lying'?0:-s.seated.seat.turn-.4;s.pitch=0}}
     window.addEventListener('library-seat-pose',posture)
     window.addEventListener('keydown',keyDown);window.addEventListener('keyup',keyUp)
@@ -162,6 +165,7 @@ function WalkControl({playerPosition,verandaDoor,blanket,onBlanket,glassDoor,stu
     window.addEventListener('pointermove',move);window.addEventListener('pointerup',up);window.addEventListener('pointercancel',up)
     return ()=>{
       window.removeEventListener('library-seat-pose',posture)
+      window.removeEventListener('library-meadow-sky',skyView)
       window.removeEventListener('keydown',keyDown);window.removeEventListener('keyup',keyUp)
       window.removeEventListener('blur',reset)
       window.removeEventListener('library-interact',interact)
@@ -192,7 +196,7 @@ function WalkControl({playerPosition,verandaDoor,blanket,onBlanket,glassDoor,stu
     const sin=Math.sin(viewYaw),cos=Math.cos(viewYaw)
     moving.current=len>.1||(tour.current?.running&&tour.current.phase==='approach')
     if(len>.1) {
-      const step=3.6*Math.min(dt,.05),direction=movementVector(viewYaw,front,side)
+      const step=(s.z>32&&(keys.has('ShiftLeft')||keys.has('ShiftRight')||Math.hypot(joy.x||0,joy.y||0)>.9)?6.4:3.6)*Math.min(dt,.05),direction=movementVector(viewYaw,front,side)
       const beforeX=s.x,beforeZ=s.z
       Object.assign(s,movePlayer(s,direction.x*step,direction.z*step,world))
       s.bodyYaw=facingForMovement(s.bodyYaw,s.x-beforeX,s.z-beforeZ,dt)
@@ -218,9 +222,9 @@ function WalkControl({playerPosition,verandaDoor,blanket,onBlanket,glassDoor,stu
     avatar.current.rotation.x=pose.current.recline||0
     avatar.current.position.set(s.x,visualY*WORLD_HEIGHT_SCALE,s.z)
     Object.assign(playerPosition.current,{x:s.x,z:s.z,level:s.level})
-    const seatText=s.seated?`${s.seated.seat.label} · ${s.seated.phase==='entering'?'앉는 중':s.seated.phase==='leaving'?'일어나는 중':s.seated.posture==='lying'?'누워 읽기':heldBook?'독서 중':'휴식 중'}`:''
+    const seatText=s.seated?`${s.seated.seat.label} · ${s.seated.phase==='entering'?'앉는 중':s.seated.phase==='leaving'?'일어나는 중':s.seated.seat.id==='meadow-rest'?'하늘 구경 중':s.seated.posture==='lying'?'누워 읽기':heldBook?'독서 중':'휴식 중'}`:''
     if(seatText!==lastSeatStatus.current){lastSeatStatus.current=seatText;onSeatStatus?.(seatText)}
-    const zone=floorName(s.x,s.z,s.level)||zoneAt(s.x,s.z)
+    const zone=s.z>32?'잔디 동산':floorName(s.x,s.z,s.level)||zoneAt(s.x,s.z)
     if(zone!==currentZone.current){currentZone.current=zone;onZone(zone)}
     if(!active){avatar.current.visible=false;return}
     let follow=0
@@ -251,6 +255,7 @@ function WalkControl({playerPosition,verandaDoor,blanket,onBlanket,glassDoor,stu
     look.set(s.x+cameraSin*5,eye.y+s.pitch*5,s.z-cameraCos*5)
     if(mode==='third')look.set(s.x,eye.y+s.pitch*3,s.z)
     if(mode==='third'&&pose.current.recline>.1)look.copy(eye)
+    if(s.skyGaze&&s.seated?.seat.id==='meadow-rest'&&s.seated.phase==='seated'){camera.position.set(s.x,visualY+.35,s.z);look.set(s.x+Math.sin(s.yaw)*4,visualY+8,s.z-Math.cos(s.yaw)*4);avatar.current.visible=false}
     if(s.cinema&&s.seated?.posture==='lying'){camera.position.copy(eye);look.set(-13.634,(ATTIC_HEIGHT+4.7)*WORLD_HEIGHT_SCALE,-.4)}
     const desiredFov=mode==='third'?73:69
     if(Math.abs(camera.fov-desiredFov)>.05){camera.fov=THREE.MathUtils.damp(camera.fov,desiredFov,7,dt);camera.updateProjectionMatrix()}
@@ -278,7 +283,7 @@ function ArchiveScene({blanket,onBlanket,onMusic,onExperience,books=[],placement
   const studyDoor=useMemo(()=>({open:false,amount:0}),[])
   const [localZone,setLocalZone]=useState('저택 정원')
   const reportZone=zone=>{setLocalZone(zone);onZone(zone)}
-  const outside=['저택 정원','현관'].includes(localZone)
+  const outside=['저택 정원','현관','잔디 동산'].includes(localZone)
   const inGreenhouse=localZone==='실내 온실'
   const inLounge=['지하 숲 라운지','숲 온천','지하 계단','벽난로 라운지','열람실','다락방'].includes(localZone)
   const upperVisible=['중앙 계단','2층 갤러리','열람실','실내 온실','다락 계단'].includes(localZone)
@@ -292,7 +297,7 @@ function ArchiveScene({blanket,onBlanket,onMusic,onExperience,books=[],placement
   const ladders=useMemo(()=>makeLadders(layout),[layout])
   const decorTime=['evening','night'].includes(time)?'evening':'afternoon'
   const map=mode==='overview'
-  const showInterior=map||entranceOpen||localZone!=='저택 정원'
+  const showInterior=map||(entranceOpen&&localZone!=='잔디 동산')||!['저택 정원','잔디 동산'].includes(localZone)
   const [interiorLoaded,setInteriorLoaded]=useState(false)
   useEffect(()=>{if(showInterior)setInteriorLoaded(true)},[showInterior])
   const unlock=()=>{if(!open)setOpen(true)}

@@ -45,7 +45,7 @@ const smooth=t=>t*t*(3-2*t)
 const lerp=(a,b,t)=>a+(b-a)*t
 const angle=(a,b,t)=>a+Math.atan2(Math.sin(b-a),Math.cos(b-a))*t
 export function startSitting(position,chosen){
-  return {seat:chosen,phase:'entering',elapsed:0,duration:1.05,
+  return {seat:chosen,posture:chosen.posture||'sitting',phase:'entering',elapsed:0,duration:1.05,
     origin:{x:position.x,z:position.z,level:position.level,yaw:position.yaw,bodyYaw:position.bodyYaw??-position.yaw}}
 }
 export function exitForSeat(sitting,world){
@@ -56,12 +56,12 @@ export function exitForSeat(sitting,world){
 export function startStanding(sitting,world){
   if(sitting.phase!=='seated')return sitting
   const exit=exitForSeat(sitting,world)
-  return exit?{...sitting,origin:exit,phase:'leaving',elapsed:0,duration:sitting.seat.id==='attic-daybed'?2.8:.9,exitRecline:sitting.recline||0}:sitting
+  return exit?{...sitting,origin:exit,phase:'leaving',elapsed:0,duration:['attic-daybed','meadow-rest'].includes(sitting.seat.id)?2.8:.9,exitRecline:sitting.recline||0}:sitting
 }
 export function advanceSeating(sitting,dt){
   const next={...sitting,elapsed:Math.min(sitting.duration,sitting.elapsed+Math.max(0,Math.min(dt,.1)))}
   if(next.phase==='entering'&&next.elapsed>=next.duration)next.phase='seated'
-  const bedExit=next.phase==='leaving'&&next.seat.id==='attic-daybed'
+  const bedExit=next.phase==='leaving'&&['attic-daybed','meadow-rest'].includes(next.seat.id)
   const t=next.elapsed/next.duration
   const progress=next.phase==='seated'?1:smooth(bedExit?Math.max(0,(t-.45)/.55):t)
   const amount=next.phase==='leaving'?1-progress:progress

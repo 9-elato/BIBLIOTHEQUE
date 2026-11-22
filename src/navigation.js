@@ -1,3 +1,4 @@
+import {inMeadow,meadowHeight} from './meadowLayout.js'
 import {SPRING_WALK_REGION,BASEMENT_HEIGHT,BASEMENT_STAIR,BASEMENT_BOUNDS,BASEMENT_SOLIDS} from './basementLayout.js'
 import {GREENHOUSE_REGIONS,GARDEN_SOLIDS as CONSERVATORY_SOLIDS,gardenWaterBlocks,glassDoorBlocks} from './greenhouseLayout.js'
 import {studyDoorBlocks} from './studyLayout.js'
@@ -92,7 +93,7 @@ export function walkHeight(x,z,previousY,world){
     }
   }
   if(!onStair){
-    if(canWalk(x,z,world))candidates.push(0)
+    if(canWalk(x,z,world))candidates.push(inMeadow(x,z)?meadowHeight(x,z):0)
     if(supported([BASEMENT_BOUNDS,SPRING_WALK_REGION],x,z))candidates.push(BASEMENT_HEIGHT)
     if(supported(upperRegions,x,z))candidates.push(GALLERY_HEIGHT)
     // Doorway is open only at the top landing of the attic stair.

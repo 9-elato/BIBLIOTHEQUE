@@ -3,7 +3,7 @@
 export function collectCameraObstacles(root, target = []) {
   target.length = 0
   function visit(node) {
-    if (!node.visible || node.userData?.player) return
+    if (!node.visible || node.userData?.player || node.userData?.noCameraCollision) return
     if (node.isMesh && !node.material?.transparent) target.push(node)
     for (const child of node.children) visit(child)
   }

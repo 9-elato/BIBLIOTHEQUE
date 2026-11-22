@@ -1,0 +1,16 @@
+import React,{useMemo,useEffect,useLayoutEffect,useRef} from 'react'
+import {useFrame} from '@react-three/fiber'
+import * as THREE from 'three'
+import {meadowHeight} from './meadowLayout'
+export default function Meadow({time,weather}){
+ const grass=useRef(),clock=useMemo(()=>({value:0}),[]),snow=weather==='snow',night=time==='evening'
+ const ground=useMemo(()=>{const g=new THREE.PlaneGeometry(220,210,110,105);g.rotateX(-Math.PI/2);g.translate(0,0,137);const p=g.attributes.position,colors=[];for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getZ(i);p.setY(i,meadowHeight(x,z)-.015);const k=.5+.25*Math.sin(x*.31+z*.19)+.25*Math.sin(z*.62-x*.13),c=new THREE.Color(snow?'#dce8dd':night?'#46754a':'#77a94a');c.multiplyScalar(.86+k*.22);colors.push(c.r,c.g,c.b)}g.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));g.computeVertexNormals();return g},[snow,night])
+ const turf=useMemo(()=>{const canvas=document.createElement('canvas');canvas.width=canvas.height=256;const ctx=canvas.getContext('2d');ctx.fillStyle='#b7c996';ctx.fillRect(0,0,256,256);for(let i=0;i<9000;i++){const x=(i*.61803398875%1)*256,y=(i*.41421356237%1)*256;ctx.strokeStyle=i%3?'#a6bd83':'#d1dba9';ctx.lineWidth=.6;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+1.5,y-2-i%4);ctx.stroke()}const map=new THREE.CanvasTexture(canvas);map.wrapS=map.wrapT=THREE.RepeatWrapping;map.repeat.set(72,70);map.colorSpace=THREE.SRGBColorSpace;return map},[])
+ useEffect(()=>()=>turf.dispose(),[turf])
+ const material=useMemo(()=>{const m=new THREE.MeshStandardMaterial({color:snow?'#dae4d3':'#9cbe62',side:THREE.DoubleSide,roughness:.9});m.onBeforeCompile=s=>{s.uniforms.meadowClock=clock;s.vertexShader='uniform float meadowClock;\n'+s.vertexShader;s.vertexShader=s.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n float bend=sin(meadowClock*1.4+instanceMatrix[3].x*.26+instanceMatrix[3].z*.18);transformed.x+=bend*position.y*position.y*.65;transformed.z+=sin(meadowClock+instanceMatrix[3].z*.3)*position.y*.13;')};return m},[snow,clock])
+ const blade=useMemo(()=>{const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute([-.025,0,0,.025,0,0,-.013,.27,.015,.013,.27,.015,.025,.52,.04],3));g.setIndex([0,1,2,1,3,2,2,3,4]);g.computeVertexNormals();return g},[])
+ useLayoutEffect(()=>{const o=new THREE.Object3D(),c=new THREE.Color();for(let i=0;i<16000;i++){const x=((i*.61803398875)%1-.5)*106,z=33+((i*.41421356237)%1)*88;o.position.set(x,meadowHeight(x,z),z);o.rotation.set(0,i*2.4,0);o.scale.setScalar(.45+(i%13)/18);o.updateMatrix();grass.current.setMatrixAt(i,o.matrix);c.set(snow?'#eef2e5':i%3?'#80aa47':'#b0ca65');grass.current.setColorAt(i,c)}grass.current.instanceMatrix.needsUpdate=true;grass.current.computeBoundingSphere()},[snow])
+ useFrame(({clock:c})=>{clock.value=c.elapsedTime})
+ useEffect(()=>()=>{ground.dispose()},[ground]);useEffect(()=>()=>material.dispose(),[material]);useEffect(()=>()=>blade.dispose(),[blade])
+ return <group><mesh geometry={ground} receiveShadow><meshStandardMaterial vertexColors map={turf} roughness={.94}/></mesh><instancedMesh ref={grass} args={[blade,material,16000]} userData={{noBatch:true,noCameraCollision:true}}/></group>
+}

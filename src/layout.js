@@ -1,3 +1,4 @@
+import {inMeadow,meadowHeight} from './meadowLayout.js'
 import {atticX} from './atticLayout.js'
 export const GENRES = [
   { id:'literature', name:'문학', categories:['소설','희곡','시·에세이','시','에세이','기타'], wood:'#4c2c20', trim:'#865437', plate:'#b99150' },
@@ -15,7 +16,7 @@ export function genreOf(category) {
 export const ROOM_SPOTS = {
   terrace:[-13.2,8,10.6,0],basement:[14,-3.4,-5.2,0],bathroom:[19.3,0,-5.2,Math.PI],basementstairs:[3,-4.8,0,-Math.PI/2],
   veranda:[-10.2,-8.5,0,0], greenhouse:[0,-6,7.2,0], vestibule:[0,9.3,0,0], 'garden-west':[-5.6,17.75,0,Math.PI], 'garden-east':[5.6,23.75,0,Math.PI],
-  estate:[0,23,0,0], main:[0,5.5,0,0], lounge:[-8.8,0,0,-Math.PI/2],
+  meadow:[0,48,meadowHeight(0,48),Math.PI], estate:[0,23,0,0], main:[0,5.5,0,0], lounge:[-8.8,0,0,-Math.PI/2],
   stacks:[8.4,0,0,Math.PI/2], corridor:[0,-9,0,0], secret:[0,-20,0,0],
   mezzanine:[-6.35,-5.7,7.2,Math.PI], reading:[8.2,0,7.2,Math.PI/2], attic:[-15.6,4.4,10.6,0], atticbed:[atticX(-15.6),-.4,10.6,0], stairs:[-6.35,6.1,0,0]
 }
@@ -75,6 +76,7 @@ export function canWalk(x,z,{end,gateReady,entranceOpen,verandaDoor}) {
     if(x<=-20.25||x>=-9.05||z<=-13.7)return false
     return !(Math.abs(x+15)<1.1&&Math.abs(z+11)<.8)
   }
+  if(inMeadow(x,z,.3))return true
   const ax = Math.abs(x)
   if (z > 11.3) {
     if(z<17.4&&x>6.55)return false
@@ -99,6 +101,7 @@ export function canWalk(x,z,{end,gateReady,entranceOpen,verandaDoor}) {
 }
 
 export function zoneAt(x,z) {
+  if (z > 32) return '잔디 동산'
   if (z > 12.2) return '저택 정원'
   if (z > 7.1) return '현관'
   if (x < -8.8 && z < -6.7) return '바다 마루'
