@@ -1,3 +1,4 @@
+import ForestTrees from './ForestTrees'
 import React,{useMemo,useEffect,useRef,useLayoutEffect} from 'react'
 import {useFrame} from '@react-three/fiber'
 import * as THREE from 'three'
@@ -6,7 +7,6 @@ import StaticBatch from './StaticBatch'
 import {ambientUpdateDue} from './ambientUpdates'
 import {BASEMENT_HEIGHT as H,SPRING_POOL as P,SPRING_WALK_REGION,SPRING_LANTERNS} from './basementLayout'
 const rockCount=76,tileColumns=16,tileRows=40
-function Branch({a,b,r=.15}){const v=new THREE.Vector3(...b).sub(new THREE.Vector3(...a)),q=new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0),v.clone().normalize());return <mesh position={a.map((n,i)=>(n+b[i])/2)} quaternion={q}><cylinderGeometry args={[r*.65,r,v.length(),7]}/><meshStandardMaterial color="#424b36" roughness={1}/></mesh>}
 function LandscapeInstances(){
  const rocks=useRef(),moss=useRef(),leaves=useRef(),tiles=useRef()
  useLayoutEffect(()=>{const o=new THREE.Object3D(),c=new THREE.Color()
@@ -55,7 +55,8 @@ function Fireflies({time,active}){
    }`}/>
  </points>
 }
-export default function ForestSpring({time,active=true}){
+export default function ForestSpring({time,weather,active=true}){
+ const trees=useMemo(()=>[[28,H,11],[17.6,H,16],[27,H,21]],[])
  const arch=useMemo(()=>{const s=new THREE.Shape();s.moveTo(0,0);s.lineTo(.28,0);s.lineTo(.28,3.3);s.quadraticCurveTo(4,5.5,7.72,3.3);s.lineTo(7.72,0);s.lineTo(8,0);s.lineTo(8,4.9);s.lineTo(0,4.9);s.closePath();return new THREE.ExtrudeGeometry(s,{depth:.26,bevelEnabled:false})},[])
  useEffect(()=>()=>arch.dispose(),[arch])
  const [,right,near,end]=SPRING_WALK_REGION
@@ -73,9 +74,7 @@ export default function ForestSpring({time,active=true}){
  {[18.22,right-.15].map(x=><B key={x} p={[x,H+.14,(6.75+end-.05)/2]} s={[.23,.28,end-.05-6.75]} c="#59644f"/>)}
  {SPRING_LANTERNS.map(([x,z])=><group key={x+':'+z} position={[x,H+.20,z]}><B p={[0,0,0]} s={[.18,.4,.18]} c="#d8b77b" glow={time==='evening'?'#e3ab59':undefined}/><B p={[0,.24,0]} s={[.28,.06,.28]} c="#374339"/></group>)}
  <mesh position={[29,H+3.4,26]} scale={[3.4,4,1.4]}><dodecahedronGeometry args={[1,1]}/><meshStandardMaterial color="#596b56" roughness={1}/></mesh>
- <Branch a={[28,H,11]} b={[27,H+6,11]} r={.45}/><Branch a={[27,H+5,11]} b={[20,H+7,10]} r={.30}/><Branch a={[23,H+6.2,10.5]} b={[18,H+6.8,14]} r={.17}/>
- {Array.from({length:13},(_,i)=><mesh key={i} position={[19+(i%5)*2,H+6.7+Math.sin(i)*.5,10+Math.floor(i/5)*1.7]} scale={[1.6,.4,1.4]}><sphereGeometry args={[1,8,6]}/><meshStandardMaterial color={i%2?'#4f6b42':'#354f38'} roughness={1}/></mesh>)}
  {Array.from({length:12},(_,i)=><group key={'vine'+i} position={[18.2+i*.67,H+4.75,6.74]}>{Array.from({length:5+i%4},(_,j)=><mesh key={j} position={[Math.sin(j)*.09,-j*.16,0]} rotation={[0,0,j%2?.5:-.5]} scale={[.12,.21,.045]}><sphereGeometry args={[1,6,4]}/><meshStandardMaterial color={j%2?'#4e7047':'#6d8450'} roughness={1}/></mesh>)}</group>)}
- </StaticBatch><LandscapeInstances/><SpringWater/><Fireflies time={time} active={active}/>
+ </StaticBatch><ForestTrees positions={trees} weather={weather}/><LandscapeInstances/><SpringWater/><Fireflies time={time} active={active}/>
  </group>
 }

@@ -1,3 +1,5 @@
+import VegetationSun from './VegetationSun'
+import {useVegetationAudio} from './vegetationAudio'
 import {useOceanAudio} from './oceanAudio'
 import {THIRD_PERSON_ELEVATION} from './upperArchitecture'
 import DriftingClouds from './DriftingClouds'
@@ -342,6 +344,7 @@ function ArchiveScene({blanket,onBlanket,onMusic,onExperience,books=[],placement
   const glassDoor=useMemo(()=>({open:false,amount:0}),[])
   const studyDoor=useMemo(()=>({open:false,amount:0}),[])
   const [localZone,setLocalZone]=useState('저택 정원')
+  useVegetationAudio(['저택 정원','동쪽 잔디 들판','잔디 동산','숲 온천','별빛 테라스'].includes(localZone),weather)
   useOceanAudio(localZone==='개인 작업실'||localZone==='바다 마루')
   const reportZone=zone=>{setLocalZone(zone);onZone(zone)}
   const outside=['저택 정원','현관','잔디 동산'].includes(localZone)
@@ -368,8 +371,8 @@ function ArchiveScene({blanket,onBlanket,onMusic,onExperience,books=[],placement
     {!map&&<fog attach="fog" args={[light.fog,light.fogNear,light.fogFar]}/>}
     <ambientLight color={light.evening?'#b9c5d4':'#f4f0e2'} intensity={light.ambient}/>
     <hemisphereLight args={[light.sky,'#665b48',light.hemisphere]}/>
-    <directionalLight color={light.sun} position={light.evening?[-18,11,9]:[-10,18,9]} intensity={light.direct}/>
-    <group scale={[1,WORLD_HEIGHT_SCALE,1]}><EstateLandscape time={time} weather={weather}/><EastMeadow studyOpen={gateReady} end={layout.end}/><Basement time={time} visible={outside||map||['중앙 홀','서가','지하 계단','지하 숲 라운지','숲 온천'].includes(localZone)}/>
+    <VegetationSun light={light}/>
+    <group scale={[1,WORLD_HEIGHT_SCALE,1]}><EstateLandscape time={time} weather={weather}/><EastMeadow studyOpen={gateReady} end={layout.end} weather={weather}/><Basement time={time} weather={weather} visible={outside||map||['중앙 홀','서가','지하 계단','지하 숲 라운지','숲 온천'].includes(localZone)}/>
     {!map&&<><WorldAdditions entranceDoor={entranceDoor} playerPosition={playerPosition} weather={weather} time={decorTime} entranceOpen={entranceOpen} onEntranceToggle={setEntranceOpen} season={season}/><Suspense fallback={null}><FacadeModel visible={outside} time={time} weather={weather}/></Suspense></>}
     {(showInterior||interiorLoaded)&&<group visible={showInterior}>
     <SeaVeranda playerPosition={playerPosition} door={verandaDoor} time={time} weather={weather} onExperience={onExperience}/><GroundFloor event={season} sceneTime={time} heldBook={heldBook} map={map} layout={layout} weather={weather} time={decorTime} open={open} onKey={unlock} onReady={()=>setGateReady(true)} onGenre={onGenre} onPick={onPick} onNote={onOpenNotes}/>

@@ -7,7 +7,7 @@ import {CarvedBox as Soft,WovenRug,Folios} from './StorybookDecor'
 import {BASEMENT_HEIGHT as H,BASEMENT_STAIR as STAIR,BASEMENT_BOUNDS,BASEMENT_CEILING,BASEMENT_PORTAL,cutFloor} from './basementLayout'
 function Beam({a,b,r=.045,c='#816143'}){const d=new THREE.Vector3(...b).sub(new THREE.Vector3(...a)),q=new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0),d.clone().normalize());return <mesh position={new THREE.Vector3(...a).addScaledVector(d,.5)} quaternion={q}><cylinderGeometry args={[r,r,d.length(),8]}/><meshStandardMaterial color={c} roughness={.65}/></mesh>}
 function Candle({p}){return <group position={p}><mesh><cylinderGeometry args={[.07,.075,.2,10]}/><meshStandardMaterial color="#f0dcb5"/></mesh><mesh position={[0,.14,0]}><sphereGeometry args={[.035,8,6]}/><meshBasicMaterial color="#ffce77"/></mesh></group>}
-export default function Basement({time,visible=true}){return <group>
+export default function Basement({time,weather,visible=true}){return <group>
  <StaticBatch>
  {Array.from({length:STAIR.steps},(_,i)=>{const t=(i+.5)/STAIR.steps;return <B key={i} p={[3.5+9.2*t,H*t-.09,-4.8]} s={[9.2/STAIR.steps+.015,.18,1.6]} c="#8c6b4a"/>})}
  {[-1,1].map(a=><group key={a}>
@@ -57,5 +57,5 @@ export default function Basement({time,visible=true}){return <group>
  <B p={[23,H+.45,-.7]} s={[2.5,.12,.75]} c="#806b50"/>{[22,24].map(x=><B key={x} p={[x,H+.23,-.7]} s={[.12,.46,.65]} c="#5c4937"/>)}
  {[22.5,23].map(x=><Soft key={x} p={[x,H+.56,-.7]} s={[.42,.12,.54]} c="#aba994" r={.04}/>)}
 
- </StaticBatch><ForestSpring time={time} active={visible}/></group>
+ </StaticBatch><ForestSpring time={time} weather={weather} active={visible}/></group>
  </group>}
