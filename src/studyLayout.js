@@ -1,4 +1,4 @@
-import {advanceGuardedDoor} from './doorMotion.js'
+import {advanceGuardedDoor,doorSweepBlocked} from './doorMotion.js'
 export function studySeason(month=new Date().getMonth(),weather='sunny'){
  if(weather==='snow'||month===11||month<2)return 'winter'
  return month<5?'spring':month<8?'summer':'autumn'
@@ -14,8 +14,8 @@ export function studyDoorBlocks(x,z,door){
 }
 export function canToggleStudyDoor(door,player){
  const swing=!door.open&&(door.amount||0)<.02?(player.z<-19?1:-1):(door.swing??-1)
- for(let i=0;i<=24;i++)if(studyDoorBlocks(player.x,player.z,{amount:i/24,swing}))return false
- return true
+ // A mid-animation reversal only traverses the remaining arc, not the full opening.
+ return !doorSweepBlocked({...door,swing},player,door.amount||0,door.open?0:1,studyDoorBlocks)
 }
 export function toggleStudyDoor(door,player){
  if(!canToggleStudyDoor(door,player))return false

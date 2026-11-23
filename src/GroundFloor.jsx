@@ -1,3 +1,4 @@
+import StaticBatch from './StaticBatch'
 import {CORRIDOR_CEILING,PASSAGE_CEILING,underside,suspension} from './fixtureMounts'
 import {bookDimensions} from './bookAppearance'
 import {shelfImage,spineSource} from './bookMetadata'
@@ -130,10 +131,11 @@ function Display({id}) {
     <Round p={[.07,3.85,.23]} r={.13} c="#e0c6a4" scale={[1,.6,1]}/><Ring p={[.22,3.85,.23]} r={.065}/>
   </>
 }
-function Bookcase({item,genre,onGenre,onPick,heldBook}) {
+export function Bookcase({item,genre,onGenre,onPick,heldBook}) {
   const {wood,trim,plate,id,name}=genre
   const history=id==='history'
   return <group position={[item.x,0,item.z]} rotation={[0,item.z>0?Math.PI:0,0]}>
+    <StaticBatch revision={[id,wood,trim,plate].join(':')}>
     <Box p={[0,1.83,-.27]} s={[2.9,3.66,.22]} c={wood}/>
     <Box p={[0,.28,.02]} s={[2.95,.56,.75]} c={wood}/>
     {[.19,.39].map(y=><group key={y}><Box p={[0,y,.41]} s={[2.53,.15,.06]} c={trim}/>{(history||id==='science'?[-.81,0,.81]:[0]).map(x=><Box key={x} p={[x,y,.46]} s={[.13,.04,.045]} c={plate} metal={.5}/>)}</group>)}
@@ -148,7 +150,7 @@ function Bookcase({item,genre,onGenre,onPick,heldBook}) {
         const book=item.books[row*6+i]
         if(!book||book.id===heldBook)return null
         const {height:h,thickness:thick}=bookDimensions(book.pages)
-        return <group key={i} position={[(i-2.5)*.373,y+h/2,.15]} {...click(book?()=>onPick(book.id):null)}>
+        return <group key={i} userData={{noBatch:true}} position={[(i-2.5)*.373,y+h/2,.15]} {...click(book?()=>onPick(book.id):null)}>
           <Box p={[0,0,0]} s={[thick,h,.35]} c={book?.color||covers[(i+row)%covers.length]}/>
           <Box p={[0,h*.23,.178]} s={[thick*.85,.016,.014]} c={book?gold:'#a18262'} metal={book ? .45 : 0}/>
           {shelfImage(book)&&<BookCoverMesh url={shelfImage(book)} position={[0,spineSource(book.spine)?0:.12,.196]} size={[thick-.008,spineSource(book.spine)?h-.018:.27]}/>}
@@ -164,9 +166,10 @@ function Bookcase({item,genre,onGenre,onPick,heldBook}) {
     <Box p={[0,3.51,.02]} s={[3.01,.31,.73]} c={wood}/>
     <Box p={[0,3.7,.03]} s={[3.14,.13,.82]} c={trim}/>
     {(id==='literature'||id==='humanities'||id==='art')&&[-.97,.97].map(x=><Round key={x} p={[x,3.51,.41]} r={.105} c={trim} scale={[1.32,.82,.52]}/>)}
-    <Plate label={`${name} · ${item.number}`} p={[0,3.5,.437]} c={plate} onClick={()=>onGenre(id)}/>
+    <group userData={{noBatch:true}}><Plate label={`${name} · ${item.number}`} p={[0,3.5,.437]} c={plate} onClick={()=>onGenre(id)}/></group>
     {id==='languages'&&<><Plate p={[-.68,3.16,.36]} label="English" w={.82} h={.21} c={plate}/><Plate p={[.68,3.16,.36]} label="Français" w={.82} h={.21} c={plate}/></>}
     <Display id={id}/>
+    </StaticBatch>
   </group>
 }
 function Stacks({layout,onGenre,onPick,heldBook}) {

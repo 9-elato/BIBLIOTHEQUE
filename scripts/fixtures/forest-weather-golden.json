@@ -1,0 +1,65 @@
+[
+  {
+    "trees": [
+      [
+        30,
+        -5.5,
+        -3
+      ]
+    ],
+    "seed": 824,
+    "leaves": 206,
+    "branches": 6,
+    "colors": "00d771d09395d2e4371442d4e96e9b63f3cc022122dcb55b338620b542574d98",
+    "snowColors": "dc6578decb9e969999d0850f50f01e91214013338eaec2b6a17bf29e5cf018fa",
+    "leafMatrices": "1cb7c4c2038dd885ea068a2e22d3639433a52c1a3182c3eb418bc7bbed8fa909",
+    "roots": "c2503742f63300b80e622da4636f242f47a2a52fbfe0b36fc69063f0c4329f1d"
+  },
+  {
+    "trees": [
+      [
+        35,
+        -5.5,
+        15
+      ],
+      [
+        42,
+        -5.5,
+        22
+      ],
+      [
+        33,
+        -5.5,
+        17
+      ]
+    ],
+    "seed": 997,
+    "leaves": 761,
+    "branches": 23,
+    "colors": "6718d28572cb05411549973ed23346145341f1b9a7bef173a55274481c625b6e",
+    "snowColors": "d1342dd34f6758410d6a81fd0c21a53b33a19ead8f5a55fea4afb16e2734cff3",
+    "leafMatrices": "62a22a335813a1c1908db0a5f37790be7b812479e43e6cef83df168306dea3de",
+    "roots": "9c0dae76a5fe68840c9cfe27b3a4477e3283fd173bbcb5dc32e89af3fa61a99a"
+  },
+  {
+    "trees": [
+      [
+        -30,
+        0,
+        125
+      ],
+      [
+        -22,
+        0,
+        130
+      ]
+    ],
+    "seed": 1170,
+    "leaves": 566,
+    "branches": 15,
+    "colors": "7b3aea2207473f819c4144b6b9fedf2d729552d84eefd1453824ffc8f1e9f2d7",
+    "snowColors": "ff3c28e78f45b090767f2eb168370e9dec6052ca69dd86d0fbb252baf80b9889",
+    "leafMatrices": "b2c6d5b1f4413ff7f4e2629fb7f00f3b0be17112e4e61dea75f098dc734ee155",
+    "roots": "98e3e88e779f5e51ae65613e2b5d7e2ceacb0ab306be8d00a33420157c289f51"
+  }
+]
