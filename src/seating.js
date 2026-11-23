@@ -1,3 +1,4 @@
+import {SPRING_BATH} from './basementLayout.js'
 import {CAFE_SEATS} from './cafeLayout.js'
 import {GARDEN_SEATING,GARDEN_LEVEL} from './greenhouseLayout.js'
 import {atticX} from './atticLayout.js'
@@ -30,6 +31,7 @@ export const SEATS=[
   seat('attic-daybed','다락 데이베드',-17.55,-.4,Math.PI/2,10.6,.84,0,.87,1.95),
   seat('terrace-sofa','테라스 소파',-18.5,7.85,Math.PI/2,10.6,.76,0,.14,1.2),
   ...GARDEN_BENCHES.map(([x,z],i)=>seat(`garden-${i}`,i===0?'서쪽 정원 벤치':'동쪽 정원 벤치',x,z,Math.PI,0,.71,0,.08,1.25)),
+ SPRING_BATH,
  ...CAFE_SEATS.map(([x,z],i)=>seat(`cafe-seat-${i}`,i<2?'북카페 독서 의자':'미니 극장 의자',x,z,Math.PI,0,.63,0,.1,1.2)),
 ]
 const bed=SEATS.find(s=>s.id==='attic-daybed')
@@ -82,7 +84,7 @@ const lerp=(a,b,t)=>a+(b-a)*t
 const angle=(a,b,t)=>a+Math.atan2(Math.sin(b-a),Math.cos(b-a))*t
 export function startSitting(position,chosen,world){
   if(world&&(Math.abs(position.level-chosen.level)>.08||!seatGroundPathClear(position,chosen.entry,chosen.level,world)))return null
-  return {seat:chosen,posture:chosen.posture||'sitting',phase:'entering',elapsed:0,duration:1.05,
+  return {seat:chosen,posture:chosen.posture||'sitting',phase:'entering',elapsed:0,duration:chosen.bathing?3.2:1.05,
     origin:{x:position.x,z:position.z,level:position.level,yaw:position.yaw,bodyYaw:position.bodyYaw??-position.yaw}}
 }
 export function exitForSeat(sitting,world,includeOrigin=true){
@@ -94,11 +96,11 @@ export function startStanding(sitting,world){
   if(sitting.phase!=='seated')return sitting
   const s=sitting.seat,o=sitting.origin
   const path=Math.abs(o.level-s.level)<.08?findSeatExitPath(s.entry,o,(a,b)=>seatGroundPathClear(a,b,s.level,world)):null
-  if(path&&path.length>2)return {...sitting,origin:{...s.entry,level:s.level,yaw:o.yaw},floorExit:path,exitBlocked:false,phase:'leaving',elapsed:0,duration:['attic-daybed','meadow-rest'].includes(s.id)?2.8:.9,exitRecline:sitting.recline||0}
+  if(path&&path.length>2)return {...sitting,origin:{...s.entry,level:s.level,yaw:o.yaw},floorExit:path,exitBlocked:false,phase:'leaving',elapsed:0,duration:s.bathing?3.2:['attic-daybed','meadow-rest'].includes(s.id)?2.8:.9,exitRecline:sitting.recline||0}
   // findSeatExitPath already checked the original connector. Reuse its
   // direct success, or skip that failed candidate when testing safe landings.
   const exit=path?.length===2?o:exitForSeat(sitting,world,false)
-  return exit?{...sitting,origin:exit,exitBlocked:false,phase:'leaving',elapsed:0,duration:['attic-daybed','meadow-rest'].includes(sitting.seat.id)?2.8:.9,exitRecline:sitting.recline||0}:{...sitting,exitBlocked:true}
+  return exit?{...sitting,origin:exit,exitBlocked:false,phase:'leaving',elapsed:0,duration:s.bathing?3.2:['attic-daybed','meadow-rest'].includes(sitting.seat.id)?2.8:.9,exitRecline:sitting.recline||0}:{...sitting,exitBlocked:true}
 }
 function sampleSeating(sitting,dt){
   const next={...sitting,elapsed:Math.min(sitting.duration,sitting.elapsed+Math.max(0,Math.min(dt,.1)))}
@@ -125,6 +127,12 @@ function sampleSeating(sitting,dt){
     y:s.level+s.height*amount+.10*Math.sin(Math.PI*amount)+(s.id==='attic-daybed'?.85*lie*amount:0),
     rotation:angle(o.bodyYaw??-o.yaw,s.turn+Math.PI,amount),amount,recline:next.recline,
     walking:split>0&&routeAmount<split&&next.phase!=='seated'}
+  if(s.bathing&&routeAmount>=split){
+   const across=smooth(Math.max(0,Math.min(1,(amount-.15)/.55))),lower=Math.max(0,(amount-.7)/.3)
+   pose.x=lerp(s.entry.x,s.anchor.x,across);pose.z=lerp(s.entry.z,s.anchor.z,across)
+   pose.y=s.level+.38*smooth(Math.min(1,amount/.15))+(s.height-.38)*smooth(lower)
+   pose.bathing=true
+  }
   return {seating:next.phase==='leaving'&&next.elapsed>=next.duration?null:next,pose}
 }
 

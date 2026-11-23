@@ -281,7 +281,7 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
     avatar.current.rotation.x=pose.current.recline||0
     avatar.current.position.set(s.x,visualY*WORLD_HEIGHT_SCALE,s.z)
     Object.assign(playerPosition.current,{x:s.x,z:s.z,level:s.level})
-    const seatText=s.seated?`${s.seated.seat.label} · ${s.seated.transitionBlocked?'이동 공간 대기 중':s.seated.phase==='floorExit'?'안전한 경로로 나오는 중':s.seated.phase==='entering'?'앉는 중':s.seated.phase==='leaving'?'일어나는 중':s.seated.seat.id==='meadow-rest'?'하늘 구경 중':s.seated.posture==='lying'?'누워 읽기':heldBook?'독서 중':'휴식 중'}`:''
+    const seatText=s.seated?`${s.seated.seat.label} · ${s.seated.transitionBlocked?'이동 공간 대기 중':s.seated.phase==='floorExit'?'안전한 경로로 나오는 중':s.seated.phase==='entering'?'앉는 중':s.seated.phase==='leaving'?'일어나는 중':s.seated.seat.bathing?'따뜻한 물에서 반신욕 중':s.seated.seat.id==='meadow-rest'?'하늘 구경 중':s.seated.posture==='lying'?'누워 읽기':heldBook?'독서 중':'휴식 중'}`:''
     if(seatText!==lastSeatStatus.current){lastSeatStatus.current=seatText;onSeatStatus?.(seatText)}
     const zone=s.ladder?'서가':s.z>32?'잔디 동산':floorName(s.x,s.z,s.level)||zoneAt(s.x,s.z,layout.end)
     if(zone!==currentZone.current){currentZone.current=zone;onZone(zone)}

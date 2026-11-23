@@ -33,8 +33,8 @@ test('both garden benches are reachable from the path and allow walking after st
  }
 })
 function finish(state){let result;for(let i=0;i<240;i++){result=advanceSeating(state,1/60);state=result.seating;if(!state||state.phase==='seated')return result}throw Error('transition did not finish')}
-test('all 39 cushion approaches are reachable and select the correct seat',()=>{
- assert.equal(SEATS.length,39)
+test('all 40 seat and bath approaches are reachable and select the correct seat',()=>{
+ assert.equal(SEATS.length,40)
  for(const s of SEATS){assert.equal(walkHeight(s.entry.x,s.entry.z,s.level,world),s.level,s.id);assert.equal(nearbySeat(origin(s),world)?.id,s.id)}
 })
 test('every seat smoothly reaches its cushion and returns to a collision-free origin',()=>{
@@ -210,7 +210,7 @@ test('a newly blocked landing pauses dismount and retains recline and height',()
 test('all seat transitions pass live floor validation without false blocking',()=>{
  for(const s of SEATS){
   let state=startSitting(origin(s),s,world)
-  for(let i=0;i<70;i++){
+  for(let i=0;i<Math.ceil(state.duration*60)+2;i++){
    const r=advanceSeating(state,1/60,world);state=r.seating
    assert.notEqual(state.transitionBlocked,true,s.id)
   }

@@ -92,7 +92,7 @@ export default function WorldMap({floor,onFloor,zone,onTravel,onClose,stackLayou
     {plan.rooms.filter(r=>r.label&&currentRoom(r)).map(r=><circle key={'current-'+r.name} cx={r.label[0]} cy={r.label[1]-(plan.schematic?3.8:1.4)} r={plan.schematic?.7:.22} fill="#66502e" stroke="#fff5dc" strokeWidth={plan.schematic?.25:.08}/>)}
     {plan.doors.map(([[x,z],[tx,tz]],i)=><line key={i} className="plan-door" x1={x} y1={z} x2={tx} y2={tz}/>)}
     {floor===1&&[FOUNTAIN,POND].map(({x,z,radius})=><circle className="plan-water" key={x} cx={x} cy={z} r={radius}/>)}
-    {floor===3&&<ellipse className="plan-water" cx={SPRING_POOL.x} cy={SPRING_POOL.z} rx={SPRING_POOL.rx} ry={SPRING_POOL.rz}/>}
+    {floor===3&&<Rect className="plan-water" rect={[SPRING_POOL.x-SPRING_POOL.rx,SPRING_POOL.x+SPRING_POOL.rx,SPRING_POOL.z-SPRING_POOL.rz,SPRING_POOL.z+SPRING_POOL.rz]} rx={.15}/>}
     <g style={{'--plan-arrow':`url(#${pattern}up)`}}>
      {(plan.stairs||(floor===3?STAIRS.filter(s=>s.id==='basement'):floor===2?STAIRS.filter(s=>s.id==='attic'):floor===0?STAIRS.filter(s=>s.id!=='attic'):STAIRS.filter(s=>s.id!=='basement'))).map(stair=><StairTreads key={stair.id} stair={stair}/>)}
     </g>

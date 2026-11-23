@@ -13,7 +13,7 @@ export function interactionAt(s, {entranceOpen, gateReady, gateOpening=false, bo
   if(s.ladder)return {type:'ladderExit',label:s.ladder.blocked?(s.ladder.phase==='boarding'?'탑승 경로 대기 중 · E 취소':'하차 공간 대기 중'):'W/S 오르내리기 · A/D 레일 사다리 이동 · E 내려오기'}
   if (s.seated) {
     if(s.seated.transitionBlocked)return {type:'wait',label:'이동 공간이 막혀 잠시 멈췄습니다 · 공간이 비면 이어집니다'}
-    return s.seated.phase&&s.seated.phase!=='seated'?null:{type:'stand',label:s.seated.exitBlocked?'하차 공간이 막혀 있습니다 · 공간을 비운 뒤 다시 시도':heldBook?'책을 들고 일어나기':'일어나기'}
+    return s.seated.phase&&s.seated.phase!=='seated'?null:{type:'stand',label:s.seated.exitBlocked?'하차 공간이 막혀 있습니다 · 공간을 비운 뒤 다시 시도':s.seated.seat?.bathing?'온천에서 천천히 나오기':heldBook?'책을 들고 일어나기':'일어나기'}
   }
   // Resolve cafe seating once: the reachability query includes floor collision checks.
   const inCafe=s.level===0&&s.x>-30&&s.x<-16&&s.z>15&&s.z<31
@@ -24,7 +24,7 @@ export function interactionAt(s, {entranceOpen, gateReady, gateOpening=false, bo
   const rest=meadowRest(s)
   if(rest&&Math.abs(s.level-rest.level)<.15)return {type:'seat',seat:rest,label:'잔디에 누워 하늘 보기'}
   const seat=inCafe?cafeSeat:nearbySeat(s,world)
-  if(seat)return {type:'seat',seat,label:seat.label+(heldBook?'에 앉아 읽기':'에 앉기')}
+  if(seat)return {type:'seat',seat,label:seat.bathing?'따뜻한 숲 온천에서 반신욕하기':seat.label+(heldBook?'에 앉아 읽기':'에 앉기')}
   if(Math.abs(s.level-7.2)<.1&&world?.glassDoor&&near(0,-6.95,2.65))return {type:'glassDoor',label:!canToggleGlassDoor(world.glassDoor,s)?'유리문 회전 공간을 비워주세요':world.glassDoor.open?'온실 유리문 닫기':'온실 유리문 열기'}
   if(Math.abs(s.level-7.2)<.1&&near(0,-14,2.7))return {type:'gardenWater',label:'분수 물소리 켜고 끄기'}
   if(s.level===0&&world?.studyDoor){

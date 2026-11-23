@@ -4,7 +4,7 @@ import * as THREE from 'three'
 import StaticBatch from './StaticBatch'
 import {Box as B} from './GroundFloor'
 import {CarvedBox as Soft,WovenRug,Folios} from './StorybookDecor'
-import {BASEMENT_HEIGHT as H,BASEMENT_STAIR as STAIR,BASEMENT_BOUNDS,BASEMENT_GROUND_GUARDS,BASEMENT_CEILING,BASEMENT_PORTAL,cutFloor} from './basementLayout'
+import {BASEMENT_HEIGHT as H,BASEMENT_STAIR as STAIR,BASEMENT_BOUNDS,BASEMENT_GROUND_GUARDS,BASEMENT_CEILING,BASEMENT_PORTAL,SPRING_POOL,cutFloor} from './basementLayout'
 function Beam({a,b,r=.045,c='#816143'}){const d=new THREE.Vector3(...b).sub(new THREE.Vector3(...a)),q=new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0),d.clone().normalize());return <mesh position={new THREE.Vector3(...a).addScaledVector(d,.5)} quaternion={q}><cylinderGeometry args={[r,r,d.length(),8]}/><meshStandardMaterial color={c} roughness={.65}/></mesh>}
 function Candle({p}){return <group position={p}><mesh><cylinderGeometry args={[.07,.075,.2,10]}/><meshStandardMaterial color="#f0dcb5"/></mesh><mesh position={[0,.14,0]}><sphereGeometry args={[.035,8,6]}/><meshBasicMaterial color="#ffce77"/></mesh></group>}
 export default function Basement({time,weather,visible=true}){return <group>
@@ -27,8 +27,8 @@ export default function Basement({time,weather,visible=true}){return <group>
  </group>)}
  </StaticBatch>
  <group visible={visible}><StaticBatch revision={time}>
- <B p={[16.7,H-.13,-.075]} s={[18.6,.26,13.15]} c="#78604a"/>
- {Array.from({length:24},(_,i)=><B key={i} p={[16.7,H+.008,-6.4+i*.54]} s={[18.5,.012,.018]} c="#4a392e"/>)}
+ {cutFloor(BASEMENT_BOUNDS,[SPRING_POOL.x-SPRING_POOL.rx,SPRING_POOL.x+SPRING_POOL.rx,SPRING_POOL.z-SPRING_POOL.rz,SPRING_POOL.z+SPRING_POOL.rz]).map(([l,r,b,f],i)=><B key={'floor'+i} p={[(l+r)/2,H-.13,(b+f)/2]} s={[r-l,.26,f-b]} c="#78604a"/>)}
+ {Array.from({length:24},(_,i)=><B key={i} p={[-6.4+i*.54>SPRING_POOL.z-SPRING_POOL.rz?13.5:16.7,H+.008,-6.4+i*.54]} s={[-6.4+i*.54>SPRING_POOL.z-SPRING_POOL.rz?12.1:18.5,.012,.018]} c="#4a392e"/>)}
  {cutFloor(BASEMENT_BOUNDS).map(([l,r,b,f],i)=><B key={i} p={[(l+r)/2,BASEMENT_CEILING,(b+f)/2]} s={[r-l,.16,f-b]} c="#6b5946"/>)}
  <B p={[16.7,H+2.45,-6.72]} s={[18.8,4.9,.18]} c="#75624c"/>
  <B p={[7.3,H+2.45,1.375]} s={[.18,4.9,10.65]} c="#86765e"/><B p={[7.3,H+2.45,-6.2]} s={[.18,4.9,1.05]} c="#86765e"/>
