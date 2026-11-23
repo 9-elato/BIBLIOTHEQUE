@@ -8,9 +8,10 @@ import {atticX,ATTIC_TERRACE_BOUNDS} from './atticLayout'
 const room=(id,name,space,label,kind='room')=>({id,name,space,label,kind})
 function floors(end){
  return [
-  {bounds:[-23,Math.max(80,end+14),-37,40],rooms:[
+  {bounds:[-32,Math.max(80,end+14),-37,40],rooms:[
    room('eastmeadow','동쪽 잔디 들판',EAST_MEADOW,[27,-23],'outdoor'),
    room('meadow','잔디 동산',[-12.8,12.8,33.5,39],[0,37],'outdoor'),
+   room('cafe','북카페',[-30,-16,15,31],[-23,22]),
    room('estate','정원 산책로',[-12.8,12.8,12.25,33.5],[0,25],'outdoor'),
    room('lounge','벽난로 라운지',[-20.5,-7.5,-6.6,6.6],[-14,0]),
    room('veranda','바다 마루',[-20.5,-8.9,-14.1,-6.6],[-15,-11],'water'),

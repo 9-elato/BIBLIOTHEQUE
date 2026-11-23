@@ -1,3 +1,4 @@
+import {CAFE_SEATS} from './cafeLayout.js'
 import {GARDEN_SEATING,GARDEN_LEVEL} from './greenhouseLayout.js'
 import {atticX} from './atticLayout.js'
 import {READING_CHAIRS,CHAIR_HEIGHT,STUDY_CHAIR} from './roomFurniture.js'
@@ -29,6 +30,7 @@ export const SEATS=[
   seat('attic-daybed','다락 데이베드',-17.55,-.4,Math.PI/2,10.6,.84,0,.87,1.95),
   seat('terrace-sofa','테라스 소파',-18.5,7.85,Math.PI/2,10.6,.76,0,.14,1.2),
   ...GARDEN_BENCHES.map(([x,z],i)=>seat(`garden-${i}`,i===0?'서쪽 정원 벤치':'동쪽 정원 벤치',x,z,Math.PI,0,.71,0,.08,1.25)),
+ ...CAFE_SEATS.map(([x,z],i)=>seat(`cafe-seat-${i}`,i<2?'북카페 독서 의자':'미니 극장 의자',x,z,Math.PI,0,.63,0,.1,1.2)),
 ]
 const bed=SEATS.find(s=>s.id==='attic-daybed')
 bed.anchor.x=atticX(bed.anchor.x);bed.entry.x=atticX(bed.entry.x)

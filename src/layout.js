@@ -1,3 +1,4 @@
+import {cafeWalk,inCafe} from './cafeLayout.js'
 import {wingWalk} from './stacksLayout.js'
 import {archBlocks} from './groundArchitecture.js'
 import {inMeadow,meadowHeight} from './meadowLayout.js'
@@ -20,7 +21,7 @@ export const ROOM_SPOTS = {
   eastmeadow:[21,-19,0,Math.PI/2],
   terrace:[-13.2,8,10.6,0],basement:[14,-2.9,-5.2,-2.75],bathroom:[19.3,0,-5.2,2.7],basementstairs:[3,-4.8,0,-Math.PI/2],
   veranda:[-10.2,-8.5,0,0], greenhouse:[0,-6,7.2,0], vestibule:[0,9.3,0,0], 'garden-west':[-5.6,17.75,0,Math.PI], 'garden-east':[5.6,23.75,0,Math.PI],
-  meadow:[0,48,meadowHeight(0,48),Math.PI], estate:[0,23,0,0], main:[0,5.5,0,0], lounge:[-8.8,0,0,-Math.PI/2],
+  cafe:[-17.5,22.25,0,-Math.PI/2], meadow:[0,48,meadowHeight(0,48),Math.PI], estate:[0,23,0,0], main:[0,5.5,0,0], lounge:[-8.8,0,0,-Math.PI/2],
   stacks:[8.4,0,0,Math.PI/2], corridor:[0,-9,0,0], secret:[0,-20,0,0],
   mezzanine:[-6.35,-5.7,7.2,Math.PI], reading:[8.2,0,7.2,Math.PI/2], attic:[-15.6,4.4,10.6,0], atticbed:[atticX(-15.6),-.4,10.6,0], stairs:[-6.35,6.1,0,0]
 }
@@ -75,6 +76,7 @@ const SOLIDS = [
 ]
 
 export function canWalk(x,z,{end,gateReady,entranceOpen,verandaDoor}) {
+  const cafe=cafeWalk(x,z);if(cafe!==null)return cafe
   const wing=wingWalk(x,z,end)
   if(wing!==null)return wing
   const meadow=eastMeadowWalk(x,z,gateReady,end)
@@ -110,6 +112,7 @@ export function canWalk(x,z,{end,gateReady,entranceOpen,verandaDoor}) {
 }
 
 export function zoneAt(x,z,end) {
+  if(inCafe(x,z))return z>24.3?'북카페 미니 극장':'북카페'
   if(inEastMeadow(x,z,end)||(end&&x>end+8&&x<Math.max(80,end+14)&&z>-34&&z<4))return '동쪽 잔디 들판'
   if (z > 32) return '잔디 동산'
   if (z > 12.2) return '저택 정원'

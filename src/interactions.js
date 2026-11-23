@@ -15,6 +15,7 @@ export function interactionAt(s, {entranceOpen, gateReady, gateOpening=false, bo
     if(s.seated.transitionBlocked)return {type:'wait',label:'이동 공간이 막혀 잠시 멈췄습니다 · 공간이 비면 이어집니다'}
     return s.seated.phase&&s.seated.phase!=='seated'?null:{type:'stand',label:s.seated.exitBlocked?'하차 공간이 막혀 있습니다 · 공간을 비운 뒤 다시 시도':heldBook?'책을 들고 일어나기':'일어나기'}
   }
+  if(s.level===0&&s.x>-30&&s.x<-16&&s.z>15&&s.z<31&&!nearbySeat(s,world))return {type:'cafe',label:'북카페 큐레이션 · 메뉴 · 상영표 보기'}
   if(s.level===0&&world?.verandaDoor&&near(-10.2,-6.7,2))return {type:'verandaDoor',label:world.verandaDoor.open?'바다 마루 문 닫기':'바다 마루 문 열기'}
   if(Math.abs(s.level-ATTIC_HEIGHT)<.1&&near(atticX(-16.8),9.3,1.65))return {type:'telescope',label:'테라스에서 별과 달 관측하기'}
   const rest=meadowRest(s)

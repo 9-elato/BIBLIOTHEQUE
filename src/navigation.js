@@ -1,3 +1,4 @@
+import {CAFE_SOLIDS} from './cafeLayout.js'
 import {MEADOW_STAIRS} from './eastMeadowLayout.js'
 import {inMeadow,meadowHeight} from './meadowLayout.js'
 import {TERRACE_FURNITURE} from './terraceFurniture.js'
@@ -36,6 +37,7 @@ const upperRegions=[...GREENHOUSE_REGIONS,[-7.6,-5.3,-6.7,-4.85],[-7.6,-5.3,5.25
   [5.3,7.6,-6.7,6.7],[-7.6,7.6,-6.7,-4.45],[-7.6,7.6,4.9,6.7],[7.3,15,-4.85,4.85]]
 // Bounds match the actual furniture footprints. Each box has its floor's height.
 export const FURNITURE=[
+ ...CAFE_SOLIDS.map(s=>({...s,floor:0})),
  ...BASEMENT_SOLIDS.map(s=>({...s,floor:BASEMENT_HEIGHT})),
  {floor:0,id:'forest-sofa',rect:[8.45,12.95,3.4,4.7]},
  {floor:0,id:'forest-chaise',rect:[11.5,12.9,2.4,3.45]},
