@@ -1,6 +1,6 @@
 import VegetationSun from './VegetationSun'
-import {useVegetationAudio} from './vegetationAudio'
-import {useOceanAudio} from './oceanAudio'
+import {useEnvironmentAudio} from './environmentAudio'
+
 import {THIRD_PERSON_ELEVATION} from './upperArchitecture'
 import DriftingClouds from './DriftingClouds'
 import {sceneLighting} from './natureMood'
@@ -344,8 +344,8 @@ function ArchiveScene({blanket,onBlanket,onMusic,onExperience,books=[],placement
   const glassDoor=useMemo(()=>({open:false,amount:0}),[])
   const studyDoor=useMemo(()=>({open:false,amount:0}),[])
   const [localZone,setLocalZone]=useState('저택 정원')
-  useVegetationAudio(['저택 정원','동쪽 잔디 들판','잔디 동산','숲 온천','별빛 테라스'].includes(localZone),weather)
-  useOceanAudio(localZone==='개인 작업실'||localZone==='바다 마루')
+  useEnvironmentAudio(playerPosition,localZone,weather,time)
+
   const reportZone=zone=>{setLocalZone(zone);onZone(zone)}
   const outside=['저택 정원','현관','잔디 동산'].includes(localZone)
   const inGreenhouse=localZone==='실내 온실'

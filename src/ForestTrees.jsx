@@ -1,3 +1,4 @@
+import useGraphicsQuality from './useGraphicsQuality'
 import React,{useMemo,useLayoutEffect,useRef,useEffect} from 'react'
 import {useFrame} from '@react-three/fiber'
 import * as THREE from 'three'
@@ -7,7 +8,7 @@ export function estateTrees(){return Array.from({length:90},(_,i)=>{
  const east=i<42,bank=i>=64
  return [bank?8+(i*5.17)%33:east?30+(i*7.31)%34:-35+(i*5.17)%67,east||bank?-5.5:0,bank?19+(i*9.21)%26:east?-3+(i*11.67)%47:120+(i*7.13)%18]
 })}
-function TreeCell({trees,seed,weather}){
+function TreeCell({trees,seed,weather,quality}){
  const branches=useRef(),leaves=useRef(),root=useRef(),last=useRef(-1)
  const uniforms=useMemo(()=>({clock:{value:0},strength:{value:0},detail:{value:1}}),[])
  const assets=useMemo(()=>{
@@ -48,7 +49,7 @@ function TreeCell({trees,seed,weather}){
  const center=useMemo(()=>new THREE.Vector3(trees.reduce((a,p)=>a+p[0],0)/trees.length,0,trees.reduce((a,p)=>a+p[2],0)/trees.length),[trees]),world=useMemo(()=>new THREE.Vector3(),[])
  useFrame(({clock,camera},dt)=>{
   if(!root.current)return
-  if(clock.elapsedTime-last.current>.25){last.current=clock.elapsedTime;root.current.localToWorld(world.copy(center));const d=camera.position.distanceTo(world);leaves.current.castShadow=d<35;branches.current.castShadow=d<55;root.current.visible=d<205;leaves.current.userData.target=Math.ceil(assets.l.length*leafDensity(d))}
+  if(clock.elapsedTime-last.current>.25){last.current=clock.elapsedTime;root.current.localToWorld(world.copy(center));const d=camera.position.distanceTo(world);leaves.current.castShadow=d<quality.leafShadow;branches.current.castShadow=d<quality.branchShadow;root.current.visible=d<205;leaves.current.userData.target=Math.ceil(assets.l.length*leafDensity(d)*quality.density)}
   const target=leaves.current.userData.target??assets.l.length,delta=Math.ceil(dt*1000)
   leaves.current.count+=Math.sign(target-leaves.current.count)*Math.min(delta,Math.abs(target-leaves.current.count));uniforms.detail.value=Math.sqrt(assets.l.length/Math.max(1,leaves.current.count))
   if(root.current.visible){uniforms.clock.value=clock.elapsedTime;uniforms.strength.value=windStrength(weather)}
@@ -59,6 +60,7 @@ function TreeCell({trees,seed,weather}){
  </group>
 }
 export default function ForestTrees({positions,weather='sunny'}){
+ const quality=useGraphicsQuality()
  const cells=useMemo(()=>{const cells=new Map();positions.forEach(p=>{const key=`${Math.floor(p[0]/18)},${Math.floor(p[2]/18)}`;if(!cells.has(key))cells.set(key,[]);cells.get(key).push(p)});return [...cells.values()]},[positions])
- return <group>{cells.map((trees,i)=><TreeCell key={i} trees={trees} seed={824+i*173} weather={weather}/>)}</group>
+ return <group>{cells.map((trees,i)=><TreeCell key={i} trees={trees} seed={824+i*173} weather={weather} quality={quality}/>)}</group>
 }
