@@ -1,4 +1,5 @@
-import {shelfImage} from './bookMetadata'
+import {bookDimensions} from './bookAppearance'
+import {shelfImage,spineSource} from './bookMetadata'
 import {HALL_ARCH,archInfillPoints,SECRET_BOOKCASE_SCALE,SECRET_BOOKCASE_TOP,CORRIDOR_TOP} from './groundArchitecture'
 import {cutFloor} from './basementLayout'
 import {advanceGate,gatePose} from './secretGate'
@@ -7,7 +8,7 @@ import {useFrame} from '@react-three/fiber'
 import * as THREE from 'three'
 import {DESKS} from './layout'
 import LoungeRoom from './LoungeRoom'
-import {BookCoverMesh} from './BookCover'
+import {BookCoverMesh,SpineTitle} from './BookCover'
 
 const cream='#cbb394', oak='#765036', gold='#c79c55'
 const covers=['#7a4739','#536047','#7a6a46','#4b596c','#734d57','#a27a52']
@@ -144,12 +145,13 @@ function Bookcase({item,genre,onGenre,onPick,heldBook}) {
       {Array.from({length:6},(_,i)=>{
         const book=item.books[row*6+i]
         if(!book||book.id===heldBook)return null
-        const h=.35+(row+i)%4*.047
+        const {height:h,thickness:thick}=bookDimensions(book.pages)
         return <group key={i} position={[(i-2.5)*.373,y+h/2,.15]} {...click(book?()=>onPick(book.id):null)}>
-          <Box p={[0,0,0]} s={[.3,h,.35]} c={book?.color||covers[(i+row)%covers.length]}/>
-          <Box p={[0,h*.23,.178]} s={[.255,.025,.014]} c={book?gold:'#a18262'} metal={book ? .45 : 0}/>
-          {shelfImage(book)&&<BookCoverMesh url={shelfImage(book)} position={[0,0,.196]} size={[.28,h-.02]}/>}
-          {book&&<Round p={[0,-h*.23,.182]} r={.034} scale={[1,1,.28]}/>}
+          <Box p={[0,0,0]} s={[thick,h,.35]} c={book?.color||covers[(i+row)%covers.length]}/>
+          <Box p={[0,h*.23,.178]} s={[thick*.85,.016,.014]} c={book?gold:'#a18262'} metal={book ? .45 : 0}/>
+          {shelfImage(book)&&<BookCoverMesh url={shelfImage(book)} position={[0,spineSource(book.spine)?0:.12,.196]} size={[thick-.008,spineSource(book.spine)?h-.018:.27]}/>}
+          {!spineSource(book.spine)&&<SpineTitle title={book.title} width={thick-.008}/>}
+          {book&&<Round p={[0,-h*.23,.182]} r={.018} scale={[1,1,.28]}/>}
         </group>
       })}
     </group>)}

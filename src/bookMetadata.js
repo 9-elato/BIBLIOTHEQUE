@@ -17,9 +17,9 @@ export async function importSpine(file){
  const url=URL.createObjectURL(file)
  try{
   const image=new Image();image.src=url;await image.decode()
-  const ratio=Math.min(1,768/Math.max(image.width,image.height)),canvas=document.createElement('canvas')
+  const ratio=Math.min(1,1536/Math.max(image.width,image.height)),canvas=document.createElement('canvas')
   canvas.width=Math.max(1,Math.round(image.width*ratio));canvas.height=Math.max(1,Math.round(image.height*ratio))
   canvas.getContext('2d').drawImage(image,0,0,canvas.width,canvas.height)
-  return canvas.toDataURL('image/jpeg',.82)
+  return canvas.toDataURL('image/jpeg',.94)
  }finally{URL.revokeObjectURL(url)}
 }

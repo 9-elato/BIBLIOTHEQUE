@@ -1,5 +1,6 @@
+import {bookDimensions} from './bookAppearance'
 import {BookCoverMesh} from './BookCover'
-import React,{useMemo,useRef,useEffect} from 'react'
+import React,{useMemo,useRef,useEffect,useState} from 'react'
 import {useFrame} from '@react-three/fiber'
 import {useLibraryModel} from './useLibraryModel'
 import {Box3,Vector3,MathUtils,DoubleSide} from 'three'
@@ -8,6 +9,9 @@ const url=`${import.meta.env.BASE_URL}models/ghost_avatar.glb`
 
 export function FloatingBook({book,pose}){
  const root=useRef(),leaf=useRef(),left=useRef(),right=useRef()
+ const [backColor,setBackColor]=useState(book.color||'#795440')
+ useEffect(()=>setBackColor(book.color||'#795440'),[book.cover,book.color])
+ const pageDepth=bookDimensions(book.pages).thickness*.24
  const opened=useRef(0)
  useFrame(({clock},dt)=>{
   if(!root.current)return
@@ -24,13 +28,13 @@ export function FloatingBook({book,pose}){
  })
  return <group ref={root} position={[0,1,.86]} rotation={[.15,Math.PI,0]}>
   {[-1,1].map(side=><group key={side} ref={side<0?left:right} position={[side*.18,0,0]}>
-   {side===1&&<BookCoverMesh url={book.cover} position={[0,0,-.026]} rotation={[0,Math.PI,0]} size={[.345,.435]}/>}
-   <mesh castShadow><boxGeometry args={[.36,.45,.045]}/><meshStandardMaterial color={book.color||'#795440'} roughness={.8}/></mesh>
-   <mesh position={[0,0,.029]}><boxGeometry args={[.33,.41,.012]}/><meshStandardMaterial color="#f2e4c8" roughness={.92}/></mesh>
-   {[0,1,2,3,4].map(i=><mesh key={i} position={[0,.12-i*.055,.038]}><boxGeometry args={[i===4?.13:.23,.006,.003]}/><meshStandardMaterial color="#a69a81"/></mesh>)}
+   {side===1&&<BookCoverMesh url={book.cover} position={[0,0,-.026]} rotation={[0,Math.PI,0]} size={[.345,.505]} onColor={setBackColor}/>}
+   <mesh castShadow><boxGeometry args={[.36,.52,.045]}/><meshStandardMaterial color={backColor} roughness={.8}/></mesh>
+   <mesh position={[0,0,.023+pageDepth/2]}><boxGeometry args={[.33,.48,pageDepth]}/><meshStandardMaterial color="#f2e4c8" roughness={.92}/></mesh>
+   {[0,1,2,3,4].map(i=><mesh key={i} position={[0,.12-i*.055,.026+pageDepth]}><boxGeometry args={[i===4?.13:.23,.006,.003]}/><meshStandardMaterial color="#a69a81"/></mesh>)}
   </group>)}
-  <mesh position={[0,0,.015]}><boxGeometry args={[.024,.46,.09]}/><meshStandardMaterial color="#b89b6c"/></mesh>
-  <group ref={leaf} position={[0,0,.045]}><mesh position={[-.16,0,0]}><planeGeometry args={[.32,.41]}/><meshStandardMaterial color="#f4e8d0" side={DoubleSide} roughness={.92}/></mesh></group>
+  <mesh position={[0,0,.015]}><boxGeometry args={[.024,.53,.045+pageDepth]}/><meshStandardMaterial color="#b89b6c"/></mesh>
+  <group ref={leaf} position={[0,0,.03+pageDepth]}><mesh position={[-.16,0,0]}><planeGeometry args={[.32,.48]}/><meshStandardMaterial color="#f4e8d0" side={DoubleSide} roughness={.92}/></mesh></group>
  </group>
 }
 
