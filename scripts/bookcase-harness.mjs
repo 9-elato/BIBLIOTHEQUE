@@ -33,7 +33,7 @@ export async function mountBookcase(Component,props){
  await root.configure({gl,frameloop:'never',dpr:1,size:{width:400,height:400},onCreated:s=>{state=s}})
  const render=async(next)=>{await act(async()=>root.render(React.createElement(Component,next)));state.scene.updateMatrixWorld(true)}
  await render(props)
- return {scene:state.scene,render,async dispose(){await act(async()=>root.unmount());globalThis.document=previousDocument;globalThis.IS_REACT_ACT_ENVIRONMENT=previousAct}}
+ return {scene:state.scene,render,advance:seconds=>state.advance(seconds,false),async dispose(){await act(async()=>root.unmount());globalThis.document=previousDocument;globalThis.IS_REACT_ACT_ENVIRONMENT=previousAct}}
 }
 export function visibleMeshes(scene){const result=[];scene.traverseVisible(n=>{if(n.isMesh)result.push(n)});return result}
 export function batches(scene){return visibleMeshes(scene).filter(n=>n.name==='Static decoration batch')}
@@ -68,5 +68,5 @@ export async function exportScene(scene,file){
  const meshes=visibleMeshes(scene).filter(n=>!n.material.map&&!n.material.isMeshBasicMaterial).map(n=>({
   name:n.name,position:Array.from(n.geometry.attributes.position.array),normal:Array.from(n.geometry.attributes.normal.array),index:n.geometry.index?Array.from(n.geometry.index.array):null,color:n.geometry.attributes.color?Array.from(n.geometry.attributes.color.array):null,matrixWorld:Array.from(n.matrixWorld.elements),material:{color:n.material.color.toArray(),roughness:n.material.roughness,metalness:n.material.metalness,opacity:n.material.opacity,vertexColors:n.material.vertexColors}
  }))
- await writeFile(file,JSON.stringify({note:'Actual mounted production Bookcase geometry; canvas text/image planes excluded. Not a screenshot.',meshes}))
+ await writeFile(file,JSON.stringify({note:'Actual mounted production JSX geometry; canvas text/image planes excluded. Not a screenshot.',meshes}))
 }

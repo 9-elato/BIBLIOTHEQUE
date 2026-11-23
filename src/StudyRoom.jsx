@@ -10,9 +10,16 @@ import {studyTexture} from './studyTextures'
 import {studySeason,advanceStudyDoor} from './studyLayout'
 function Painting({p,turn=0,index=0}){return <group position={p} rotation={[0,turn,0]}><B s={[.83,.65,.08]} c="#af915a"/><B p={[0,0,.05]} s={[.70,.52,.02]} c={['#86958b','#8e847e','#7c8a96'][index%3]}/><B p={[0,-.16,.069]} s={[.70,.20,.008]} c="#536350"/><mesh position={[-.16,.1,.077]}><circleGeometry args={[.08,18]}/><meshStandardMaterial color="#d7bf8d"/></mesh>{[-.2,.1,.27].map((x,i)=><mesh key={x} position={[x,-.06,.077]}><coneGeometry args={[.12,.23+i*.05,5]}/><meshStandardMaterial color="#3e5445"/></mesh>)}</group>}
 function RoundRug({p,r=1.45}){return <group position={p} rotation={[-Math.PI/2,0,0]}><mesh><circleGeometry args={[r,64]}/><meshStandardMaterial color="#733e49" roughness={1}/></mesh>{[r-.1,r-.2,r*.6].map(a=><mesh key={a} position={[0,0,.004]}><ringGeometry args={[a-.018,a,64]}/><meshStandardMaterial color="#c9b58e"/></mesh>)}</group>}
-export default function StudyRoom({open,prepare=false,door,time,weather,event,onNotes,onMusic,playerPosition}){
+export default function StudyRoom(props){
+ const {open,prepare=false,door,playerPosition}=props
  const [prepared,setPrepared]=useState(false)
  useEffect(()=>{if(open||prepare)setPrepared(true)},[open,prepare])
+ // Keep door simulation alive independently of the expensive room resources.
+ useFrame((state,dt)=>advanceStudyDoor(door,dt,playerPosition?.current),-.1)
+ if(!open&&!prepare&&!prepared)return null
+ return <StudyInterior {...props} prepare={prepare}/>
+}
+function StudyInterior({open,prepare,door,time,weather,event,onNotes,onMusic}){
  const refs=useRef([]),clock=useRef(),disc=useRef(),season=studySeason(undefined,weather)
  const [lamp,setLamp]=useState(()=>localStorage.getItem('mll-study-lamp')!=='off')
  useEffect(()=>{const toggle=()=>setLamp(v=>{localStorage.setItem('mll-study-lamp',v?'off':'on');return !v});window.addEventListener('study-lamp-toggle',toggle);return()=>window.removeEventListener('study-lamp-toggle',toggle)},[])
@@ -21,14 +28,10 @@ export default function StudyRoom({open,prepare=false,door,time,weather,event,on
  const textures=useMemo(()=>({wall:studyTexture('wall'),floor:studyTexture('floor')}),[])
  useEffect(()=>()=>Object.values(textures).forEach(t=>t.dispose()),[textures])
  useFrame((state,dt)=>{
-  advanceStudyDoor(door,dt,playerPosition?.current)
   refs.current.forEach((r,i)=>{if(r)r.rotation.y=-(door.swing??-1)*(i===0?1:-1)*door.amount*Math.PI/2})
   if(clock.current)clock.current.rotation.z=-state.clock.elapsedTime*.10
   if(disc.current)disc.current.rotation.y+=dt*.3
  })
- // Prepare the room behind the closed bookcase on approach so clicking the
- // key book does not also construct all furniture and compile its materials.
- if(!open&&!prepare&&!prepared)return null
  const activate=fn=>e=>{e.stopPropagation();fn()}
  return <group visible={open||prepare}><StaticBatch revision={`${time}:${weather}:${event}:${lamp}`}>
   {[-1,1].map(side=><group key={side}>
