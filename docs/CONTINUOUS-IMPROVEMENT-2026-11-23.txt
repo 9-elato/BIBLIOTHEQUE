@@ -39,3 +39,21 @@
 - 전체 175개 테스트 및 배포용 빌드 통과. 모델/외형 변경 없어 Blender 렌더 미실행.
 - 읽기전용 에셋 조사: 래브라도 59,604면/29 드로, 여우 58,252면/32 드로.
   니트·봉제선 LOD는 후보이나 실제 시각 비교 없이 낮추지 않음.
+
+3차: 온실 외벽 마감, 숨김 상태 정령/환경음 비용
+- 동쪽 온실 확장부 후면 2.2m와 서쪽 .2m 누락 외벽을 공통 패널로 채움.
+- 온실 직사각 창틀에 일반 아치형 풍경 면을 사용하여 상단 모서리가 비던 문제 수정.
+  온실만 직사각형으로 선택하며 일반 저택 아치형 창은 보존.
+- Blender 구조 부분 렌더 before/after를 실제 패널 좌표로 생성·비교.
+  outputs/greenhouse-shell-render/{before,after}.png. 이는 전체 웹 장면 캡처가 아니며,
+  풍경 셰이더를 청색 면으로 대체한 구조 검사용 렌더임.
+  재현: node scripts/export_greenhouse_shell_audit.mjs
+  Blender --background --python scripts/render_greenhouse_shell_audit.py -- outputs/greenhouse-shell-audit.json outputs/greenhouse-shell-render
+  최초 상대 저장 경로 오류를 절대 경로로 수정한 뒤 두 PNG 정상 저장 확인.
+- PaperSpirits: 숨겨진 부모에서 경로/회피/충돌 계산 생략, 재등장 시 위치 보존.
+  가상 60초×60Hz 4정령 검사에서 movePlayer 12,053→0회.
+  해당 시뮬레이션 전체 CPU 중앙값31.93→.13ms; 프레임 시간/FPS 수치 아님.
+- 분수/온실 빗소리: 방 이탈·탭 숨김 시 기존 fade 이후 AudioContext suspend.
+  전체환경음도 숨김시 DSP 정지. 복귀 resume 및 비동기 경합/정리 테스트.
+  실제 브라우저 청취는 수행하지 않음.
+- 전체190개 테스트 및 에셋검사·배포용 빌드 통과. 공개 배포하지 않음.

@@ -63,6 +63,13 @@ export function advanceGlassDoor(door,dt,player){
 }
 
 // Side glazing exactly meets the side alcove returns and the rear gable.
+// Both side bays close continuously between the front and rear return walls.
+export const GREENHOUSE_ALCOVE_BACK=-17.2
+export const GREENHOUSE_ALCOVE_FRONT=-11
+export const GREENHOUSE_ALCOVE_PANELS=Array.from({length:3},(_,i)=>{
+ const w=(GREENHOUSE_ALCOVE_FRONT-GREENHOUSE_ALCOVE_BACK)/3
+ return {z:GREENHOUSE_ALCOVE_BACK+(i+.5)*w,w}
+})
 export const GREENHOUSE_SIDE_PANELS=[{z:-8.9,w:4.2},{z:-20.8,w:7.2}]
 export const GREENHOUSE_GABLE={halfWidth:5.4,eave:4.35,ridge:6.46,front:-6.8,back:-24.4}
 

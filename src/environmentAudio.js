@@ -1,3 +1,4 @@
+import {createAudioActivity} from './audioActivity.js'
 import {useEffect,useRef} from 'react'
 import {environmentMix,nextBirdDelay} from './environmentAudioMix'
 import {windEnvelope,windStrength} from './vegetationWind'
@@ -5,7 +6,7 @@ import {windEnvelope,windStrength} from './vegetationWind'
 export function useEnvironmentAudio(position,zone,weather,time){
  const state=useRef();state.current={zone,weather,time}
  useEffect(()=>{
-  let ctx,timer,build,disposed=false,nextBird=0,master;const bands=[],sources=[],activeBirds=new Set()
+  let ctx,timer,build,disposed=false,nextBird=0,master,activity;const bands=[],sources=[],activeBirds=new Set()
   const bird=(volume)=>{
    const start=ctx.currentTime+.04,notes=2+Math.floor(Math.random()*4),base=1800+Math.random()*1800
    for(let i=0;i<notes;i++){
@@ -18,9 +19,9 @@ export function useEnvironmentAudio(position,zone,weather,time){
   }
   const start=()=>{
    if(disposed)return
-   if(ctx){if(ctx.state==='suspended')ctx.resume().catch(()=>{});return}
+   if(ctx){activity.setVolume(document.hidden?0:1);return}
    const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)return
-   ctx=new Audio();master=ctx.createGain();master.gain.value=0;master.connect(ctx.destination);ctx.resume().catch(()=>{})
+   ctx=new Audio();master=ctx.createGain();master.gain.value=0;master.connect(ctx.destination);activity=createAudioActivity(ctx,master,{fade:.45});activity.setVolume(document.hidden?0:1)
    build=setTimeout(()=>{
     if(disposed)return
     for(const [index,[key,hz,type,seconds]] of [['wind',320,'lowpass',11.3],['leaves',2600,'bandpass',13.7],['surf',420,'lowpass',17.1],['water',1900,'bandpass',19.3],['rocks',780,'bandpass',23.9]].entries()){
@@ -32,9 +33,9 @@ export function useEnvironmentAudio(position,zone,weather,time){
     }
     nextBird=ctx.currentTime+2+Math.random()*5
     timer=setInterval(()=>{
-     if(ctx.state!=='running')return
+     activity.setVolume(document.hidden?0:1)
+     if(document.hidden||ctx.state!=='running')return
      const now=ctx.currentTime,s=state.current,mix=environmentMix(position.current,s.zone,s.weather,s.time),wind=windEnvelope(now,windStrength(s.weather))
-     master.gain.setTargetAtTime(document.hidden?0:1,now,.45)
      for(const b of bands){
       const pulse=b.key==='surf'||b.key==='rocks'?.25+.75*Math.pow(.5+.5*Math.sin(now*.37+Math.sin(now*.071)*1.7+b.index),b.key==='rocks'?4:1):.8+.2*Math.sin(now*.23+b.index)
       b.gain.gain.setTargetAtTime(mix[b.key]*pulse,now,.8)
@@ -44,7 +45,9 @@ export function useEnvironmentAudio(position,zone,weather,time){
     },150)
    },0)
   }
+  const visibility=()=>activity?.setVolume(document.hidden?0:1)
+  document.addEventListener('visibilitychange',visibility)
   window.addEventListener('pointerdown',start);window.addEventListener('keydown',start)
-  return()=>{disposed=true;window.removeEventListener('pointerdown',start);window.removeEventListener('keydown',start);clearTimeout(build);clearInterval(timer);sources.forEach(s=>{try{s.stop()}catch{}});activeBirds.forEach(s=>{try{s.stop()}catch{}});ctx?.close().catch(()=>{})}
+  return()=>{disposed=true;document.removeEventListener('visibilitychange',visibility);activity?.dispose();window.removeEventListener('pointerdown',start);window.removeEventListener('keydown',start);clearTimeout(build);clearInterval(timer);sources.forEach(s=>{try{s.stop()}catch{}});activeBirds.forEach(s=>{try{s.stop()}catch{}});ctx?.close().catch(()=>{})}
  },[position])
 }

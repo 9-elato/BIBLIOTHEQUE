@@ -1,8 +1,7 @@
 import React,{useRef} from 'react'
 import {useFrame} from '@react-three/fiber'
 import * as THREE from 'three'
-import {movePlayer} from './navigation'
-import {steerSpirit,spiritClearance} from './spiritAvoidance'
+import {advanceSpirit} from './spiritSimulation'
 import {atticX} from './atticLayout'
 
 // Appearance is intentionally replaceable when the user's reference arrives.
@@ -25,18 +24,9 @@ const paths=[
 function Wanderer({route,index,playerPosition}){
  const ref=useRef(),state=useRef({x:route.points[0][0],z:route.points[0][1],level:route.floor,target:1,pause:0})
  useFrame(({clock},dt)=>{
-  const s=state.current,[x,z]=route.points[s.target],distance=Math.hypot(x-s.x,z-s.z),step=Math.min(.48*Math.min(dt,.05),distance)
-  const player=playerPosition?.current,nearPlayer=player&&Math.abs(player.level-s.level)<.7&&Math.hypot(s.x-player.x,s.z-player.z)<1.5
-  if(s.pause>0&&!nearPlayer)s.pause-=dt
-  else if(distance<.08){s.target=(s.target+1)%route.points.length;s.pause=2.5}
-  else{
-   const velocity=steerSpirit(s,[x,z],player,dt,index)
-   const next=movePlayer(s,velocity.x,velocity.z,{end:45,gateReady:false,entranceOpen:false})
-   const previousDistance=player?Math.hypot(s.x-player.x,s.z-player.z):Infinity
-   if(!spiritClearance(next,player)&&Math.hypot(next.x-player.x,next.z-player.z)<=previousDistance)return
-   if(Math.hypot(next.x-s.x,next.z-s.z)<step*.1){s.target=(s.target+1)%route.points.length;s.pause=.5}
-   else {s.x=next.x;s.z=next.z}
-  }
+  const s=state.current
+  if(!advanceSpirit(s,route,playerPosition?.current,dt,index,ref.current))return
+  const [x,z]=route.points[s.target]
   ref.current.position.set(s.x,s.level+1.2+Math.sin(clock.elapsedTime*2+index)*.13,s.z)
   ref.current.rotation.set(0,Math.atan2(x-s.x,z-s.z),Math.sin(clock.elapsedTime*2.4+index)*.08)
  })

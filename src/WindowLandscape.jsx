@@ -1,7 +1,8 @@
+import {createWindowGeometry} from './windowGeometry'
 import React,{useEffect} from 'react'
 import ForestVista from './ForestVista'
-export function WindowLandscape({time='afternoon',weather='sunny',width=1.5,height=4}){
- const shape=useMemoShape(width,height)
+export function WindowLandscape({time='afternoon',weather='sunny',width=1.5,height=4,rectangular=false}){
+ const shape=useMemoShape(width,height,rectangular)
  return <ForestVista geometry={shape} time={time} weather={weather}/>
 }
 export default function StoryWindow({position,rotation=[0,0,0],width=1.5,height=5,time,weather,event,season,curtain='#294b3d',curtainFinish}){
@@ -21,6 +22,5 @@ export default function StoryWindow({position,rotation=[0,0,0],width=1.5,height=
   </group>)}
  </group>
 }
-import * as THREE from 'three'
 import {useMemo} from 'react'
-function useMemoShape(w,h){const geometry=useMemo(()=>{const s=new THREE.Shape();s.moveTo(-w/2,-h/2);s.lineTo(w/2,-h/2);s.lineTo(w/2,h/2-w/2);s.absarc(0,h/2-w/2,w/2,0,Math.PI,false);s.closePath();const g=new THREE.ShapeGeometry(s),p=g.attributes.position,uv=g.attributes.uv;for(let i=0;i<p.count;i++)uv.setXY(i,p.getX(i)/w+.5,p.getY(i)/h+.5);return g},[w,h]);useEffect(()=>()=>geometry.dispose(),[geometry]);return geometry}
+function useMemoShape(w,h,rectangular=false){const geometry=useMemo(()=>createWindowGeometry(w,h,rectangular),[w,h,rectangular]);useEffect(()=>()=>geometry.dispose(),[geometry]);return geometry}
