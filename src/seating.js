@@ -55,16 +55,28 @@ export function seatGroundPathClear(from,to,level,world){
  return true
 }
 export function nearbySeat(position,world){
+  // Pick by cheap distance first. Previously each successively closer seat
+  // performed a complete floor-path query, even when a nearer seat won later.
   let nearest=null,best=.88*.88
   for(const seat of SEATS){
     if(Math.abs(position.level-seat.level)>=.08)continue
     const d=(position.x-seat.entry.x)**2+(position.z-seat.entry.z)**2
-    if(d>=best)continue
-    if(world&&!seatGroundPathClear(position,seat.entry,seat.level,world))continue
+    if(d<best){nearest=seat;best=d}
+  }
+  if(!nearest||!world||seatGroundPathClear(position,nearest.entry,nearest.level,world))return nearest
+  // A nearer seat can be behind furniture. Preserve the original nearest
+  // reachable selection and stable tie order, without caching dynamic blockers.
+  const blocked=nearest
+  nearest=null;best=.88*.88
+  for(const seat of SEATS){
+    if(seat===blocked||Math.abs(position.level-seat.level)>=.08)continue
+    const d=(position.x-seat.entry.x)**2+(position.z-seat.entry.z)**2
+    if(d>=best||!seatGroundPathClear(position,seat.entry,seat.level,world))continue
     nearest=seat;best=d
   }
   return nearest
 }
+
 const smooth=t=>t*t*(3-2*t)
 const lerp=(a,b,t)=>a+(b-a)*t
 const angle=(a,b,t)=>a+Math.atan2(Math.sin(b-a),Math.cos(b-a))*t

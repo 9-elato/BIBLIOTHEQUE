@@ -11,7 +11,8 @@ export const CAFE_SOLIDS=[
 export function inCafe(x,z){return x>-30&&x<-16&&z>15&&z<31}
 export function cafeWalk(x,z){
  if(x<=-30||x>=-12.75||z<=14.7||z>=31.3)return null
- if(x>-16.4)return z>21&&z<23.5 // garden connection and east doorway
+ // Keep the full avatar inside the garden path and clear of both doorway jambs.
+ if(x>-16.4)return z>21+.23&&z<23.5-.23
  if(x<-29.65||z<15.35||z>30.65)return false
  return !CAFE_SOLIDS.some(({rect:[l,r,b,f]})=>x>l-.23&&x<r+.23&&z>b-.23&&z<f+.23)
 }

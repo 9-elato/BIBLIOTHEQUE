@@ -77,9 +77,21 @@ export const FURNITURE=[
   {floor:ATTIC_HEIGHT,rect:[-12.15,-11.55,-5.3,4.65],id:'attic-side-furnishings'},
 ]
 FURNITURE.forEach(item=>{if(item.floor===ATTIC_HEIGHT&&!item.id.startsWith('attic-0')&&!item.id.startsWith('attic-1')){item.rect[0]=atticX(item.rect[0]);item.rect[1]=atticX(item.rect[1])}})
-const occupied=(x,z,y)=>FURNITURE.some(({floor,rect:[l,r,b,f]})=>Math.abs(y-floor)<.2&&inRect(x,z,[l-PLAYER_RADIUS,r+PLAYER_RADIUS,b-PLAYER_RADIUS,f+PLAYER_RADIUS]))
+// Scalar checks avoid creating an expanded rectangle for every obstacle, every step.
+// Read the live list so temporary blockers and furniture relocation remain supported.
+function occupied(x,z,y){
+  for(let i=0;i<FURNITURE.length;i++){
+    const item=FURNITURE[i],r=item.rect
+    if(Math.abs(y-item.floor)<.2&&x>=r[0]-PLAYER_RADIUS&&x<=r[1]+PLAYER_RADIUS&&z>=r[2]-PLAYER_RADIUS&&z<=r[3]+PLAYER_RADIUS)return true
+  }
+  return false
+}
+const SUPPORT_OFFSETS=[[0,0],[PLAYER_RADIUS,0],[-PLAYER_RADIUS,0],[0,PLAYER_RADIUS],[0,-PLAYER_RADIUS]]
+const basementRegions=[BASEMENT_BOUNDS,SPRING_WALK_REGION]
+const atticRegions=[ATTIC_TERRACE_BOUNDS,[atticX(-19.5),-11.65,-6.35,6.35],[-12,-11.43,5.03,6.27]]
+const atticLanding=[-11.7,-11.43,5.15,6.15]
 function supported(regions,x,z){
-  return [[0,0],[PLAYER_RADIUS,0],[-PLAYER_RADIUS,0],[0,PLAYER_RADIUS],[0,-PLAYER_RADIUS]]
+  return SUPPORT_OFFSETS
     .every(([dx,dz])=>regions.some(rect=>inRect(x+dx,z+dz,rect)))
 }
 
@@ -102,12 +114,11 @@ export function walkHeight(x,z,previousY,world){
   }
   if(!onStair){
     if(canWalk(x,z,world))candidates.push(inMeadow(x,z)?meadowHeight(x,z):0)
-    if(supported([BASEMENT_BOUNDS,SPRING_WALK_REGION],x,z))candidates.push(BASEMENT_HEIGHT)
+    if(supported(basementRegions,x,z))candidates.push(BASEMENT_HEIGHT)
     const {to,width}=MEADOW_STAIRS
     if(supported(upperRegions,x,z)||(x>=to[0]-PLAYER_RADIUS&&x<=to[0]&&Math.abs(z-to[2])<=width/2-PLAYER_RADIUS))candidates.push(GALLERY_HEIGHT)
     // Doorway is open only at the top landing of the attic stair.
-    const attic=[ATTIC_TERRACE_BOUNDS,[atticX(-19.5),-11.65,-6.35,6.35],[-12,-11.43,5.03,6.27]]
-    if(supported(attic,x,z)||inRect(x,z,[-11.7,-11.43,5.15,6.15]))candidates.push(ATTIC_HEIGHT)
+    if(supported(atticRegions,x,z)||inRect(x,z,atticLanding))candidates.push(ATTIC_HEIGHT)
   }
   // A stair above the player is not a ground-floor barrier. Preserve headroom
   // below the treads/stringers while keeping the low end and upper rails solid.
@@ -115,7 +126,11 @@ export function walkHeight(x,z,previousY,world){
     const {t,side}=stairCoordinates(stair,x,z)
     return t<0||t>1||Math.abs(side)>stair.width/2||stair.from[1]+t*(stair.to[1]-stair.from[1])>=2.2
   }))candidates.push(0)
-  const height=candidates.filter(y=>Math.abs(y-previousY)<=.18).sort((a,b)=>Math.abs(a-previousY)-Math.abs(b-previousY))[0]
+  let height,bestDistance=Infinity
+  for(const y of candidates){
+    const distance=Math.abs(y-previousY)
+    if(distance<=.18&&distance<bestDistance){height=y;bestDistance=distance}
+  }
   return height===undefined||occupied(x,z,height)?null:height
 }
 function crossesRail(a,b){
@@ -129,9 +144,14 @@ function crossesRail(a,b){
 export function movePlayer(position,dx,dz,world){
   const next={...position}
   const steps=Math.max(1,Math.ceil(Math.hypot(dx,dz)/.055))
-  for(let i=0;i<steps;i++)for(const [axis,delta] of [['x',dx/steps],['z',dz/steps]]){
+  const stepX=dx/steps,stepZ=dz/steps
+  // The avatar carries animation and interaction state; never copy it per substep.
+  const candidate={x:next.x,z:next.z,level:next.level}
+  for(let i=0;i<steps;i++)for(let axisIndex=0;axisIndex<2;axisIndex++){
+    const axis=axisIndex===0?'x':'z',delta=axisIndex===0?stepX:stepZ
     if(!delta)continue
-    const candidate={...next,[axis]:next[axis]+delta}
+    candidate.x=next.x;candidate.z=next.z;candidate.level=next.level
+    candidate[axis]+=delta
     if(crossesRail(next,candidate))continue
     const height=walkHeight(candidate.x,candidate.z,next.level,world)
     if(height!==null){next[axis]=candidate[axis];next.level=height}

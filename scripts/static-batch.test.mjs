@@ -58,3 +58,33 @@ test('batched plant geometry follows its animated parent without changing local 
  assert.equal(merged.matrixWorld.elements[0],Math.cos(.2))
  batch.dispose();assert.equal(root.children.length,8)
 })
+
+test('isolated detailed geometry is not copied or de-indexed for an unused batch',()=>{
+ const root=new Group(),geometry=new BoxGeometry(),material=new MeshStandardMaterial()
+ for(const x of [0,20,40]){const mesh=new Mesh(geometry,material);mesh.position.x=x;root.add(mesh)}
+ geometry.toNonIndexed=()=>{throw new Error('unnecessary geometry copy')}
+ geometry.clone=()=>{throw new Error('unnecessary geometry copy')}
+ const batch=batchStaticMeshes(root)
+ assert.equal(batch.sourceCount,0);assert.equal(batch.batchCount,0)
+ assert.ok(root.children.every(mesh=>mesh.geometry===geometry&&mesh.visible))
+ batch.dispose()
+})
+
+test('batch colors multiply vertex colors only when the source material enables them',()=>{
+ const root=new Group(),geometry=new BoxGeometry().toNonIndexed()
+ const colors=new Float32Array(geometry.attributes.position.count*3).fill(.5)
+ geometry.setAttribute('color',new geometry.attributes.position.constructor(colors,3))
+ for(const vertexColors of [true,false]){
+  const material=new MeshStandardMaterial({vertexColors});material.color.setRGB(.4,.6,.8)
+  const mesh=new Mesh(geometry,material);root.add(mesh)
+ }
+ const batch=batchStaticMeshes(root),merged=root.children.find(m=>m.name==='Static decoration batch')
+ assert.equal(batch.sourceCount,2)
+ const color=merged.geometry.attributes.color,count=geometry.attributes.position.count
+ for(const [i,expected] of [[0,[.2,.3,.4]],[count,[.4,.6,.8]]]){
+  const actual=[color.getX(i),color.getY(i),color.getZ(i)]
+  actual.forEach((v,j)=>assert.ok(Math.abs(v-expected[j])<1e-6))
+ }
+ assert.equal(geometry.attributes.color.getX(0),.5)
+ batch.dispose()
+})

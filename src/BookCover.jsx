@@ -1,9 +1,26 @@
+import {createResourcePool} from './resourcePool'
 import {fitImage,coverColor} from './bookAppearance'
 import {useThree} from '@react-three/fiber'
 import {spineSource} from './bookMetadata'
 import React,{useEffect,useState,useMemo} from 'react'
 import {TextureLoader,SRGBColorSpace,CanvasTexture} from 'three'
 import {normalizeCoverUrl} from './coverUrl'
+
+const coverPools=new WeakMap()
+function coverPool(gl){
+ let pool=coverPools.get(gl)
+ if(!pool){
+  const loader=new TextureLoader().setCrossOrigin('anonymous')
+  pool=createResourcePool(async src=>{
+   const texture=await loader.loadAsync(src)
+   texture.colorSpace=SRGBColorSpace
+   texture.anisotropy=Math.min(8,gl.capabilities.getMaxAnisotropy())
+   return texture
+  },texture=>texture.dispose())
+  coverPools.set(gl,pool)
+ }
+ return pool
+}
 
 export function CoverImage({url,title='',className='',onStatus}){
  const src=normalizeCoverUrl(url),[failed,setFailed]=useState('')
@@ -19,12 +36,13 @@ export function BookCoverMesh({url,position=[0,0,0],rotation=[0,0,0],size=[.3,.4
  useEffect(()=>{
   if(!src)return
   let live=true
-  const texture=new TextureLoader().setCrossOrigin('anonymous').load(src,t=>{
+  const lease=coverPool(gl).acquire(src)
+  lease.promise.then(t=>{
    if(!live)return
-   t.colorSpace=SRGBColorSpace;t.anisotropy=Math.min(8,gl.capabilities.getMaxAnisotropy());setLoaded({src,texture:t})
+   setLoaded({src,texture:t})
    if(onColor){try{const canvas=document.createElement('canvas');canvas.width=32;canvas.height=32;const ctx=canvas.getContext('2d');ctx.drawImage(t.image,0,0,32,32);onColor(coverColor(ctx.getImageData(0,0,32,32).data))}catch{/* CORS: keep the book's chosen colour. */}}
-  },undefined,()=>{if(live)setLoaded(null)})
-  return ()=>{live=false;texture.dispose()}
+  },()=>{if(live)setLoaded(null)})
+  return ()=>{live=false;lease.release()}
  },[src,gl,onColor])
  if(!src||loaded?.src!==src)return null
  return <mesh userData={{noCameraCollision:true}} position={position} rotation={rotation}><planeGeometry args={fitImage(loaded.texture.image.width,loaded.texture.image.height,size)}/><meshBasicMaterial map={loaded.texture} toneMapped={false} polygonOffset polygonOffsetFactor={-1}/></mesh>
