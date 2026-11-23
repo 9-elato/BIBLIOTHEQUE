@@ -62,3 +62,10 @@ walkHeight/movePlayer 충돌 검사를 사용한다. 목적지는 1.05m 이내,
   풍속에 따라 음량과 주파수 변경. 실내/백그라운드에서는 음소거.
 - 143개 자동 검사 및 빌드 통과. 실제 브라우저 시각·청각 검수와 FPS 측정은
   아직 수행하지 않았으며, 성능 향상 수치를 의미하지 않는다.
+
+
+Rocks and shared solar lighting
+- Unique seeded eroded rock meshes merged per field; wet/dry color and roughness, micro-normal grooves, selective moss. Applied to coast, spring edge and study sea-view rocks. Existing spring plants retained.
+- Shared normalized sun direction for sky disc, shadow light and ocean specular. Added morning/noon alongside afternoon/evening per latest request.
+- Two cloud scales with independent drift and varying opacity; horizon fade retained.
+- Validation: 145 tests pass; production build and asset checks pass. Existing large-bundle warning remains. Actual browser shader rendering, visual review and FPS have not been measured.

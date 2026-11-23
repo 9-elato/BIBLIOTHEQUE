@@ -1,3 +1,4 @@
+import NaturalRocks from './NaturalRocks'
 import ForestTrees from './ForestTrees'
 import React,{useMemo,useEffect,useRef,useLayoutEffect} from 'react'
 import {useFrame} from '@react-three/fiber'
@@ -8,14 +9,14 @@ import {ambientUpdateDue} from './ambientUpdates'
 import {BASEMENT_HEIGHT as H,SPRING_POOL as P,SPRING_WALK_REGION,SPRING_LANTERNS} from './basementLayout'
 const rockCount=76,tileColumns=16,tileRows=40
 function LandscapeInstances(){
- const rocks=useRef(),moss=useRef(),leaves=useRef(),tiles=useRef()
+ const rocks=useMemo(()=>Array.from({length:rockCount},(_,i)=>{const a=i*Math.PI*2/rockCount;return {position:[P.x+Math.cos(a)*(P.rx+.08),H+.20+(i%3)*.04,P.z+Math.sin(a)*(P.rz+.08)],scale:[.32+(i%3)*.035,.22+(i%4)*.045,.4],seed:i+31,waterLevel:H+.13,moss:i%3===0}}),[]),leaves=useRef(),tiles=useRef()
  useLayoutEffect(()=>{const o=new THREE.Object3D(),c=new THREE.Color()
-  for(let i=0;i<rockCount;i++){const a=i*Math.PI*2/rockCount,x=P.x+Math.cos(a)*(P.rx+.08),z=P.z+Math.sin(a)*(P.rz+.08);o.position.set(x,H+.20+(i%3)*.04,z);o.scale.set(.32+(i%3)*.035,.22+(i%4)*.045,.40);o.rotation.set(i*.24,a,i*.17);o.updateMatrix();rocks.current.setMatrixAt(i,o.matrix);c.set(['#515d56','#626d61','#3e4944'][i%3]);rocks.current.setColorAt(i,c);o.position.y+=.19;o.scale.set(.28,.07,.30);o.updateMatrix();moss.current.setMatrixAt(i,o.matrix)}
+
   for(let i=0;i<180;i++){const plant=Math.floor(i/12),j=i%12,side=plant%2?-1:1,baseX=side<0?17.8:26.4,baseZ=1.4+Math.floor(plant/2)*1.6,a=j*2.4;o.position.set(baseX+Math.cos(a)*.4,H+.6+Math.sin(j*.7)*.28,baseZ+Math.sin(a)*.4);o.scale.set(.11,.52,.045);o.rotation.set(.7,a,.65);o.updateMatrix();leaves.current.setMatrixAt(i,o.matrix);c.set(['#365a3a','#567448','#77935a'][j%3]);leaves.current.setColorAt(i,c)}
   for(let i=0;i<tileColumns*tileRows;i++){o.position.set(18.25+(i%tileColumns)*.48,H+.025,-6.35+Math.floor(i/tileColumns)*.62);o.rotation.set(0,0,0);o.scale.set(.46,.06,.60);o.updateMatrix();tiles.current.setMatrixAt(i,o.matrix);c.set(['#48564e','#56625a','#606a5e','#414e49'][i%4]);tiles.current.setColorAt(i,c)}
-  for(const ref of [rocks,moss,leaves,tiles]){ref.current.instanceMatrix.needsUpdate=true;if(ref.current.instanceColor)ref.current.instanceColor.needsUpdate=true;ref.current.computeBoundingSphere()}
+  for(const ref of [leaves,tiles]){ref.current.instanceMatrix.needsUpdate=true;if(ref.current.instanceColor)ref.current.instanceColor.needsUpdate=true;ref.current.computeBoundingSphere()}
  },[])
- return <group><instancedMesh ref={rocks} args={[null,null,rockCount]}><dodecahedronGeometry args={[1,1]}/><meshStandardMaterial roughness={.87}/></instancedMesh><instancedMesh ref={moss} args={[null,null,rockCount]}><sphereGeometry args={[1,8,6]}/><meshStandardMaterial color="#647e46" roughness={1}/></instancedMesh><instancedMesh ref={leaves} args={[null,null,180]}><sphereGeometry args={[1,6,4]}/><meshStandardMaterial roughness={.95}/></instancedMesh><instancedMesh ref={tiles} args={[null,null,tileColumns*tileRows]} receiveShadow><boxGeometry args={[1,1,1]}/><meshStandardMaterial metalness={.12} roughness={.38}/></instancedMesh></group>
+ return <group><NaturalRocks rocks={rocks}/><instancedMesh ref={leaves} args={[null,null,180]}><sphereGeometry args={[1,6,4]}/><meshStandardMaterial roughness={.95}/></instancedMesh><instancedMesh ref={tiles} args={[null,null,tileColumns*tileRows]} receiveShadow><boxGeometry args={[1,1,1]}/><meshStandardMaterial metalness={.12} roughness={.38}/></instancedMesh></group>
 }
 function SpringWater(){
  const water=useRef(),steam=useRef(),last=useRef(null)
