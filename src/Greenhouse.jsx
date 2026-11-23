@@ -76,8 +76,10 @@ export default function Greenhouse({time,weather,event,door,active,playerPositio
  const shell=useRef()
  useEffect(()=>{shell.current?.traverse(o=>{if(o.isMesh&&o.material&&!o.material.transparent){o.castShadow=true;o.receiveShadow=true}})},[])
  const left=useRef(),right=useRef();useFrame((_,dt)=>{if(!door)return;advanceGlassDoor(door,dt,playerPosition?.current);const angle=-(door.swing??-1)*door.amount*Math.PI/2;if(left.current)left.current.rotation.y=angle;if(right.current)right.current.rotation.y=-angle})
+ // Climate-driven windows, water and moving doors opt out; the room shell
+ // itself is invariant and must not be rebuilt for time/weather/event changes.
  return <group ref={shell} position={[0,GARDEN_LEVEL,0]}>
- <GreenhouseAtmosphere time={time} weather={weather} active={active}/><StaticBatch revision={`${time}:${weather}:${event}`}>
+ <GreenhouseAtmosphere time={time} weather={weather} active={active}/><StaticBatch>
  <B p={[0,-.12,-15.55]} s={[10.8,.24,17.7]} c={stone}/>{[-1,1].map(a=><B key={a} p={[a*6.9,-.12,-14.05]} s={[3.3,.24,6.5]} c={stone}/>)}
  {Array.from({length:17},(_,j)=>Array.from({length:10},(_,i)=><B key={j+':'+i} p={[-4.78+i*1.06,.005,-7.3-j]} s={[1.03,.015,.97]} c={(i+j)%3?'#d5d5c7':'#bec4bb'}/>))}
  <group scale={[1,GREENHOUSE_HEIGHT_SCALE,1]}>

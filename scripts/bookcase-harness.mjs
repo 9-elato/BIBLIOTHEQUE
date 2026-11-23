@@ -23,17 +23,18 @@ export async function bookcaseComponents(){
  }
  return {before:await compile(true),after:await compile(false),dispose:()=>rm(dir,{recursive:true,force:true})}
 }
-export async function mountBookcase(Component,props){
- const previousDocument=globalThis.document,previousAct=globalThis.IS_REACT_ACT_ENVIRONMENT
+export async function mountBookcase(Component,props,{context={},browser=false}={}){
+ const previousDocument=globalThis.document,previousAct=globalThis.IS_REACT_ACT_ENVIRONMENT,previousWindow=globalThis.window
  globalThis.IS_REACT_ACT_ENVIRONMENT=true
- globalThis.document={createElement(){return {getContext:()=>({fillRect(){},strokeRect(){},fillText(){}})}}}
+ globalThis.document={addEventListener(){},removeEventListener(){},createElement(){return {getContext:()=>({fillRect(){},strokeRect(){},fillText(){},...context})}}}
+ if(browser&&!globalThis.window)globalThis.window={addEventListener(){},removeEventListener(){}}
  const canvas={width:400,height:400,addEventListener(){},removeEventListener(){}}
  const gl={domElement:canvas,render(){},setSize(){},setPixelRatio(){},shadowMap:{},xr:{addEventListener(){},removeEventListener(){}},getContext(){return {}}}
  const root=createRoot(canvas);let state
  await root.configure({gl,frameloop:'never',dpr:1,size:{width:400,height:400},onCreated:s=>{state=s}})
  const render=async(next)=>{await act(async()=>root.render(React.createElement(Component,next)));state.scene.updateMatrixWorld(true)}
  await render(props)
- return {scene:state.scene,render,advance:seconds=>state.advance(seconds,false),async dispose(){await act(async()=>root.unmount());globalThis.document=previousDocument;globalThis.IS_REACT_ACT_ENVIRONMENT=previousAct}}
+ return {scene:state.scene,render,advance:seconds=>state.advance(seconds,false),async dispose(){await act(async()=>root.unmount());globalThis.document=previousDocument;globalThis.IS_REACT_ACT_ENVIRONMENT=previousAct;globalThis.window=previousWindow}}
 }
 export function visibleMeshes(scene){const result=[];scene.traverseVisible(n=>{if(n.isMesh)result.push(n)});return result}
 export function batches(scene){return visibleMeshes(scene).filter(n=>n.name==='Static decoration batch')}

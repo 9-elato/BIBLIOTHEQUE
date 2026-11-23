@@ -262,3 +262,20 @@ test('floor exit replans a newly blocked segment without changing the current po
   assert.equal(state,null);assert.ok(Math.hypot(r.pose.x-goal.x,r.pose.z-goal.z)<.001)
  }finally{FURNITURE.splice(FURNITURE.indexOf(blocker),1)}
 })
+
+test('standing reuses the verified direct connector instead of testing it twice',()=>{
+ const s=SEATS[1],from={...origin(s),x:s.entry.x+.7}
+ let accesses=0
+ const measuredWorld=new Proxy(world,{get(target,key){accesses++;return target[key]}})
+ assert.equal(seatGroundPathClear(s.entry,from,s.level,measuredWorld),true)
+ const singleQueryAccesses=accesses
+ assert.ok(singleQueryAccesses>0)
+ accesses=0
+ const state={...startSitting(from,s),phase:'seated'}
+ const leaving=startStanding(state,measuredWorld)
+ assert.equal(leaving.phase,'leaving');assert.deepEqual(leaving.origin,state.origin)
+ assert.equal(accesses,singleQueryAccesses,'one direct navigation query per E press')
+ accesses=0
+ startStanding(state,measuredWorld)
+ assert.equal(accesses,singleQueryAccesses,'later E presses revalidate the live world')
+})

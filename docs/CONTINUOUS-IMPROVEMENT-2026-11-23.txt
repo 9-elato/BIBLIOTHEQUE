@@ -118,3 +118,24 @@
   업로드량 감소만으로 개선이라 판단하지 않음. FPS 측정은 수행하지 않음.
 - 전체216개 테스트 통과. 공개배포 및 Computer Use 없음.
 - 에셋검사와 배포용 빌드도 통과.
+
+7차: 하차·카메라 충돌 비용과 지하계단 난간
+- startStanding에서 findSeatExitPath가 검증한 직선 하차를 재검사하던 중복 제거.
+  실패 원점도 fallback에서 재검사하지 않지만 다음 E 입력은 새 장애물 상태로 검사.
+  이전과663개 상태 결과 동일. 515개 직선하차×25회 Node CPU중앙값
+  593.67→304.29ms. 실제 화면 FPS 또는 모든 장면의 속도 향상 수치가 아님.
+- 지하계단 지상 난간의 실제 좌표를 geometry와 충돌에 공유하여 몸체 관통 방지.
+  x8,z-3.85에서 기존 반경.23 캐릭터가 난간과 겹치던 조건을 회귀검증.
+  난간 외형 유지, 접선 슬라이딩과 지하계단 왕복 유지.
+- 카메라의 일반 메시 충돌에 재사용 boundingBox를 준비하여 구형 경계의 빈 모서리
+  안에서 불필요한 삼각형 검사를 줄임. 변형/인스턴스 모델은 기존 raycaster 유지.
+  수정한 position 버퍼는 경계를 갱신하고, 로더가 제공한 경계는 유지.
+  실제 24권 책장과656개시선: hit 대상/거리/faceIndex 동일.
+  동일검사의 삼각형 호출5,988→3,338회. outputs/camera-bounds-result.json.
+- 온실 정적 shell의 time/weather/event revision 제거. 창/물/문 등 동적 영역은
+  기존 noBatch 유지. 실제 JSX의 모든 배치 position/normal/color/UV/matrix/material,
+  castShadow/receiveShadow 전후동일. 비/눈/시간/기념일 전환 후 geometry재사용.
+  14이벤트변경의 배치재생성546→0, Node CPU중앙값 최종80.84→42.93ms.
+  실제브라우저FPS가 아니며 outputs/greenhouse-shell-lifecycle.json에 기록.
+- 전체224개 테스트, 에셋검사, 배포용빌드 통과. 이번 구조외형은불변이어서
+  Blender재렌더 대신 실제JSXgeometry/material 비교 사용. 공개배포하지않음.

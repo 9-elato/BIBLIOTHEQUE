@@ -1,6 +1,11 @@
 export const BASEMENT_HEIGHT=-5.2
 export const BASEMENT_STAIR={id:'basement',from:[3.5,0,-4.8],to:[12.7,BASEMENT_HEIGHT,-4.8],width:1.6,steps:32}
 export const BASEMENT_OPENING=[3.48,12.75,-5.6,-4.0]
+// Upper-floor guardrails around the basement stairwell, shared by rendering and collision.
+export const BASEMENT_GROUND_GUARDS=[-1,1].map(side=>({
+ id:`basement-ground-guard-${side}`,
+ rect:[3.495,12.745,-4.8+side*.85-.035,-4.8+side*.85+.035],
+}))
 export const BASEMENT_BOUNDS=[7.4,26,-6.65,6.5]
 export const SPRING_WALK_REGION=[18.1,26,6.2,18.3]
 export const SPRING_POOL={x:22.1,z:8.6,rx:2.45,rz:7.2,barrier:[19.3,24.9,1.05,16.15]}

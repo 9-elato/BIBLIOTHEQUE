@@ -2,7 +2,7 @@ import {CAFE_SOLIDS} from './cafeLayout.js'
 import {MEADOW_STAIRS} from './eastMeadowLayout.js'
 import {inMeadow,meadowHeight} from './meadowLayout.js'
 import {TERRACE_FURNITURE} from './terraceFurniture.js'
-import {SPRING_WALK_REGION,BASEMENT_HEIGHT,BASEMENT_STAIR,BASEMENT_BOUNDS,BASEMENT_SOLIDS} from './basementLayout.js'
+import {SPRING_WALK_REGION,BASEMENT_HEIGHT,BASEMENT_STAIR,BASEMENT_BOUNDS,BASEMENT_SOLIDS,BASEMENT_GROUND_GUARDS} from './basementLayout.js'
 import {GREENHOUSE_REGIONS,GARDEN_SOLIDS as CONSERVATORY_SOLIDS,gardenWaterBlocks,glassDoorBlocks} from './greenhouseLayout.js'
 import {studyDoorBlocks} from './studyLayout.js'
 import {entranceDoorBlocks,verandaDoorBlocks} from './doorMotion.js'
@@ -39,6 +39,7 @@ const upperRegions=[...GREENHOUSE_REGIONS,[-7.6,-5.3,-6.7,-4.85],[-7.6,-5.3,5.25
 export const FURNITURE=[
  ...CAFE_SOLIDS.map(s=>({...s,floor:0})),
  ...BASEMENT_SOLIDS.map(s=>({...s,floor:BASEMENT_HEIGHT})),
+ ...BASEMENT_GROUND_GUARDS.map(s=>({...s,floor:0})),
  {floor:0,id:'forest-sofa',rect:[8.45,12.95,3.4,4.7]},
  {floor:0,id:'forest-chaise',rect:[11.5,12.9,2.4,3.45]},
  {floor:0,id:'forest-table',rect:[9.425,10.775,1.475,2.225]},

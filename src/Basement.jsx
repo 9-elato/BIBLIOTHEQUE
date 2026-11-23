@@ -4,7 +4,7 @@ import * as THREE from 'three'
 import StaticBatch from './StaticBatch'
 import {Box as B} from './GroundFloor'
 import {CarvedBox as Soft,WovenRug,Folios} from './StorybookDecor'
-import {BASEMENT_HEIGHT as H,BASEMENT_STAIR as STAIR,BASEMENT_BOUNDS,BASEMENT_CEILING,BASEMENT_PORTAL,cutFloor} from './basementLayout'
+import {BASEMENT_HEIGHT as H,BASEMENT_STAIR as STAIR,BASEMENT_BOUNDS,BASEMENT_GROUND_GUARDS,BASEMENT_CEILING,BASEMENT_PORTAL,cutFloor} from './basementLayout'
 function Beam({a,b,r=.045,c='#816143'}){const d=new THREE.Vector3(...b).sub(new THREE.Vector3(...a)),q=new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0),d.clone().normalize());return <mesh position={new THREE.Vector3(...a).addScaledVector(d,.5)} quaternion={q}><cylinderGeometry args={[r,r,d.length(),8]}/><meshStandardMaterial color={c} roughness={.65}/></mesh>}
 function Candle({p}){return <group position={p}><mesh><cylinderGeometry args={[.07,.075,.2,10]}/><meshStandardMaterial color="#f0dcb5"/></mesh><mesh position={[0,.14,0]}><sphereGeometry args={[.035,8,6]}/><meshBasicMaterial color="#ffce77"/></mesh></group>}
 export default function Basement({time,weather,visible=true}){return <group>
@@ -19,8 +19,11 @@ export default function Basement({time,weather,visible=true}){return <group>
   </group>)}
   <Beam a={[3.5,.88,-4.8+a*.82]} b={[12.7,H+.88,-4.8+a*.82]}/>
   {Array.from({length:9},(_,i)=>{const t=i/8;return <Beam key={i} a={[3.5+9.2*t,H*t,-4.8+a*.82]} b={[3.5+9.2*t,H*t+.88,-4.8+a*.82]} r={.025}/>})}
-  {Array.from({length:24},(_,i)=><B key={'guard'+i} p={[3.55+i*(9.15/23),.52,-4.8+a*.85]} s={[.035,1.04,.035]} c="#95754d"/>)}
-  <B p={[8.12,1.04,-4.8+a*.85]} s={[9.25,.07,.07]} c="#95754d"/>
+
+ </group>)}
+ {BASEMENT_GROUND_GUARDS.map(({id,rect:[l,r,b,f]})=><group key={id}>
+  {Array.from({length:24},(_,i)=><B key={i} p={[l+.055+i*((r-l-.1)/23),.52,(b+f)/2]} s={[.035,1.04,.035]} c="#95754d"/>)}
+  <B p={[(l+r)/2,1.04,(b+f)/2]} s={[r-l,.07,f-b]} c="#95754d"/>
  </group>)}
  </StaticBatch>
  <group visible={visible}><StaticBatch revision={time}>

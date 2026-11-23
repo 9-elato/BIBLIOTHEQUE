@@ -85,9 +85,9 @@ export function startSitting(position,chosen,world){
   return {seat:chosen,posture:chosen.posture||'sitting',phase:'entering',elapsed:0,duration:1.05,
     origin:{x:position.x,z:position.z,level:position.level,yaw:position.yaw,bodyYaw:position.bodyYaw??-position.yaw}}
 }
-export function exitForSeat(sitting,world){
+export function exitForSeat(sitting,world,includeOrigin=true){
   const {seat:s,origin}=sitting
-  const candidates=[origin,{...s.entry,level:s.level,yaw:origin.yaw},...[-.35,.35].map(offset=>({...point(s.entry.x,s.entry.z,s.turn,offset,.3),level:s.level,yaw:origin.yaw}))]
+  const candidates=[...(includeOrigin?[origin]:[]),{...s.entry,level:s.level,yaw:origin.yaw},...[-.35,.35].map(offset=>({...point(s.entry.x,s.entry.z,s.turn,offset,.3),level:s.level,yaw:origin.yaw}))]
   return candidates.find(p=>Math.abs(p.level-s.level)<.08&&seatGroundPathClear(s.entry,p,s.level,world))||null
 }
 export function startStanding(sitting,world){
@@ -95,7 +95,9 @@ export function startStanding(sitting,world){
   const s=sitting.seat,o=sitting.origin
   const path=Math.abs(o.level-s.level)<.08?findSeatExitPath(s.entry,o,(a,b)=>seatGroundPathClear(a,b,s.level,world)):null
   if(path&&path.length>2)return {...sitting,origin:{...s.entry,level:s.level,yaw:o.yaw},floorExit:path,exitBlocked:false,phase:'leaving',elapsed:0,duration:['attic-daybed','meadow-rest'].includes(s.id)?2.8:.9,exitRecline:sitting.recline||0}
-  const exit=exitForSeat(sitting,world)
+  // findSeatExitPath already checked the original connector. Reuse its
+  // direct success, or skip that failed candidate when testing safe landings.
+  const exit=path?.length===2?o:exitForSeat(sitting,world,false)
   return exit?{...sitting,origin:exit,exitBlocked:false,phase:'leaving',elapsed:0,duration:['attic-daybed','meadow-rest'].includes(sitting.seat.id)?2.8:.9,exitRecline:sitting.recline||0}:{...sitting,exitBlocked:true}
 }
 function sampleSeating(sitting,dt){
