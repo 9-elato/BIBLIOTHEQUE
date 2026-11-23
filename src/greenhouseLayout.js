@@ -33,12 +33,33 @@ export const GARDEN_SOLIDS=[
 export function gardenWaterBlocks(x,z,r=.23){return [FOUNTAIN,POND].some(p=>Math.hypot(x-p.x,z-p.z)<p.radius+r)}
 export function glassDoorBlocks(x,z,door,r=.23){
  if(!door)return false
- const a=door.amount*Math.PI/2
- return [-1,1].some(side=>{const ax=side*1.4,az=-6.95,dx=-side*1.4*Math.cos(a),dz=-1.4*Math.sin(a);const t=Math.max(0,Math.min(1,((x-ax)*dx+(z-az)*dz)/(dx*dx+dz*dz)));return Math.hypot(x-ax-t*dx,z-az-t*dz)<r+.05})
+ const a=(door.amount||0)*Math.PI/2
+ return [-1,1].some(side=>{const ax=side*1.4,az=-6.95,dx=-side*1.4*Math.cos(a),dz=1.4*Math.sin(a)*(door.swing??-1);const t=Math.max(0,Math.min(1,((x-ax)*dx+(z-az)*dz)/(dx*dx+dz*dz)));return Math.hypot(x-ax-t*dx,z-az-t*dz)<r+.05})
+}
+function sweptGlassDoorBlocks(door,player,from,to){
+ if(!player||(Number.isFinite(player.level)&&Math.abs(player.level-GARDEN_LEVEL)>.1))return false
+ const steps=Math.max(1,Math.ceil(Math.abs(to-from)/.02))
+ for(let i=0;i<=steps;i++)if(glassDoorBlocks(player.x,player.z,{...door,amount:from+(to-from)*i/steps}))return true
+ return false
+}
+export function canToggleGlassDoor(door,player){
+ const swing=!door.open&&(door.amount||0)<.02?(player.z<-6.95?1:-1):(door.swing??-1)
+ return !sweptGlassDoorBlocks({...door,swing},player,door.amount||0,door.open?0:1)
 }
 export function toggleGlassDoor(door,player){
- if(Math.abs(player.x)<1.7&&player.z<-6.5&&player.z>-8.8)return false
+ if(!canToggleGlassDoor(door,player))return false
+ if(!door.open&&(door.amount||0)<.02)door.swing=player.z<-6.95?1:-1
  door.open=!door.open;return true
+}
+export function advanceGlassDoor(door,dt,player){
+ const current=door.amount||0,target=door.open?1:0,step=Math.max(0,dt)/.65
+ const next=target>current?Math.min(target,current+step):Math.max(target,current-step)
+ if(next!==current&&sweptGlassDoorBlocks(door,player,current,next)){
+  // A visitor can enter after E was pressed; never animate a panel through them.
+  if(!door.open)door.open=true
+  return current
+ }
+ door.amount=next;return next
 }
 
 // Side glazing exactly meets the side alcove returns and the rear gable.

@@ -6,17 +6,21 @@ import {ATTIC_HEIGHT} from './navigation.js'
 import {DESKS} from './layout.js'
 import {TABLES} from './placements.js'
 import {nearbySeat} from './seating.js'
+import {canToggleGlassDoor} from './greenhouseLayout.js'
 
 export function interactionAt(s, {entranceOpen, gateReady, gateOpening=false, bookcases=[], heldBook, canPlace=false,world}) {
   const near = (x,z,r=1.8) => Math.hypot(s.x-x,s.z-z)<r
-  if (s.seated) return s.seated.phase&&s.seated.phase!=='seated'?null:{type:'stand',label:heldBook?'책을 들고 일어나기':'일어나기'}
+  if (s.seated) {
+    if(s.seated.transitionBlocked)return {type:'wait',label:'이동 공간이 막혀 잠시 멈췄습니다 · 공간이 비면 이어집니다'}
+    return s.seated.phase&&s.seated.phase!=='seated'?null:{type:'stand',label:s.seated.exitBlocked?'하차 공간이 막혀 있습니다 · 공간을 비운 뒤 다시 시도':heldBook?'책을 들고 일어나기':'일어나기'}
+  }
   if(s.level===0&&world?.verandaDoor&&near(-10.2,-6.7,2))return {type:'verandaDoor',label:world.verandaDoor.open?'바다 마루 문 닫기':'바다 마루 문 열기'}
   if(Math.abs(s.level-ATTIC_HEIGHT)<.1&&near(atticX(-16.8),9.3,1.65))return {type:'telescope',label:'테라스에서 별과 달 관측하기'}
   const rest=meadowRest(s)
   if(rest&&Math.abs(s.level-rest.level)<.15)return {type:'seat',seat:rest,label:'잔디에 누워 하늘 보기'}
   const seat=nearbySeat(s,world)
   if(seat)return {type:'seat',seat,label:seat.label+(heldBook?'에 앉아 읽기':'에 앉기')}
-  if(Math.abs(s.level-7.2)<.1&&world?.glassDoor&&near(0,-6.95,2.65))return {type:'glassDoor',label:Math.abs(s.x)<1.7&&s.z<-6.5&&s.z>-8.8?'유리문에서 한 걸음 물러나기':world.glassDoor.open?'온실 유리문 닫기':'온실 유리문 열기'}
+  if(Math.abs(s.level-7.2)<.1&&world?.glassDoor&&near(0,-6.95,2.65))return {type:'glassDoor',label:!canToggleGlassDoor(world.glassDoor,s)?'유리문 회전 공간을 비워주세요':world.glassDoor.open?'온실 유리문 닫기':'온실 유리문 열기'}
   if(Math.abs(s.level-7.2)<.1&&near(0,-14,2.7))return {type:'gardenWater',label:'분수 물소리 켜고 끄기'}
   if(s.level===0&&world?.studyDoor){
    if(Math.abs(s.x)<1.3&&Math.abs(s.z+19)<3)return {type:'studyDoor',label:!canToggleStudyDoor(world.studyDoor,s)?'문 옆에서 한 걸음 물러나세요':world.studyDoor.open?'작업실 나무문 닫기':'작업실 나무문 열기'}

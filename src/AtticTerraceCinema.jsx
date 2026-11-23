@@ -5,6 +5,7 @@ import {Html} from '@react-three/drei'
 import * as THREE from 'three'
 import {Box as B} from './GroundFloor'
 import {DetailedTelescope} from './AtticComfort'
+import CozyTerrace from './CozyTerrace'
 export default function AtticTerraceCinema({time,weather}){
  const [video,setVideo]=useState(''),[near,setNear]=useState(false),screen=useRef(),last=useRef(false),point=useMemo(()=>new THREE.Vector3(),[])
  useFrame(({camera})=>{if(!screen.current)return;let visible=true;for(let o=screen.current;o;o=o.parent)visible=visible&&o.visible;const next=visible&&camera.position.distanceTo(screen.current.getWorldPosition(point))<20;if(next!==last.current){last.current=next;setNear(next)}})
@@ -12,6 +13,7 @@ export default function AtticTerraceCinema({time,weather}){
  const stars=useMemo(()=>Float32Array.from(Array.from({length:220},(_,i)=>{const a=i*2.399,h=.25+(i%31)/40,r=Math.sqrt(1-h*h)*42;return [Math.cos(a)*r,8+h*42,8+Math.sin(a)*r]}).flat()),[])
  const q=useMemo(()=>new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(new THREE.Vector3(0,0,1),new THREE.Vector3(-1,ATTIC_SCREEN_SLOPE,0).normalize(),new THREE.Vector3(-ATTIC_SCREEN_SLOPE,-1,0).normalize())),[])
  return <group>
+  <CozyTerrace time={time}/>
   <B p={[0,-.14,8.75]} s={[7.9,.28,4.3]} c="#775944"/>
   {Array.from({length:23},(_,i)=><B key={i} p={[-3.8+i*.34,.008,8.75]} s={[.32,.025,4.3]} c={i%3?'#967154':'#866047'}/>)}
   {[-3.95,3.95].map(x=><group key={x}><B p={[x,.62,8.8]} s={[.06,1.24,4.2]} c="#d0b998" opacity={.18}/><B p={[x,1.2,8.8]} s={[.1,.12,4.2]} c="#a88551"/>{[6.8,8.8,10.8].map(z=><B key={z} p={[x,.6,z]} s={[.1,1.2,.1]} c="#52483c"/>)}</group>)}

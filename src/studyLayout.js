@@ -1,3 +1,4 @@
+import {advanceGuardedDoor} from './doorMotion.js'
 export function studySeason(month=new Date().getMonth(),weather='sunny'){
  if(weather==='snow'||month===11||month<2)return 'winter'
  return month<5?'spring':month<8?'summer':'autumn'
@@ -21,8 +22,6 @@ export function toggleStudyDoor(door,player){
  if(!door.open&&(door.amount||0)<.02)door.swing=player.z<-19?1:-1
  door.open=!door.open;return true
 }
-export function advanceStudyDoor(door,dt){
- const step=Math.max(0,dt)/.6
- door.amount=Math.max(0,Math.min(1,door.amount+(door.open?step:-step)))
- return door.amount
+export function advanceStudyDoor(door,dt,player){
+ return advanceGuardedDoor(door,dt,player,studyDoorBlocks)
 }

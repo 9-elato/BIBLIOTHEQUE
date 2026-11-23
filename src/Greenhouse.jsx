@@ -3,6 +3,7 @@ import GreenhouseAtmosphere from './GreenhouseAtmosphere'
 import {useGreenhouseRain} from './greenhouseRainAudio'
 import {MeshReflectorMaterial} from '@react-three/drei'
 import {useGardenWater} from './greenhouseAudio'
+import {advanceGlassDoor} from './greenhouseLayout'
 import React,{useMemo,useRef,useEffect} from 'react'
 import {useFrame} from '@react-three/fiber'
 import * as THREE from 'three'
@@ -60,12 +61,12 @@ function GableClosure(){
  <B p={[0,GREENHOUSE_DOOR_HEIGHT,-6.95]} s={[10.8,.09,.12]} c={iron}/>
  </group>
 }
-export default function Greenhouse({time,weather,event,door,active}){
+export default function Greenhouse({time,weather,event,door,active,playerPosition}){
  useGardenWater(active)
  useGreenhouseRain(active,weather)
  const shell=useRef()
  useEffect(()=>{shell.current?.traverse(o=>{if(o.isMesh&&o.material&&!o.material.transparent){o.castShadow=true;o.receiveShadow=true}})},[])
- const left=useRef(),right=useRef();useFrame((_,dt)=>{if(!door)return;door.amount+=(Number(door.open)-door.amount)*(1-Math.exp(-4*dt));if(left.current)left.current.rotation.y=door.amount*Math.PI/2;if(right.current)right.current.rotation.y=-door.amount*Math.PI/2})
+ const left=useRef(),right=useRef();useFrame((_,dt)=>{if(!door)return;advanceGlassDoor(door,dt,playerPosition?.current);const angle=-(door.swing??-1)*door.amount*Math.PI/2;if(left.current)left.current.rotation.y=angle;if(right.current)right.current.rotation.y=-angle})
  return <group ref={shell} position={[0,GARDEN_LEVEL,0]}>
  <GreenhouseAtmosphere time={time} weather={weather} active={active}/><StaticBatch revision={`${time}:${weather}:${event}`}>
  <B p={[0,-.12,-15.55]} s={[10.8,.24,17.7]} c={stone}/>{[-1,1].map(a=><B key={a} p={[a*6.9,-.12,-14.05]} s={[3.3,.24,6.5]} c={stone}/>)}

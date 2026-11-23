@@ -11,6 +11,6 @@ function OccasionDecor({season}){return <group>
  {season==='halloween'&&[-1,1].map((d,i)=><group key={i} position={[d*5.5,0,3.5]}><Sphere at={[0,.35,0]} r={.35} color="#cf7837"/><Block at={[0,.74,0]} size={[.08,.22,.08]} color="#6d7a41"/></group>)}
  {season==='books'&&<Sign label="WORLD BOOK DAY · 23 APRIL" at={[0,4.1,2]} color="#8d643c" size={.25}/>}
  </group>}
-export default function WorldAdditions({weather='sunny',time='afternoon',season='none',entranceOpen=false,onEntranceToggle=()=>{}}){const now=new Date(),month=now.getMonth()+1,day=now.getDate();const current=season==='auto'?(month===12&&day>=15?'christmas':month===10&&day>=20?'halloween':month===4&&day===23?'books':month>=3&&month<=5?'spring':month>=6&&month<=8?'summer':month>=9&&month<=11?'autumn':'winter'):season;return <group>
-  <ManorEntrance open={entranceOpen} onToggle={onEntranceToggle} season={weather==='snow'?'winter':current} time={time}/><OccasionDecor season={current}/>
+export default function WorldAdditions({weather='sunny',time='afternoon',season='none',entranceOpen=false,onEntranceToggle=()=>{},entranceDoor,playerPosition}){const now=new Date(),month=now.getMonth()+1,day=now.getDate();const current=season==='auto'?(month===12&&day>=15?'christmas':month===10&&day>=20?'halloween':month===4&&day===23?'books':month>=3&&month<=5?'spring':month>=6&&month<=8?'summer':month>=9&&month<=11?'autumn':'winter'):season;return <group>
+  <ManorEntrance door={entranceDoor} playerPosition={playerPosition} open={entranceOpen} onToggle={onEntranceToggle} season={weather==='snow'?'winter':current} time={time}/><OccasionDecor season={current}/>
  </group>}

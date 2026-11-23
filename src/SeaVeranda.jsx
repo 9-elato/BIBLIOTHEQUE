@@ -4,9 +4,10 @@ import StaticBatch from './StaticBatch'
 import {Text} from '@react-three/drei'
 import {CarvedBox as B} from './StorybookDecor'
 import {OceanWindow} from './CoastalStudy'
-export default function SeaVeranda({door,time,weather,onExperience}){
+import {advanceGuardedDoor,verandaDoorBlocks} from './doorMotion'
+export default function SeaVeranda({door,time,weather,onExperience,playerPosition}){
  const slider=useRef()
- useFrame((_,dt)=>{door.amount+=(Number(door.open)-door.amount)*Math.min(1,dt*5);if(slider.current)slider.current.position.x=-10.2-door.amount*1.9})
+ useFrame((_,dt)=>{advanceGuardedDoor(door,dt,playerPosition?.current,verandaDoorBlocks);if(slider.current)slider.current.position.x=-10.2-door.amount*1.9})
  const toggle=e=>{e.stopPropagation();window.dispatchEvent(new CustomEvent('library-interact'))}
  return <StaticBatch revision={time+weather}>
   <B p={[-14.7,-.13,-10.4]} s={[11.8,.26,7.5]} c="#83634b"/>

@@ -3,11 +3,23 @@ import assert from 'node:assert/strict'
 import {readFileSync} from 'node:fs'
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js'
 import {Box3,Vector3,Texture} from 'three'
-import {prepareLabrador,animateLabrador} from '../src/labradorMotion.js'
+import {prepareLabrador,animateLabrador,FOX_MATCH} from '../src/labradorMotion.js'
 const data=readFileSync(new URL('../public/models/labrador_arsenal.glb',import.meta.url))
 // Node validates geometry/animation; embedded image headers are checked separately below.
 const loader=new GLTFLoader().register(()=>({name:'node-test-texture',loadTexture:()=>Promise.resolve(new Texture())}))
 const gltf=await loader.parseAsync(data.buffer.slice(data.byteOffset,data.byteOffset+data.byteLength),'')
+
+test('Labrador eyes and overall depth match the displayed fox dimensions',()=>{
+ const model=prepareLabrador(gltf.scene)
+ const size=new Box3().setFromObject(model.copy).getSize(new Vector3())
+ assert.ok(Math.abs(size.z-FOX_MATCH.depth)<.002)
+ for(const name of ['LabradorEyeL','LabradorEyeR']){
+  const eye=model.copy.getObjectByName(name);assert.ok(eye?.isMesh,name)
+  const s=new Box3().setFromObject(eye).getSize(new Vector3()).toArray()
+  s.forEach((v,i)=>assert.ok(Math.abs(v-FOX_MATCH.eye[i])<.001,`${name}: ${s}`))
+  eye.material.color.toArray().forEach((v,i)=>assert.ok(Math.abs(v-FOX_MATCH.eyeColor[i])<1e-8))
+ }
+})
 
 test('relaxed Labrador keeps an animatable bare arm without boxing materials',()=>{
  const json=JSON.parse(data.toString('utf8',20,20+data.readUInt32LE(12)))

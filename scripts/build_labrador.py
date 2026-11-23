@@ -33,7 +33,7 @@ from mathutils import Vector
 # 0. 사용자가 조절하는 옵션 ---------------------------------------------
 OUTPUT_DIR = os.path.abspath("C:/output/Labrador_Arsenal")
 SAVE_BLEND = True
-RENDER_PNG = True       # 빠른 모델 확인만 할 때 False
+RENDER_PNG = os.environ.get('LABRADOR_RENDER','1') != '0'
 EXPORT_GLB = True
 RENDER_SIZE = 700
 RENDER_SAMPLES = 24
@@ -768,14 +768,15 @@ for name,objects in regions.items():
         for modifier in list(obj.modifiers):
             bpy.ops.object.modifier_apply(modifier=modifier.name)
         key=tuple(m.name for m in obj.data.materials)
-        if obj.name.startswith('Sculpted floppy ear'):key=key+(obj.name,)
+        if obj.name.startswith(('Sculpted floppy ear','Shiny black oval eye')):key=key+(obj.name,)
         batches.setdefault(key,[]).append(obj)
     for index,objects in enumerate(batches.values()):
         bpy.ops.object.select_all(action='DESELECT')
         for obj in objects:obj.select_set(True)
         bpy.context.view_layer.objects.active=objects[0]
         bpy.ops.object.join();obj=bpy.context.object;matrix=obj.matrix_world.copy()
-        obj.parent=pivot;obj.matrix_world=matrix;obj.name=name+'_material_'+str(index)
+        original_name=obj.name
+        obj.parent=pivot;obj.matrix_world=matrix;obj.name=('LabradorEye'+('L' if original_name.endswith('L') else 'R')) if original_name.startswith('Shiny black oval eye') else name+'_material_'+str(index)
 
 # The selected multi-view fit is applied identically in preview and web export.
 import sys,json

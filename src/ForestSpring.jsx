@@ -3,6 +3,8 @@ import {useFrame} from '@react-three/fiber'
 import * as THREE from 'three'
 import {Box as B} from './GroundFloor'
 import StaticBatch from './StaticBatch'
+import SpringFireflies from './SpringFireflies'
+import {ambientUpdateDue} from './ambientUpdates'
 import {BASEMENT_HEIGHT as H,SPRING_POOL as P} from './basementLayout'
 function Branch({a,b,r=.15}){const v=new THREE.Vector3(...b).sub(new THREE.Vector3(...a)),q=new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0),v.clone().normalize());return <mesh position={a.map((n,i)=>(n+b[i])/2)} quaternion={q}><cylinderGeometry args={[r*.65,r,v.length(),7]}/><meshStandardMaterial color="#424b36" roughness={1}/></mesh>}
 function LandscapeInstances(){
@@ -16,20 +18,25 @@ function LandscapeInstances(){
  return <group><instancedMesh ref={rocks} args={[null,null,44]}><dodecahedronGeometry args={[1,1]}/><meshStandardMaterial roughness={.87}/></instancedMesh><instancedMesh ref={moss} args={[null,null,44]}><sphereGeometry args={[1,8,6]}/><meshStandardMaterial color="#647e46" roughness={1}/></instancedMesh><instancedMesh ref={leaves} args={[null,null,180]}><sphereGeometry args={[1,6,4]}/><meshStandardMaterial roughness={.95}/></instancedMesh><instancedMesh ref={tiles} args={[null,null,432]} receiveShadow><boxGeometry args={[1,1,1]}/><meshStandardMaterial metalness={.12} roughness={.38}/></instancedMesh></group>
 }
 function SpringWater(){
- const water=useRef(),steam=useRef()
+ const water=useRef(),steam=useRef(),last=useRef(null)
  const uniforms=useMemo(()=>({clock:{value:0}}),[])
  const shape=useMemo(()=>{const s=new THREE.Shape();for(let i=0;i<=80;i++){const a=i*Math.PI*2/80,r=1+.025*Math.sin(a*5);const x=Math.cos(a)*P.rx*r,y=Math.sin(a)*P.rz*r;i?s.lineTo(x,y):s.moveTo(x,y)}s.closePath();return s},[])
  const mist=useMemo(()=>{const canvas=document.createElement('canvas');canvas.width=64;canvas.height=64;const x=canvas.getContext('2d'),g=x.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'rgba(225,240,220,.23)');g.addColorStop(1,'rgba(225,240,220,0)');x.fillStyle=g;x.fillRect(0,0,64,64);return new THREE.CanvasTexture(canvas)},[])
  useEffect(()=>()=>mist.dispose(),[mist])
  const pos=useMemo(()=>new Float32Array(18*3),[])
- useFrame(({clock})=>{uniforms.clock.value=clock.elapsedTime;if(steam.current){const a=steam.current.geometry.attributes.position;for(let i=0;i<18;i++){const t=(clock.elapsedTime*.12+i*.37)%1;a.setXYZ(i,Math.sin(i*2.4)*1.8+Math.sin(t*3+i)*.12,.25+t*1.15,Math.cos(i*2.4)*2.6)}a.needsUpdate=true}})
- return <group position={[P.x,H+.13,P.z]}><mesh ref={water} rotation={[-Math.PI/2,0,0]}><shapeGeometry args={[shape]}/><shaderMaterial uniforms={uniforms} vertexShader="varying vec2 p;void main(){p=position.xy;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}" fragmentShader="varying vec2 p;uniform float clock;void main(){float r=sin(length(p)*18.-clock*1.4)*sin(p.x*8.+p.y*5.+clock*.6);float glint=pow(max(0.,r),9.);vec3 c=mix(vec3(.06,.19,.16),vec3(.23,.39,.30),.5+.5*sin(p.y*2.+p.x));gl_FragColor=vec4(c+vec3(.34,.38,.26)*glint*.45,1.);}" side={THREE.DoubleSide}/></mesh><mesh position={[6.2,3.8,20]}><planeGeometry args={[.55,5.8]}/><shaderMaterial uniforms={uniforms} transparent depthWrite={false} side={THREE.DoubleSide} vertexShader="varying vec2 uvv;void main(){uvv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}" fragmentShader="varying vec2 uvv;uniform float clock;void main(){float edge=sin(uvv.x*3.14159);float flow=.55+.25*sin(uvv.y*75.+clock*4.);gl_FragColor=vec4(.70,.82,.75,edge*flow);}"/></mesh><points ref={steam} frustumCulled={false}><bufferGeometry><bufferAttribute attach="attributes-position" args={[pos,3]}/></bufferGeometry><pointsMaterial map={mist} size={1.35} transparent opacity={.30} depthWrite={false} color="#dce8d5"/></points></group>
+ useFrame(({clock})=>{if(!ambientUpdateDue(water.current,clock.elapsedTime,null))return;uniforms.clock.value=clock.elapsedTime;if(ambientUpdateDue(steam.current,clock.elapsedTime,last.current)){last.current=clock.elapsedTime;const a=steam.current.geometry.attributes.position;for(let i=0;i<18;i++){const t=(clock.elapsedTime*.12+i*.37)%1;a.setXYZ(i,Math.sin(i*2.4)*1.8+Math.sin(t*3+i)*.12,.25+t*1.15,Math.cos(i*2.4)*2.6)}a.needsUpdate=true}})
+ return <group position={[P.x,H+.13,P.z]}><mesh ref={water} rotation={[-Math.PI/2,0,0]}><shapeGeometry args={[shape]}/><shaderMaterial uniforms={uniforms} vertexShader="varying vec2 p;void main(){p=position.xy;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}" fragmentShader="varying vec2 p;uniform float clock;void main(){float r=sin(length(p)*12.-clock*.65)*sin(p.x*5.+p.y*3.+clock*.3);float glint=pow(max(0.,r),9.);vec3 c=mix(vec3(.06,.19,.16),vec3(.23,.39,.30),.5+.5*sin(p.y*2.+p.x));gl_FragColor=vec4(c+vec3(.60,.43,.19)*glint*.28,1.);}" side={THREE.DoubleSide}/></mesh><mesh position={[6.2,3.8,20]}><planeGeometry args={[.55,5.8]}/><shaderMaterial uniforms={uniforms} transparent depthWrite={false} side={THREE.DoubleSide} vertexShader="varying vec2 uvv;void main(){uvv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}" fragmentShader="varying vec2 uvv;uniform float clock;void main(){float edge=sin(uvv.x*3.14159);float flow=.55+.25*sin(uvv.y*75.+clock*4.);gl_FragColor=vec4(.70,.82,.75,edge*flow);}"/></mesh><points ref={steam} frustumCulled={false}><bufferGeometry><bufferAttribute attach="attributes-position" args={[pos,3]}/></bufferGeometry><pointsMaterial map={mist} size={1.35} transparent opacity={.30} depthWrite={false} color="#dce8d5"/></points></group>
 }
 export default function ForestSpring({time}){
  const arch=useMemo(()=>{const s=new THREE.Shape();s.moveTo(0,0);s.lineTo(.28,0);s.lineTo(.28,3.3);s.quadraticCurveTo(4,5.5,7.72,3.3);s.lineTo(7.72,0);s.lineTo(8,0);s.lineTo(8,4.9);s.lineTo(0,4.9);s.closePath();return new THREE.ExtrudeGeometry(s,{depth:.26,bevelEnabled:false})},[])
  useEffect(()=>()=>arch.dispose(),[arch])
- return <group><StaticBatch>
+ return <group><StaticBatch revision={time}>
  <B p={[22.05,H-.11,8.45]} s={[7.9,.22,4]} c="#465449"/>
+ {/* Dry edge deck and quiet timber lintel frame the existing open garden. */}
+ {Array.from({length:20},(_,i)=><B key={'deck'+i} p={[25.35,H+.07,1.6+i*.39]} s={[.9,.04,.37]} c={i%3?'#705d45':'#806b50'}/>)}
+ <B p={[22.05,H+4.72,6.4]} s={[8,.3,.44]} c="#493d2e"/>
+ <B p={[24.68,H+.53,4.8]} s={[.65,.14,.19]} c="#887148"/>
+ <mesh position={[24.39,H+.32,4.8]}><cylinderGeometry args={[.025,.04,.33,8]}/><meshStandardMaterial color="#b3cbb4" transparent opacity={.4}/></mesh>
  <B p={[26,H+2.43,0]} s={[.13,4.86,13.3]} c="#35453b"/>
  {Array.from({length:25},(_,i)=><B key={i} p={[25.92,H+.12+i*.19,0]} s={[.07,.025,13.25]} c="#637063"/>)}
  <mesh geometry={arch} position={[18.05,H,6.48]}><meshStandardMaterial color="#39483e" roughness={.92}/></mesh>
@@ -40,6 +47,7 @@ export default function ForestSpring({time}){
  <Branch a={[28,H,11]} b={[27,H+6,11]} r={.45}/><Branch a={[27,H+5,11]} b={[20,H+7,10]} r={.30}/><Branch a={[23,H+6.2,10.5]} b={[18,H+6.8,14]} r={.17}/>
  {Array.from({length:13},(_,i)=><mesh key={i} position={[19+(i%5)*2,H+6.7+Math.sin(i)*.5,10+Math.floor(i/5)*1.7]} scale={[1.6,.4,1.4]}><sphereGeometry args={[1,8,6]}/><meshStandardMaterial color={i%2?'#4f6b42':'#354f38'} roughness={1}/></mesh>)}
  {Array.from({length:12},(_,i)=><group key={'vine'+i} position={[18.2+i*.67,H+4.75,6.74]}>{Array.from({length:5+i%4},(_,j)=><mesh key={j} position={[Math.sin(j)*.09,-j*.16,0]} rotation={[0,0,j%2?.5:-.5]} scale={[.12,.21,.045]}><sphereGeometry args={[1,6,4]}/><meshStandardMaterial color={j%2?'#4e7047':'#6d8450'} roughness={1}/></mesh>)}</group>)}
- </StaticBatch><LandscapeInstances/><SpringWater/>
+ </StaticBatch><LandscapeInstances/><SpringWater/><SpringFireflies time={time}/>
+ <pointLight position={[25.15,H+1.1,5.1]} color="#ffcd82" intensity={time==='evening'?1.6:.55} distance={5.5} decay={2}/>
  </group>
 }

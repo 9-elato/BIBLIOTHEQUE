@@ -1,7 +1,9 @@
 import {inMeadow,meadowHeight} from './meadowLayout.js'
+import {TERRACE_FURNITURE} from './terraceFurniture.js'
 import {SPRING_WALK_REGION,BASEMENT_HEIGHT,BASEMENT_STAIR,BASEMENT_BOUNDS,BASEMENT_SOLIDS} from './basementLayout.js'
 import {GREENHOUSE_REGIONS,GARDEN_SOLIDS as CONSERVATORY_SOLIDS,gardenWaterBlocks,glassDoorBlocks} from './greenhouseLayout.js'
 import {studyDoorBlocks} from './studyLayout.js'
+import {entranceDoorBlocks,verandaDoorBlocks} from './doorMotion.js'
 import {atticX} from './atticLayout.js'
 import {ladderBlocks} from './ladderSystem.js'
 import {GARDEN_SOLIDS} from './gardenLayout.js'
@@ -63,6 +65,7 @@ export const FURNITURE=[
   ...READING_CHAIRS.map(s=>({floor:s.level,rect:[s.x-(s.level===ATTIC_HEIGHT?.80:.64),s.x+(s.level===ATTIC_HEIGHT?.80:.64),s.z-(s.level===ATTIC_HEIGHT?.65:.52),s.z+(s.level===ATTIC_HEIGHT?.65:.52)],id:s.id})),
   {floor:GALLERY_HEIGHT,rect:[13.65,14.8,-4.3,4.3],id:'reading-shelves'},
   ...[-3.1,2.4].map(z=>({floor:GALLERY_HEIGHT,rect:[7.05,7.95,z-.92,z+.92],id:'gallery-shelf'})),
+  ...TERRACE_FURNITURE.map(s=>({...s,rect:[...s.rect],floor:ATTIC_HEIGHT})),
   {floor:ATTIC_HEIGHT,rect:[-17.25,-16.35,8.8,9.8],id:'terrace-telescope'},
   {floor:ATTIC_HEIGHT,rect:[-19.15,-16.05,-1.65,1.65],id:'daybed'},
   {floor:ATTIC_HEIGHT,rect:[-17.45,-14.35,-6.3,-5.1],id:'attic-shelves'},
@@ -79,9 +82,11 @@ function supported(regions,x,z){
 
 export function walkHeight(x,z,previousY,world){
   if(Math.abs(previousY-GALLERY_HEIGHT)<.18&&(gardenWaterBlocks(x,z)||glassDoorBlocks(x,z,world.glassDoor)||(Math.abs(z+6.95)<.29&&Math.abs(x)>1.16)))return null
-  if(previousY<.18&&studyDoorBlocks(x,z,world.studyDoor))return null
+  if(Math.abs(previousY)<.18&&studyDoorBlocks(x,z,world.studyDoor))return null
+  if(Math.abs(previousY)<.18&&world.entranceDoor&&entranceDoorBlocks(x,z,world.entranceDoor))return null
+  if(Math.abs(previousY)<.18&&world.verandaDoor&&verandaDoorBlocks(x,z,world.verandaDoor))return null
   // Clearance for both inward-open door leaves, including the ghost's radius.
-  if(previousY<.18&&world.entranceOpen&&z>10.15&&z<11.95&&Math.abs(x)>.65&&Math.abs(x)<1.75)return null
+  if(!world.entranceDoor&&previousY<.18&&world.entranceOpen&&z>10.15&&z<11.95&&Math.abs(x)>.65&&Math.abs(x)<1.75)return null
   if(previousY<.18&&world.ladders?.some(s=>ladderBlocks(s,x,z)))return null
   const candidates=[]
   let onStair=false

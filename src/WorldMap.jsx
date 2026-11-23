@@ -6,8 +6,8 @@ const FLOORS=[
   ['main','중앙 홀','',35,22,30,21,'중앙 홀'],
   ['stacks','서가','',69,22,29,21,'서가'],
   ['veranda','바다 마루','',2,3,29,13,'바다 마루'],
-  ['stairs','중앙 계단','2층으로 ↑',2,47,29,12,'중앙 계단'],
-  ['basementstairs','지하 계단','',69,49,29,12,'지하 계단'],
+  ['stairs','중앙 계단','',31,23,4,19,'중앙 계단'],
+  ['basementstairs','지하 계단','',65,23,4,19,'지하 계단'],
   ['vestibule','현관','',35,49,30,12,'현관'],
   ['estate','정원 산책로','',35,70,30,13,'저택 정원'],
   ['meadow','잔디 동산','',35,85,30,13,'잔디 동산'],
@@ -36,10 +36,10 @@ export default function WorldMap({floor,onFloor,zone,onTravel,onClose}){
   <div className="world-map-head"><strong>저택 안내도</strong><button onClick={onClose} aria-label="지도 닫기">×</button></div>
   <p className="map-location" role="status">● 현재 공간: {zone}</p>
   <div className="map-tabs" role="tablist" aria-label="층 선택">{FLOORS.map((item,i)=><button key={item.name} id={'floor-tab-'+i} aria-controls="floor-map-panel" role="tab" aria-selected={floor===i} onClick={()=>onFloor(i)}>{item.name}</button>)}</div>
-  <div id="floor-map-panel" className="estate-plan" role="tabpanel" aria-labelledby={'floor-tab-'+floor}>
+  <div id="floor-map-panel" className={'estate-plan plan-floor-'+floor} role="tabpanel" aria-labelledby={'floor-tab-'+floor}>
    <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">{plan.lines.map(d=><path key={d} d={d}/>)}</svg>
    {floor===1&&<div className="plan-void">중앙 홀 상부<br/>열린 공간</div>}
-   {plan.rooms.map(([id,name,detail,x,y,w,h,location])=><button key={id} style={{left:x+'%',top:y+'%',width:w+'%',height:h+'%'}} aria-label={name+' 이동'} aria-current={zone===location?'location':undefined} onClick={()=>onTravel(id)}><b>{name}</b><small>{detail}</small>{zone===location&&<em>● 현재</em>}</button>)}
+   {plan.rooms.map(([id,name,detail,x,y,w,h,location])=><button key={id} className={'plan-room plan-'+id} style={{left:x+'%',top:y+'%',width:w+'%',height:h+'%'}} aria-label={name+' 이동'} aria-current={zone===location?'location':undefined} onClick={()=>onTravel(id)}><span className="plan-symbol" aria-hidden="true">{['estate','meadow','garden-west','garden-east','greenhouse'].includes(id)?'❧':id==='veranda'?'≈':id==='lounge'?'♨':id==='stacks'?'▤':id==='terrace'?'✧':id.includes('stairs')?'↗':''}</span><b>{name}</b>{detail&&!/계단|층으로/.test(detail)&&<small>{detail}</small>}{zone===location&&<em>● 현재</em>}</button>)}
   </div>
   <div className="map-legend"><span>↑ 북쪽</span><span>─ 연결 동선</span><span>● 현재 공간</span></div>
   <p>{plan.notes}</p><p className="map-help">잔디 동산: Shift로 달리기, E로 눕기·일어나기, V로 하늘 보기. 모바일은 이동 조이스틱을 끝까지 밀면 달립니다. 공간 이름을 누르면 안전한 진입 지점으로 이동합니다.<br/>배치와 연결을 보여 주는 안내도이며 실제 축척과는 다릅니다.</p>

@@ -4,6 +4,7 @@ import {useFrame} from '@react-three/fiber'
 import {Text} from '@react-three/drei'
 import * as THREE from 'three'
 import GardenDetails from './GardenDetails'
+import {advanceGuardedDoor,entranceDoorBlocks} from './doorMotion'
 
 // v2.3 architectural facade, functional two-leaf door, and a small vestibule.
 // The world uses +Z for the garden and -Z for the central library.
@@ -28,9 +29,14 @@ function Window({x,y,z=11.55,w=1.7,h=2.45,arch=false}){return <group>
  </group>}
 function WallLamp({x,y,z,evening}){return <group><MeshBox p={[x,y,z]} s={[.18,.40,.18]} c={P.brass} metalness={.55}/><Column p={[x,y+.35,z+.16]} h={.56} r={.045} c={P.brass}/><mesh position={[x,y+.63,z+.18]}><sphereGeometry args={[.20,12,10]}/><meshStandardMaterial color="#ffe9b8" emissive="#ffd08d" emissiveIntensity={evening?2.5:.8}/></mesh><pointLight position={[x,y+.55,z+.48]} color="#ffd9a2" intensity={evening?4:.7} distance={5}/></group>}
 function Planter({x,z}){return <group><mesh position={[x,.43,z]} castShadow><cylinderGeometry args={[.38,.27,.86,12]}/><meshStandardMaterial color="#ad816a"/></mesh><Column p={[x,1.2,z]} h={.9} r={.055} c="#725c40"/>{Array.from({length:9},(_,i)=>{const a=i*2.399,r=.20+(i%3)*.17;return <Round key={i} p={[x+Math.cos(a)*r,1.45+(i%3)*.18,z+Math.sin(a)*r]} r={.24} c={i%4===0?'#88965e':P.green}/>})}</group>}
-function FrontDoor({open,onToggle}){
+function FrontDoor({open,onToggle,door,playerPosition}){
  const left=useRef(),right=useRef();
- useFrame((_,dt)=>{if(left.current)left.current.rotation.y=THREE.MathUtils.damp(left.current.rotation.y,open?1.24:0,3.2,dt);if(right.current)right.current.rotation.y=THREE.MathUtils.damp(right.current.rotation.y,open?-1.24:0,3.2,dt)});
+ useFrame((_,dt)=>{
+  door.open=open;advanceGuardedDoor(door,dt,playerPosition?.current,entranceDoorBlocks)
+  if(door.open!==open)onToggle(door.open)
+  if(left.current)left.current.rotation.y=door.amount*1.24
+  if(right.current)right.current.rotation.y=-door.amount*1.24
+ });
  const leaf=(side)=>{const isLeft=side==='left';return <group ref={isLeft?left:right} position={[isLeft?-1.33:1.33,0,11.66]} onPointerOver={()=>document.body.style.cursor='pointer'} onPointerOut={()=>document.body.style.cursor='auto'}>
   <group position={[isLeft ? .66 : -.66,0,0]}>
    <MeshBox p={[0,2.0,0]} s={[1.30,3.96,.17]} c={P.wood}/>
@@ -76,10 +82,10 @@ function Vestibule({evening}){return <group>
   <MeshBox p={[2.29,.36,9.2]} s={[.32,.65,.32]} c="#89725b"/>
   {/* Flush threshold with the vestibule paving, no raised sill. */}<MeshBox p={[0,-.025,11.16]} s={[2.75,.05,.85]} c="#aa8360"/>
  </group>}
-export default function ManorEntrance({open=false,onToggle=()=>{},season='spring',time='afternoon'}){
+export default function ManorEntrance({open=false,onToggle=()=>{},season='spring',time='afternoon',door,playerPosition}){
  const evening=time==='evening';
  const snow=season==='winter'||season==='christmas', autumn=season==='autumn'||season==='halloween';
- return <group><FrontDoor open={open} onToggle={onToggle}/><StaticBatch revision={season+evening}>
+ return <group><FrontDoor open={open} onToggle={onToggle} door={door} playerPosition={playerPosition}/><StaticBatch revision={season+evening}>
   {/* A level garden ground and a continuous stone footpath. The starting position is z=23. */}
   <MeshBox p={[-3.35,-.26,21.5]} s={[20.3,.32,25]} c="#788c65"/>
   <MeshBox p={[10.15,-.26,25.55]} s={[6.7,.32,16.9]} c="#788c65"/>

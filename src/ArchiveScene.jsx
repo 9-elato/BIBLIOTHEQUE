@@ -38,6 +38,9 @@ import Mezzanine from './Mezzanine'
 import {movePlayer,floorName} from './navigation'
 import {makeStacks,ROOM_SPOTS,zoneAt} from './layout'
 import {interactionAt} from './interactions'
+import {createHintScheduler} from './interactionScheduler'
+import {startInteractionTrace} from './interactionMetrics'
+import {toggleVerandaDoor} from './doorMotion'
 import PlacedBooks from './PlacedBooks'
 import LibraryDetails from './LibraryDetails'
 import MainRoomDetails from './MainRoomDetails'
@@ -46,7 +49,7 @@ import {startSitting,startStanding,advanceSeating} from './seating'
 
 const MOVE=['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight']
 const AtticGLB=lazy(()=>import('./AtticGLB'))
-function WalkControl({playerPosition,verandaDoor,blanket,onBlanket,glassDoor,studyDoor,onMusic,ladders,onExperience,onCloseSecret,mode,blocked,joy,books,onZone,teleport,character,heldBook,layout,entranceOpen,gateReady,gateOpening,onKey,onInteraction,onToggleEntrance,onOpenNotes,onGenre,onTravel,onRead,canPlace,onPlaceNearby,onSeatStatus}) {
+function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,glassDoor,studyDoor,onMusic,ladders,onExperience,onCloseSecret,mode,blocked,joy,books,onZone,teleport,character,heldBook,layout,entranceOpen,gateReady,gateOpening,onKey,onInteraction,onToggleEntrance,onOpenNotes,onGenre,onTravel,onRead,canPlace,onPlaceNearby,onSeatStatus}) {
   const {gl,scene}=useThree()
   const ray=useMemo(()=>new THREE.Raycaster(),[])
   const rayDirection=useMemo(()=>new THREE.Vector3(),[])
@@ -61,6 +64,7 @@ function WalkControl({playerPosition,verandaDoor,blanket,onBlanket,glassDoor,stu
   const lastSeatStatus=useRef('')
   const currentZone=useRef('')
   const lastHint=useRef('')
+  const hintScheduler=useMemo(()=>createHintScheduler(),[])
   const state=useRef({x:0,z:23,level:0,yaw:0,bodyYaw:0,pitch:0,keys:new Set(),pointer:null,lx:0,ly:0,seated:false})
   const tour=useRef(null)
   const status=useRef({})
@@ -75,7 +79,7 @@ function WalkControl({playerPosition,verandaDoor,blanket,onBlanket,glassDoor,stu
     return()=>{clearInterval(timer);window.removeEventListener('library-tour-start',start);window.removeEventListener('library-tour-stop',stop);window.removeEventListener('keydown',key)}
   },[])
   const bookcases=useMemo(()=>layout.sections.flatMap(section=>section.cases.map(c=>({x:c.x,z:c.z,genre:section.genre.id,slot:(c.number-1)*24}))),[layout])
-  status.current={onBlanket,gateOpening,blocked,mode,onKey,gateReady,onToggleEntrance,onOpenNotes,onGenre,entranceOpen,onTravel,onRead,bookcases,heldBook,canPlace,onPlaceNearby,world:{end:layout.end,gateReady,entranceOpen,ladders,studyDoor,glassDoor,verandaDoor}}
+  status.current={onMusic,onExperience,onBlanket,gateOpening,blocked,mode,onKey,gateReady,onToggleEntrance,onOpenNotes,onGenre,entranceOpen,onTravel,onRead,bookcases,heldBook,canPlace,onPlaceNearby,world:{end:layout.end,gateReady,entranceOpen,entranceDoor,ladders,studyDoor,glassDoor,verandaDoor}}
   const look=useMemo(()=>new THREE.Vector3(),[])
   const target=useMemo(()=>new THREE.Vector3(),[])
   useEffect(()=>{
@@ -100,38 +104,43 @@ function WalkControl({playerPosition,verandaDoor,blanket,onBlanket,glassDoor,stu
     const interact=()=>{
       const ui=status.current
       if(ui.blocked||ui.mode==='overview'||tour.current?.running)return
+      const trace=profiling?startInteractionTrace({now:()=>performance.now(),requestFrame:callback=>requestAnimationFrame(callback),visible:()=>document.visibilityState==='visible',publish:detail=>window.dispatchEvent(new CustomEvent('library-interaction-result',{detail}))},{x:s.x,z:s.z,level:s.level}):null
+      try{
       const action=interactionAt(s,ui)
+      trace?.resolved(action?.type)
+      hintScheduler.invalidate()
       if(!action)return
       s.keys.clear()
       if(action.type==='place')ui.onPlaceNearby?.(action.target)
       else if(action.type==='stand')s.seated=startStanding(s.seated,ui.world)
-      else if(action.type==='seat'){s.skyGaze=false;s.seated=startSitting(s,action.seat);s.yaw=-action.seat.turn-.4;s.pitch=0}
+      else if(action.type==='seat'){const sitting=startSitting(s,action.seat,ui.world);if(sitting){s.skyGaze=false;s.seated=sitting;s.yaw=-action.seat.turn-.4;s.pitch=0}}
       else if(action.type==='door'){
         // Do not swing the door through a visitor standing in its sweep.
         if(ui.entranceOpen&&s.z>10.1&&s.z<12.05&&Math.abs(s.x)<1.8)return
         ui.onToggleEntrance?.(!ui.entranceOpen)
       }
       else if(action.type==='gardenWater')window.dispatchEvent(new Event('greenhouse-water-toggle'))
-      else if(action.type==='glassDoor')toggleGlassDoor(glassDoor,s)
-      else if(action.type==='studyDoor')toggleStudyDoor(studyDoor,s)
+      else if(action.type==='glassDoor')toggleGlassDoor(ui.world.glassDoor,s)
+      else if(action.type==='studyDoor')toggleStudyDoor(ui.world.studyDoor,s)
       else if(action.type==='studyLamp')window.dispatchEvent(new Event('study-lamp-toggle'))
-      else if(action.type==='verandaDoor'){if(!verandaDoor.open||!(Math.abs(s.z+6.7)<.6&&Math.abs(s.x+10.2)<1.1))verandaDoor.open=!verandaDoor.open}
-      else if(action.type==='music')onMusic?.()
+      else if(action.type==='verandaDoor')toggleVerandaDoor(ui.world.verandaDoor,s)
+      else if(action.type==='music')ui.onMusic?.()
       else if(action.type==='ladder')toggleLadder(action.ladder)
-      else if(action.type==='telescope'||action.type==='board')onExperience(action.type)
-      else if(action.type==='minigame')onExperience(action.game)
+      else if(action.type==='telescope'||action.type==='board')ui.onExperience(action.type)
+      else if(action.type==='minigame')ui.onExperience(action.game)
       else if(action.type==='blanket')ui.onBlanket()
       else if(action.type==='key')ui.onKey?.()
       else if(action.type==='notes')ui.onOpenNotes?.()
       else if(action.type==='shelf')ui.onGenre?.(action.genre)
       else if(action.type==='travel')ui.onTravel?.(action.to)
       else if(action.type==='read')ui.onRead?.(ui.heldBook)
+      }finally{trace?.finish()}
     }
     const keyDown=e=>{
       const ui=status.current
       if(ui.blocked||ui.mode==='overview'||e.target?.matches?.('input,textarea,select,[contenteditable]'))return
       if(MOVE.includes(e.code)||e.code==='ShiftLeft'||e.code==='ShiftRight'){e.preventDefault();s.keys.add(e.code)}
-      if(e.code==='KeyV'&&!e.repeat&&s.seated?.seat.id==='meadow-rest')s.skyGaze=!s.skyGaze
+      if(e.code==='KeyV'&&!e.repeat&&['meadow-rest','terrace-sofa'].includes(s.seated?.seat.id))s.skyGaze=!s.skyGaze
       if(e.code==='KeyE'&&!e.repeat){e.preventDefault();interact()}
       if(e.code==='KeyF'&&!e.repeat&&!tour.current?.running){
         e.preventDefault()
@@ -154,7 +163,7 @@ function WalkControl({playerPosition,verandaDoor,blanket,onBlanket,glassDoor,stu
       s.lx=e.clientX;s.ly=e.clientY
     }
     const up=e=>{if(s.pointer===e.pointerId)s.pointer=null}
-    const skyView=()=>{if(s.seated?.seat.id==='meadow-rest')s.skyGaze=!s.skyGaze}
+    const skyView=()=>{if(['meadow-rest','terrace-sofa'].includes(s.seated?.seat.id))s.skyGaze=!s.skyGaze}
     window.addEventListener('library-meadow-sky',skyView)
     const posture=e=>{if(s.seated?.phase==='seated'&&s.seated.seat.id==='attic-daybed'){s.seated={...s.seated,posture:['lying','cinema'].includes(e.detail)?'lying':'sitting'};s.cinema=e.detail==='cinema';s.yaw=e.detail==='lying'?0:-s.seated.seat.turn-.4;s.pitch=0}}
     window.addEventListener('library-seat-pose',posture)
@@ -183,10 +192,10 @@ function WalkControl({playerPosition,verandaDoor,blanket,onBlanket,glassDoor,stu
     const direction=(positive,negative)=>Number(positive.some(key=>keys.has(key)))-Number(negative.some(key=>keys.has(key)))
     const front=active&&!blocked?direction(['KeyW','ArrowUp'],['KeyS','ArrowDown'])+(joy.y||0):0
     const side=active&&!blocked?direction(['KeyD','ArrowRight'],['KeyA','ArrowLeft'])+(joy.x||0):0
-    const world={end:layout.end,gateReady,entranceOpen,ladders,studyDoor,glassDoor,verandaDoor}
+    const world={end:layout.end,gateReady,entranceOpen,entranceDoor,ladders,studyDoor,glassDoor,verandaDoor}
     if(tour.current?.running&&!blocked){
       advanceFurnitureTour(tour.current,s,world,dt)
-      if(!tour.current.running)Object.assign(s,tour.current.saved,{seated:null})
+      if(!tour.current.running&&!tour.current.preservePosition)Object.assign(s,tour.current.saved,{seated:null})
     }
     advanceLadders(ladders,dt,s)
     if(s.level===0&&s.z<-15.5)visitedSecret.current=true
@@ -201,14 +210,16 @@ function WalkControl({playerPosition,verandaDoor,blanket,onBlanket,glassDoor,stu
       Object.assign(s,movePlayer(s,direction.x*step,direction.z*step,world))
       s.bodyYaw=facingForMovement(s.bodyYaw,s.x-beforeX,s.z-beforeZ,dt)
     }
-    const action=interactionAt(s,status.current)
+    const action=hintScheduler.next(dt,active&&!blocked,()=>interactionAt(s,status.current))
     const hint=active&&!blocked?(action?.label||''):''
-    if(hint!==lastHint.current){lastHint.current=hint;onInteraction?.(hint,action?.type||null)}
+    const hintKey=hint+'|'+(action?.type||'')
+    if(hintKey!==lastHint.current){lastHint.current=hintKey;onInteraction?.(hint,action?.type||null)}
     let visualY=s.level
     if(s.seated){
       const oldSeat=s.seated
-      const result=advanceSeating(oldSeat,dt)
+      const result=advanceSeating(oldSeat,dt,world)
       pose.current=result.pose
+      moving.current=moving.current||Boolean(result.pose.walking)
       s.x=result.pose.x;s.z=result.pose.z;visualY=result.pose.y
       avatar.current.rotation.y=result.pose.rotation
       s.seated=result.seating
@@ -222,7 +233,7 @@ function WalkControl({playerPosition,verandaDoor,blanket,onBlanket,glassDoor,stu
     avatar.current.rotation.x=pose.current.recline||0
     avatar.current.position.set(s.x,visualY*WORLD_HEIGHT_SCALE,s.z)
     Object.assign(playerPosition.current,{x:s.x,z:s.z,level:s.level})
-    const seatText=s.seated?`${s.seated.seat.label} · ${s.seated.phase==='entering'?'앉는 중':s.seated.phase==='leaving'?'일어나는 중':s.seated.seat.id==='meadow-rest'?'하늘 구경 중':s.seated.posture==='lying'?'누워 읽기':heldBook?'독서 중':'휴식 중'}`:''
+    const seatText=s.seated?`${s.seated.seat.label} · ${s.seated.transitionBlocked?'이동 공간 대기 중':s.seated.phase==='floorExit'?'안전한 경로로 나오는 중':s.seated.phase==='entering'?'앉는 중':s.seated.phase==='leaving'?'일어나는 중':s.seated.seat.id==='meadow-rest'?'하늘 구경 중':s.seated.posture==='lying'?'누워 읽기':heldBook?'독서 중':'휴식 중'}`:''
     if(seatText!==lastSeatStatus.current){lastSeatStatus.current=seatText;onSeatStatus?.(seatText)}
     const zone=s.z>32?'잔디 동산':floorName(s.x,s.z,s.level)||zoneAt(s.x,s.z)
     if(zone!==currentZone.current){currentZone.current=zone;onZone(zone)}
@@ -255,7 +266,7 @@ function WalkControl({playerPosition,verandaDoor,blanket,onBlanket,glassDoor,stu
     look.set(s.x+cameraSin*5,eye.y+s.pitch*5,s.z-cameraCos*5)
     if(mode==='third')look.set(s.x,eye.y+s.pitch*3,s.z)
     if(mode==='third'&&pose.current.recline>.1)look.copy(eye)
-    if(s.skyGaze&&s.seated?.seat.id==='meadow-rest'&&s.seated.phase==='seated'){camera.position.set(s.x,visualY+.35,s.z);look.set(s.x+Math.sin(s.yaw)*4,visualY+8,s.z-Math.cos(s.yaw)*4);avatar.current.visible=false}
+    if(s.skyGaze&&['meadow-rest','terrace-sofa'].includes(s.seated?.seat.id)&&s.seated.phase==='seated'){camera.position.set(s.x,visualY+.35,s.z);if(s.seated.seat.id==='terrace-sofa')look.set(s.x,visualY+8,s.z+4);else look.set(s.x+Math.sin(s.yaw)*4,visualY+8,s.z-Math.cos(s.yaw)*4);avatar.current.visible=false}
     if(s.cinema&&s.seated?.posture==='lying'){camera.position.copy(eye);look.set(ATTIC_SCREEN_TARGET[0],ATTIC_SCREEN_TARGET[1]*WORLD_HEIGHT_SCALE,ATTIC_SCREEN_TARGET[2])}
     const desiredFov=mode==='third'?73:69
     if(Math.abs(camera.fov-desiredFov)>.05){camera.fov=THREE.MathUtils.damp(camera.fov,desiredFov,7,dt);camera.updateProjectionMatrix()}
@@ -278,6 +289,7 @@ function Overhead({end}) {
 }
 function ArchiveScene({blanket,onBlanket,onMusic,onExperience,books=[],placements={},canPlace=false,onPlaceNearby,onPick,onGenre,mode='third',weather,time,blocked,joy,onZone,teleport,onDoor,character,heldBook,season,onOpenNotes,onInteraction,onRead,onSeatStatus}) {
   const playerPosition=useRef({x:0,z:23,level:0})
+  const entranceDoor=useMemo(()=>({open:false,amount:0}),[])
   const verandaDoor=useMemo(()=>({open:false,amount:0}),[])
   const glassDoor=useMemo(()=>({open:false,amount:0}),[])
   const studyDoor=useMemo(()=>({open:false,amount:0}),[])
@@ -309,19 +321,19 @@ function ArchiveScene({blanket,onBlanket,onMusic,onExperience,books=[],placement
     <hemisphereLight args={[light.sky,'#665b48',light.hemisphere]}/>
     <directionalLight color={light.sun} position={light.evening?[-18,11,9]:[-10,18,9]} intensity={light.direct}/>
     <group scale={[1,WORLD_HEIGHT_SCALE,1]}><EstateLandscape time={time} weather={weather}/><Basement time={time} visible={outside||map||['중앙 홀','서가','지하 계단','지하 숲 라운지','숲 온천'].includes(localZone)}/>
-    {!map&&<><WorldAdditions weather={weather} time={decorTime} entranceOpen={entranceOpen} onEntranceToggle={setEntranceOpen} season={season}/><Suspense fallback={null}><FacadeModel visible={outside} time={time} weather={weather}/></Suspense></>}
+    {!map&&<><WorldAdditions entranceDoor={entranceDoor} playerPosition={playerPosition} weather={weather} time={decorTime} entranceOpen={entranceOpen} onEntranceToggle={setEntranceOpen} season={season}/><Suspense fallback={null}><FacadeModel visible={outside} time={time} weather={weather}/></Suspense></>}
     {(showInterior||interiorLoaded)&&<group visible={showInterior}>
-    <SeaVeranda door={verandaDoor} time={time} weather={weather} onExperience={onExperience}/><GroundFloor event={season} sceneTime={time} heldBook={heldBook} map={map} layout={layout} weather={weather} time={decorTime} open={open} onKey={unlock} onReady={()=>setGateReady(true)} onGenre={onGenre} onPick={onPick} onNote={onOpenNotes}/>
+    <SeaVeranda playerPosition={playerPosition} door={verandaDoor} time={time} weather={weather} onExperience={onExperience}/><GroundFloor event={season} sceneTime={time} heldBook={heldBook} map={map} layout={layout} weather={weather} time={decorTime} open={open} onKey={unlock} onReady={()=>setGateReady(true)} onGenre={onGenre} onPick={onPick} onNote={onOpenNotes}/>
     {!map&&<>
-      <StaticBatch revision={decorTime}><Mezzanine time={decorTime}/></StaticBatch><group visible={upperVisible}><Greenhouse active={localZone==='실내 온실'} door={glassDoor} time={time} weather={weather} event={season}/></group><TallStacks layout={layout} ladders={ladders} time={time} weather={weather} event={season}/><InteractiveProps onOpen={onExperience} secretOpen={open}/>
+      <StaticBatch revision={decorTime}><Mezzanine time={decorTime}/></StaticBatch><group visible={upperVisible}><Greenhouse playerPosition={playerPosition} active={localZone==='실내 온실'} door={glassDoor} time={time} weather={weather} event={season}/></group><TallStacks layout={layout} ladders={ladders} time={time} weather={weather} event={season}/><InteractiveProps onOpen={onExperience} secretOpen={open}/>
       {!blanket&&<LoungeBlanket onClick={e=>{e.stopPropagation();onBlanket()}}/>}
       <StaticBatch><InteriorDetails/></StaticBatch><AtmosphereDetails time={time} weather={weather} event={season} secretOpen={open}/>
       <StaticBatch><LibraryDetails/></StaticBatch><MainRoomDetails layout={layout} time={decorTime} zone={localZone}/><StaticBatch revision={decorTime}><HallDetails time={decorTime}/></StaticBatch>
-      <SecretDetails open={open} prepare={localZone==='북쪽 복도'} time={decorTime}/><StudyRoom open={open} prepare={localZone==='북쪽 복도'} door={studyDoor} time={time} weather={weather} event={season} onNotes={onOpenNotes} onMusic={onMusic}/><PlacedBooks books={books} placements={placements} heldBook={heldBook} onPick={onPick}/>
+      <SecretDetails open={open} prepare={localZone==='북쪽 복도'} time={decorTime}/><StudyRoom playerPosition={playerPosition} open={open} prepare={localZone==='북쪽 복도'} door={studyDoor} time={time} weather={weather} event={season} onNotes={onOpenNotes} onMusic={onMusic}/><PlacedBooks books={books} placements={placements} heldBook={heldBook} onPick={onPick}/>
       {(nearAttic||atticLoaded)&&<group visible={nearAttic} position={[-11.45,0,0]} scale={[ATTIC_EXPANSION,1,1]}><group position={[11.45,0,0]}><Suspense fallback={null}><AtticGLB time={time} weather={weather} event={season}/></Suspense></group></group>}<PaperSpirits playerPosition={playerPosition}/>
     </>}
     </group>}</group><Weather weather={weather}/>
-    <WalkControl playerPosition={playerPosition} verandaDoor={verandaDoor} blanket={blanket} onBlanket={onBlanket} glassDoor={glassDoor} studyDoor={studyDoor} onMusic={onMusic} ladders={ladders} onExperience={onExperience} onCloseSecret={()=>{setOpen(false);setGateReady(false);studyDoor.open=false}} mode={mode} blocked={blocked} joy={joy} books={books} onZone={reportZone} teleport={teleport} character={character} heldBook={heldBook} layout={layout} entranceOpen={entranceOpen} gateReady={gateReady} gateOpening={open&&!gateReady} onKey={unlock} onInteraction={onInteraction} onToggleEntrance={setEntranceOpen} onOpenNotes={onOpenNotes} onGenre={onGenre} onTravel={onDoor} onRead={onRead} canPlace={canPlace} onPlaceNearby={onPlaceNearby} onSeatStatus={onSeatStatus}/>
+    <WalkControl entranceDoor={entranceDoor} playerPosition={playerPosition} verandaDoor={verandaDoor} blanket={blanket} onBlanket={onBlanket} glassDoor={glassDoor} studyDoor={studyDoor} onMusic={onMusic} ladders={ladders} onExperience={onExperience} onCloseSecret={()=>{setOpen(false);setGateReady(false);studyDoor.open=false}} mode={mode} blocked={blocked} joy={joy} books={books} onZone={reportZone} teleport={teleport} character={character} heldBook={heldBook} layout={layout} entranceOpen={entranceOpen} gateReady={gateReady} gateOpening={open&&!gateReady} onKey={unlock} onInteraction={onInteraction} onToggleEntrance={setEntranceOpen} onOpenNotes={onOpenNotes} onGenre={onGenre} onTravel={onDoor} onRead={onRead} canPlace={canPlace} onPlaceNearby={onPlaceNearby} onSeatStatus={onSeatStatus}/>
     <SceneBudget/>
     {profiling&&<FrameProfiler/>}
     {map&&<Overhead end={layout.end}/>}
