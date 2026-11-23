@@ -5,7 +5,7 @@ import {CarvedBox as B,Quill} from './StorybookDecor'
 import {DESKS} from './layout'
 
 function Pendant({p,color='#76543c',time,large=false,lit=false}){const r=large?1.12:.39;return <group position={p}>
- <B p={[0,.5,0]} s={[.035,1,.035]} c="#ad8c56" metal={.6}/>
+ <B p={[0,(large?7.6:2.8)/2,0]} s={[.035,large?7.6:2.8,.035]} c="#ad8c56" metal={.6}/>
  <mesh rotation={[Math.PI/2,0,0]}><torusGeometry args={[r,.045,8,40]}/><meshStandardMaterial color="#a98752" metalness={.65} roughness={.4}/></mesh>
  {Array.from({length:large?8:4},(_,i)=>{const a=i*Math.PI*2/(large?8:4);return <group key={i} position={[Math.cos(a)*r,0,Math.sin(a)*r]}>
   <B p={[0,.13,0]} s={[.07,.31,.07]} c="#c3a66c" metal={.4}/>
@@ -55,7 +55,7 @@ export default function MainRoomDetails({layout,time,zone}){
  <B p={[15.4,11.69,0]} s={[.22,2.78,11.7]} c="#cbb697"/>
  <B p={[(layout.end+STACKS_CEILING_START)/2,10.4,0]} s={[layout.end-STACKS_CEILING_START,.16,11.7]} c="#cbb697"/>
  {layout.sections.map(({genre,start,cases},i)=><group key={genre.id}>
-  <B p={[start,8.8,0]} s={[.16,.17,11.5]} c={genre.trim}/>
+  <B p={[start,10.29,0]} s={[.16,.17,11.5]} c={genre.trim}/>
   <Pendant p={[start,7.6,0]} color={genre.wood} time={time} lit={zone==='서가'&&i===nearest}/>
   {[-1].map(a=><group key={a}>
    <B p={[start,4.86,a*4.8]} s={[3.1,.10,.34]} c={genre.trim}/>

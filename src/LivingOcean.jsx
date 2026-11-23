@@ -1,3 +1,4 @@
+import {ambientUpdateDue} from './ambientUpdates'
 import React,{useMemo,useRef,useEffect} from 'react'
 import {useFrame} from '@react-three/fiber'
 import * as THREE from 'three'
@@ -7,8 +8,8 @@ export default function LivingOcean({w,h,time,weather}){
  const m=natureMood(time,weather),map=useMemo(()=>paintOcean(time,weather),[time,weather]),ref=useRef()
  useEffect(()=>()=>map.dispose(),[map])
  const uniforms=useMemo(()=>({base:{value:map},clock:{value:0},sky:{value:new THREE.Color(m.sky)},horizon:{value:new THREE.Color(m.horizon)},evening:{value:m.evening?1:0},storm:{value:m.wet?1:0}}),[map])
- useFrame(({clock})=>{uniforms.clock.value=clock.elapsedTime})
- return <mesh userData={{noBatch:true}} ref={ref}><planeGeometry args={[w,h]}/><shaderMaterial uniforms={uniforms} toneMapped={false} vertexShader="varying vec2 uvv;void main(){uvv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}" fragmentShader={`
+ useFrame(({clock})=>{if(ambientUpdateDue(ref.current,clock.elapsedTime,null))uniforms.clock.value=clock.elapsedTime})
+ return <mesh position={[0,0,-.4]} userData={{noBatch:true}} ref={ref}><planeGeometry args={[w,h]}/><shaderMaterial uniforms={uniforms} toneMapped={false} vertexShader="varying vec2 uvv;void main(){uvv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}" fragmentShader={`
  varying vec2 uvv;uniform sampler2D base;uniform float clock,evening,storm;uniform vec3 sky,horizon;
  float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
  float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+1.),f.x),f.y);}

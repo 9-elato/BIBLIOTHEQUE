@@ -1,3 +1,4 @@
+import {useOceanAudio} from './oceanAudio'
 import {THIRD_PERSON_ELEVATION} from './upperArchitecture'
 import DriftingClouds from './DriftingClouds'
 import {sceneLighting} from './natureMood'
@@ -22,7 +23,7 @@ import TallStacks from './TallStacks'
 import Greenhouse from './Greenhouse'
 import FacadeModel from './FacadeModel'
 import InteractiveProps from './InteractiveProps'
-import {makeLadders,advanceLadders,toggleLadder} from './ladderSystem'
+import {makeLadders,advanceLadders,toggleLadder,boardLadder,advanceRider} from './ladderSystem'
 import React,{lazy,Suspense,useEffect,useMemo,useRef,useState} from 'react'
 import {collectCameraObstacles} from './cameraOcclusion'
 import {Canvas,useFrame,useThree} from '@react-three/fiber'
@@ -36,7 +37,7 @@ import GroundFloor from './GroundFloor'
 import WorldAdditions from './WorldAdditions'
 import InteriorDetails from './InteriorDetails'
 import Mezzanine from './Mezzanine'
-import {movePlayer,floorName} from './navigation'
+import {movePlayer,floorName,walkHeight} from './navigation'
 import {makeStacks,ROOM_SPOTS,zoneAt} from './layout'
 import {interactionAt} from './interactions'
 import {createHintScheduler} from './interactionScheduler'
@@ -94,7 +95,7 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
       const s=state.current
       Object.assign(s,{x,z,level,yaw,bodyYaw:-yaw,pitch:0})
       cameraYaw.current=yaw
-      s.keys.clear();s.seated=null;pose.current={amount:0}
+      s.keys.clear();s.seated=null;if(s.ladder)s.ladder.item.occupied=false;s.ladder=null;pose.current={amount:0}
     }
   },[teleport])
   useEffect(()=>{
@@ -128,7 +129,8 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
       else if(action.type==='studyLamp')window.dispatchEvent(new Event('study-lamp-toggle'))
       else if(action.type==='verandaDoor')toggleVerandaDoor(ui.world.verandaDoor,s)
       else if(action.type==='music')ui.onMusic?.()
-      else if(action.type==='ladder')toggleLadder(action.ladder)
+      else if(action.type==='ladder')boardLadder(s,action.ladder,(x,z)=>walkHeight(x,z,0,ui.world)===0,(a,b)=>{const p=movePlayer(a,b.x-a.x,b.z-a.z,ui.world);return Math.hypot(p.x-b.x,p.z-b.z)<.01})
+      else if(action.type==='ladderExit'){s.ladder.phase='descending';s.ladder.blocked=false}
       else if(action.type==='telescope'||action.type==='board')ui.onExperience(action.type)
       else if(action.type==='minigame')ui.onExperience(action.game)
       else if(action.type==='blanket')ui.onBlanket()
@@ -239,12 +241,13 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
       if(!tour.current.running&&!tour.current.preservePosition)Object.assign(s,tour.current.saved,{seated:null})
     }
     advanceLadders(ladders,dt,s)
+    if(s.ladder)advanceRider(s,dt,front,side,(x,z)=>walkHeight(x,z,0,world)===0)
     if(s.level===0&&Math.abs(s.x)<7&&s.z<-15.5)visitedSecret.current=true
     if(visitedSecret.current&&s.x<7.65&&s.z>-13.1&&!tour.current?.running){visitedSecret.current=false;onCloseSecret()}
-    const len=s.seated||tour.current?.running?0:Math.hypot(front,side)
+    const len=s.seated||s.ladder||tour.current?.running?0:Math.hypot(front,side)
     const viewYaw=s.yaw+(s.seated&&mode==='first'?Math.PI:0)
     const sin=Math.sin(viewYaw),cos=Math.cos(viewYaw)
-    moving.current=len>.1||(tour.current?.running&&tour.current.phase==='approach')
+    moving.current=Boolean(s.ladder&&(Math.abs(front)+Math.abs(side)>.1||s.ladder.phase!=='climbing'))||len>.1||(tour.current?.running&&tour.current.phase==='approach')
     if(len>.1) {
       const step=(s.z>32&&(keys.has('ShiftLeft')||keys.has('ShiftRight')||Math.hypot(joy.x||0,joy.y||0)>.9)?6.4:3.6)*Math.min(dt,.05),direction=movementVector(viewYaw,front,side)
       const beforeX=s.x,beforeZ=s.z
@@ -267,7 +270,7 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
       s.bodyYaw=result.pose.rotation
       if(!s.seated){s.keys.clear()}
     }else{
-      pose.current={amount:0}
+      pose.current={amount:0,climbing:Boolean(s.ladder)}
       avatar.current.rotation.y=mode==='first'?-s.yaw:s.bodyYaw
     }
     avatar.current.rotation.order='YXZ'
@@ -276,7 +279,7 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
     Object.assign(playerPosition.current,{x:s.x,z:s.z,level:s.level})
     const seatText=s.seated?`${s.seated.seat.label} · ${s.seated.transitionBlocked?'이동 공간 대기 중':s.seated.phase==='floorExit'?'안전한 경로로 나오는 중':s.seated.phase==='entering'?'앉는 중':s.seated.phase==='leaving'?'일어나는 중':s.seated.seat.id==='meadow-rest'?'하늘 구경 중':s.seated.posture==='lying'?'누워 읽기':heldBook?'독서 중':'휴식 중'}`:''
     if(seatText!==lastSeatStatus.current){lastSeatStatus.current=seatText;onSeatStatus?.(seatText)}
-    const zone=s.z>32?'잔디 동산':floorName(s.x,s.z,s.level)||zoneAt(s.x,s.z)
+    const zone=s.ladder?'서가':s.z>32?'잔디 동산':floorName(s.x,s.z,s.level)||zoneAt(s.x,s.z,layout.end)
     if(zone!==currentZone.current){currentZone.current=zone;onZone(zone)}
     if(!active){avatar.current.visible=false;return}
     let follow=0
@@ -339,6 +342,7 @@ function ArchiveScene({blanket,onBlanket,onMusic,onExperience,books=[],placement
   const glassDoor=useMemo(()=>({open:false,amount:0}),[])
   const studyDoor=useMemo(()=>({open:false,amount:0}),[])
   const [localZone,setLocalZone]=useState('저택 정원')
+  useOceanAudio(localZone==='개인 작업실'||localZone==='바다 마루')
   const reportZone=zone=>{setLocalZone(zone);onZone(zone)}
   const outside=['저택 정원','현관','잔디 동산'].includes(localZone)
   const inGreenhouse=localZone==='실내 온실'
@@ -365,7 +369,7 @@ function ArchiveScene({blanket,onBlanket,onMusic,onExperience,books=[],placement
     <ambientLight color={light.evening?'#b9c5d4':'#f4f0e2'} intensity={light.ambient}/>
     <hemisphereLight args={[light.sky,'#665b48',light.hemisphere]}/>
     <directionalLight color={light.sun} position={light.evening?[-18,11,9]:[-10,18,9]} intensity={light.direct}/>
-    <group scale={[1,WORLD_HEIGHT_SCALE,1]}><EstateLandscape time={time} weather={weather}/><EastMeadow studyOpen={gateReady}/><Basement time={time} visible={outside||map||['중앙 홀','서가','지하 계단','지하 숲 라운지','숲 온천'].includes(localZone)}/>
+    <group scale={[1,WORLD_HEIGHT_SCALE,1]}><EstateLandscape time={time} weather={weather}/><EastMeadow studyOpen={gateReady} end={layout.end}/><Basement time={time} visible={outside||map||['중앙 홀','서가','지하 계단','지하 숲 라운지','숲 온천'].includes(localZone)}/>
     {!map&&<><WorldAdditions entranceDoor={entranceDoor} playerPosition={playerPosition} weather={weather} time={decorTime} entranceOpen={entranceOpen} onEntranceToggle={setEntranceOpen} season={season}/><Suspense fallback={null}><FacadeModel visible={outside} time={time} weather={weather}/></Suspense></>}
     {(showInterior||interiorLoaded)&&<group visible={showInterior}>
     <SeaVeranda playerPosition={playerPosition} door={verandaDoor} time={time} weather={weather} onExperience={onExperience}/><GroundFloor event={season} sceneTime={time} heldBook={heldBook} map={map} layout={layout} weather={weather} time={decorTime} open={open} onKey={unlock} onReady={()=>setGateReady(true)} onGenre={onGenre} onPick={onPick} onNote={onOpenNotes}/>

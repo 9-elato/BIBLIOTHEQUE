@@ -1,4 +1,3 @@
-import {STACKS_EXIT} from './eastMeadowLayout'
 import {HALL_ARCH,archInfillPoints,SECRET_BOOKCASE_SCALE,SECRET_BOOKCASE_TOP,CORRIDOR_TOP} from './groundArchitecture'
 import {cutFloor} from './basementLayout'
 import {advanceGate,gatePose} from './secretGate'
@@ -56,14 +55,15 @@ function Wall({x,z,w,d,h=5}) {
     <Box p={[x,h-.15,z]} s={[w+.06,.21,d+.06]} c="#8f6746"/>
   </group>
 }
-function Arch({x=0,z,turn=0,title}) {
+function Arch({x=0,z,turn=0,title,top=HALL_ARCH.wallTop}) {
   const curve=useMemo(()=>new THREE.CatmullRomCurve3(Array.from({length:31},(_,i)=>{
     const t=i*Math.PI/30
     return new THREE.Vector3(HALL_ARCH.halfWidth*Math.cos(t),HALL_ARCH.spring+HALL_ARCH.rise*Math.sin(t),0)
   })),[])
-  const infill=useMemo(()=>{const shape=new THREE.Shape(archInfillPoints().map(([x,y])=>new THREE.Vector2(x,y)));return new THREE.ExtrudeGeometry(shape,{depth:.28,bevelEnabled:false})},[])
+  const infill=useMemo(()=>{const shape=new THREE.Shape(archInfillPoints().map(([x,y])=>new THREE.Vector2(x,y===HALL_ARCH.wallTop?top:y)));return new THREE.ExtrudeGeometry(shape,{depth:.28,bevelEnabled:false})},[top])
   useEffect(()=>()=>infill.dispose(),[infill])
   return <group position={[x,0,z]} rotation={[0,turn,0]}>
+    <Box p={[0,top-.07,0]} s={[4.4,.14,.9]} c={cream}/>
     <mesh geometry={infill} position={[0,0,-.14]} receiveShadow><meshStandardMaterial color={cream} roughness={.85}/></mesh>
     {[-2.02,2.02].map(a=><group key={a}><Box p={[a,2.17,0]} s={[.33,4.34,.39]} c="#976d48"/><Box p={[a,.16,0]} s={[.54,.32,.54]}/><Box p={[a,4.31,0]} s={[.46,.22,.51]} c={gold}/></group>)}
     <mesh><tubeGeometry args={[curve,36,.15,10,false]}/><meshStandardMaterial color="#a78059"/></mesh>
@@ -168,10 +168,16 @@ function Stacks({layout,onGenre,onPick,heldBook}) {
   const w=layout.end-7.15,x=7.15+w/2
   return <group>
     <Floor opening x={x} z={0} w={w} d={11.65} c="#825e43"/>
-    <Wall x={x} z={5.85} w={w} d={.26} h={10.3}/>
-    {[[7.15,STACKS_EXIT.x-STACKS_EXIT.width/2],[STACKS_EXIT.x+STACKS_EXIT.width/2,layout.end]].map(([a,b])=><Wall key={a} x={(a+b)/2} z={STACKS_EXIT.z} w={b-a} d={.26} h={10.3}/>)}
-    <Box p={[STACKS_EXIT.x,6.6,STACKS_EXIT.z]} s={[STACKS_EXIT.width,7.4,.26]} c={cream}/>
-    <Wall x={layout.end+.1} z={0} w={.28} d={11.8} h={10.3}/>
+    <Wall x={x-.5} z={5.85} w={w-1} d={.26} h={10.3}/>
+    <Wall x={x-.5} z={-5.85} w={w-1} d={.26} h={10.3}/>
+    <Floor x={layout.end+3.5} z={0} w={9} d={24}/>
+    {[-12,12].map(z=><Wall key={z} x={layout.end+3.5} z={z} w={9} d={.26} h={10.3}/>)}
+    {[-1,1].map(a=><group key={a}>
+      <Wall x={layout.end-1} z={a*8.9} w={.26} d={6.2} h={10.3}/>
+      <Wall x={layout.end+8} z={a*7.1} w={.26} d={9.8} h={10.3}/>
+    </group>)}
+    <group position={[layout.end+8,0,0]} scale={[1,1,1.24]}><Arch z={0} turn={-Math.PI/2} title="동쪽 잔디 들판" top={10.3}/></group>
+    <Box p={[layout.end+3.5,10.4,0]} s={[9,.16,24]} c={cream}/>
     {DESKS.map(([a,z])=><Desk key={a+'/'+z} x={a} z={z}/>)}
     {layout.sections.map(({genre,cases,start})=><group key={genre.id}>
       <Rug x={start} z={0} w={2.45} d={3.45} c={genre.wood}/>

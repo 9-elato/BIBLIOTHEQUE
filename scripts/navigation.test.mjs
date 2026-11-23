@@ -1,12 +1,12 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {STAIRS,stairPoint,movePlayer,walkHeight,FURNITURE,GALLERY_HEIGHT,ATTIC_HEIGHT} from '../src/navigation.js'
-import {STACKS_EXIT,STUDY_EXIT} from '../src/eastMeadowLayout.js'
+import {STUDY_EXIT} from '../src/eastMeadowLayout.js'
 
 test('east meadow exits work both ways and respect the secret passage lock',()=>{
  const world={end:45,gateReady:true,entranceOpen:true}
  const paths=[
-  [[STACKS_EXIT.x,-4],[STACKS_EXIT.x,-8]],
+  [[world.end+6,0],[world.end+10,0]],
   [[4,STUDY_EXIT.z],[9,STUDY_EXIT.z]],
  ]
  for(const [a,b] of paths)for(const [[x,z],[tx,tz]] of [[a,b],[b,a]]){

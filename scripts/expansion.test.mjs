@@ -9,7 +9,7 @@ const world={end:45,gateReady:true,entranceOpen:true}
 test('rail ladder reaches both stops, stops for a visitor and blocks walking',()=>{
  const [l]=makeLadders(makeStacks([]));toggleLadder(l)
  for(let i=0;i<100;i++)advanceLadders([l],.1,{x:0,z:0,level:0})
- assert.equal(l.x,l.max);assert.equal(l.moving,false);assert.equal(l.climb.enabled,false)
+ assert.equal(l.x,l.max);assert.equal(l.moving,false);assert.equal(l.climb.enabled,true)
  toggleLadder(l);for(let i=0;i<100;i++)advanceLadders([l],.1,{x:0,z:0,level:0})
  assert.equal(l.x,l.min)
  toggleLadder(l);advanceLadders([l],.1,{x:l.x+.4,z:l.z,level:0})

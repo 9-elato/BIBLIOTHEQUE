@@ -20,7 +20,7 @@ export default function SecretDetails({open,prepare=false,time}){
    <Folios p={[a*5.55,1.22,-28.8]}/><Folios p={[a*5.55,1.91,-28.8]}/>
   </group>)}
   <ReadingChair item={STUDY_CHAIR}/>
-  <AntiqueLamp p={[-4.6,0,-24.1]} time={time}/>
+  <AntiqueLamp p={[-2.8,0,-24.1]} time={time}/>
 
 
  </StaticBatch></group>

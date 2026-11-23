@@ -28,8 +28,8 @@ test('shelf growth preserves all books and extends walkable space',()=>{
   assert.equal(full.sections[0].cases.flatMap(c=>c.books).length,49)
   assert.ok(full.end>empty.end)
   assert.equal(canWalk(full.end-1.1,0,{end:full.end}),true)
-  assert.equal(canWalk(full.end-.5,0,{end:full.end}),false)
-  assert.equal(canWalk(full.end+.5,0,{end:full.end}),false)
+  assert.equal(canWalk(full.end-.5,0,{end:full.end}),true)
+  assert.equal(canWalk(full.end+.5,0,{end:full.end}),true)
 })
 test('closed entrance prevents walking through the door',()=>{
   assert.equal(canWalk(0,12,{end:45,entranceOpen:false}),false)

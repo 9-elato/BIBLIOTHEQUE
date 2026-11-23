@@ -1,3 +1,4 @@
+import {wingWalk} from './stacksLayout.js'
 import {archBlocks} from './groundArchitecture.js'
 import {inMeadow,meadowHeight} from './meadowLayout.js'
 import {eastMeadowWalk,inEastMeadow} from './eastMeadowLayout.js'
@@ -70,11 +71,13 @@ const SOLIDS = [
   [-13.8,-5.9,4.3,1.4],[-16.35,-5.8,1.3,.8],
   [-13.4,.15,1.75,.85],
   [-3.1,-14.4,3.05,1], [3.1,-14.4,3.05,1],
-  [0,-28.75,13.7,.9],[-6.45,-24.8,.92,7.9]
+  [0,-28.45,13.7,1.5],[-6.15,-25.25,1.5,7.0]
 ]
 
 export function canWalk(x,z,{end,gateReady,entranceOpen,verandaDoor}) {
-  const meadow=eastMeadowWalk(x,z,gateReady)
+  const wing=wingWalk(x,z,end)
+  if(wing!==null)return wing
+  const meadow=eastMeadowWalk(x,z,gateReady,end)
   if(meadow!==null)return meadow
   if(archBlocks(x,z))return false
   if(x < -8.8 && z < -6.35){
@@ -106,8 +109,8 @@ export function canWalk(x,z,{end,gateReady,entranceOpen,verandaDoor}) {
   return !SOLIDS.some(([cx,cz,w,d]) => Math.abs(x-cx)<w/2+.22 && Math.abs(z-cz)<d/2+.22)
 }
 
-export function zoneAt(x,z) {
-  if(inEastMeadow(x,z))return '동쪽 잔디 들판'
+export function zoneAt(x,z,end) {
+  if(inEastMeadow(x,z,end)||(end&&x>end+8&&x<Math.max(80,end+14)&&z>-34&&z<4))return '동쪽 잔디 들판'
   if (z > 32) return '잔디 동산'
   if (z > 12.2) return '저택 정원'
   if (z > 7.1) return '현관'

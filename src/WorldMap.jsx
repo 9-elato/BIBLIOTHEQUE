@@ -1,14 +1,14 @@
 import React,{useId} from 'react'
 import {STAIRS} from './navigation'
 import {GREENHOUSE_REGIONS,FOUNTAIN,POND} from './greenhouseLayout'
-import {EAST_MEADOW,STACKS_EXIT,STUDY_EXIT} from './eastMeadowLayout'
+import {EAST_MEADOW,STUDY_EXIT} from './eastMeadowLayout'
 import {BASEMENT_BOUNDS,BASEMENT_PORTAL,SPRING_WALK_REGION,SPRING_POOL} from './basementLayout'
 import {atticX,ATTIC_TERRACE_BOUNDS} from './atticLayout'
 
 const room=(id,name,space,label,kind='room')=>({id,name,space,label,kind})
 function floors(end){
  return [
-  {bounds:[-23,end+3,-37,40],rooms:[
+  {bounds:[-23,Math.max(80,end+14),-37,40],rooms:[
    room('eastmeadow','동쪽 잔디 들판',EAST_MEADOW,[27,-23],'outdoor'),
    room('meadow','잔디 동산',[-12.8,12.8,33.5,39],[0,37],'outdoor'),
    room('estate','정원 산책로',[-12.8,12.8,12.25,33.5],[0,25],'outdoor'),
@@ -16,11 +16,12 @@ function floors(end){
    room('veranda','바다 마루',[-20.5,-8.9,-14.1,-6.6],[-15,-11],'water'),
    room('main','중앙 홀',[-7.5,7.5,-6.8,7.2],[1,-2]),
    room('stacks','서가',[7.5,end,-5.85,5.85],[25,0]),
+   room('stacks','서가 확장',[end-1,end+8,-12,12],[end+3.5,0]),
    room('vestibule','현관',[-2.8,2.8,7.2,12.25],[0,9.6]),
    room('corridor','북쪽 복도',[-2.24,2.24,-14.7,-6.8],[0,-10.8]),
    room(null,'개인 작업실',[-7.23,7.23,-29.6,-19],[0,-24.4]),
    room(null,'비밀 통로',[-1.46,1.46,-19,-14.7],null),
-  ],doors:[[[-1.8,-6.8],[1.8,-6.8]],[[-7.5,-1.9],[-7.5,1.9]],[[7.5,-1.9],[7.5,1.9]],[[-1.2,7.2],[1.2,7.2]],[[-1.2,12.25],[1.2,12.25]],[[STACKS_EXIT.x-.77,STACKS_EXIT.z],[STACKS_EXIT.x+.77,STACKS_EXIT.z]],[[STUDY_EXIT.x,STUDY_EXIT.z-1],[STUDY_EXIT.x,STUDY_EXIT.z+1]]],
+  ],doors:[[[-1.8,-6.8],[1.8,-6.8]],[[-7.5,-1.9],[-7.5,1.9]],[[7.5,-1.9],[7.5,1.9]],[[-1.2,7.2],[1.2,7.2]],[[-1.2,12.25],[1.2,12.25]],[[end+8,-2.5],[end+8,2.5]],[[STUDY_EXIT.x,STUDY_EXIT.z-1],[STUDY_EXIT.x,STUDY_EXIT.z+1]]],
   links:[['stairs','중앙 계단'],['basementstairs','지하 계단'],['garden-west','서쪽 정원 벤치'],['garden-east','동쪽 정원 벤치']]},
   {bounds:[-12,22,-26,9],rooms:[
    ...GREENHOUSE_REGIONS.map((rect,i)=>room('greenhouse','실내 온실',rect,i===0?[0,-18.8]:null,'glass')),

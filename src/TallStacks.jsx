@@ -25,7 +25,7 @@ function BookRows({offset=0,rows=6}){
 }
 export default function TallStacks({layout,ladders,time,weather,event}){
  return <group><ForestReadingNook time={time} weather={weather}/><StaticBatch revision={layout}>
- {[-3.25,0,3.25].map(z=><group key={z} position={[layout.end-.25,0,z]} rotation={[0,-Math.PI/2,0]}>
+ {[-9,-5.7,5.7,9].map(z=><group key={z} position={[layout.end+7.55,0,z]} rotation={[0,-Math.PI/2,0]}>
   <B p={[0,4.4,-.2]} s={[3.1,8.8,.22]} c="#654632"/>
   {Array.from({length:12},(_,k)=><B key={k} p={[0,.35+k*.75,.06]} s={[3.2,.1,.7]} c="#aa8757"/>)}
   <BookRows/><group position={[0,-4.1,0]}><BookRows rows={5}/></group>

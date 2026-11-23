@@ -52,7 +52,7 @@ export const FURNITURE=[
  ...CONSERVATORY_SOLIDS.map(s=>({...s,floor:GALLERY_HEIGHT})),
 
   {floor:0,rect:[-4.44,-3.16,-25.52,-24.48],id:'study-chair'},
-  {floor:0,rect:[-4.9,-4.3,-24.4,-23.8],id:'study-lamp'},
+  {floor:0,rect:[-3.1,-2.5,-24.4,-23.8],id:'study-lamp'},
   ...GARDEN_SOLIDS.map(s=>({...s,floor:0})),
   ...[[-17.9,-3.3],[-8.25,4.9]].map(([x,z])=>({floor:0,rect:[x-.28,x+.28,z-.28,z+.28],id:'lounge-lamp'})),
   {floor:0,rect:[-2,2,.45,3.05],id:'central-table'},

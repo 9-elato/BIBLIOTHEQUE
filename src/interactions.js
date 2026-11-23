@@ -10,6 +10,7 @@ import {canToggleGlassDoor} from './greenhouseLayout.js'
 
 export function interactionAt(s, {entranceOpen, gateReady, gateOpening=false, bookcases=[], heldBook, canPlace=false,world}) {
   const near = (x,z,r=1.8) => Math.hypot(s.x-x,s.z-z)<r
+  if(s.ladder)return {type:'ladderExit',label:s.ladder.blocked?'하차 공간 대기 중':'W/S 오르내리기 · A/D 레일 사다리 이동 · E 내려오기'}
   if (s.seated) {
     if(s.seated.transitionBlocked)return {type:'wait',label:'이동 공간이 막혀 잠시 멈췄습니다 · 공간이 비면 이어집니다'}
     return s.seated.phase&&s.seated.phase!=='seated'?null:{type:'stand',label:s.seated.exitBlocked?'하차 공간이 막혀 있습니다 · 공간을 비운 뒤 다시 시도':heldBook?'책을 들고 일어나기':'일어나기'}
@@ -33,7 +34,7 @@ export function interactionAt(s, {entranceOpen, gateReady, gateOpening=false, bo
   if(Math.abs(s.level-ATTIC_HEIGHT)<.1&&near(atticX(-17.25),4.6,1.8))return {type:'telescope',label:'망원경으로 별과 달 보기'}
   if(s.level===0&&near(-13.4,.15,2))return {type:'board',label:'별자리 삼목 시작'}
   const ladder=s.level===0?world?.ladders?.find(l=>near(l.x,l.z,1.9)):null
-  if(ladder)return {type:'ladder',ladder,label:ladder.moving?'사다리 멈추기':'황동 레일 사다리 이동'}
+  if(ladder)return {type:'ladder',ladder,label:'사다리 타기 · 탑승 후 A/D 레일 사다리 이동'}
   if(heldBook&&canPlace){
     const table=TABLES.find(t=>Math.abs(s.level-t.level)<.1&&near(t.x,t.z,t.id==='central'?3.2:2.3))
     if(table)return {type:'place',label:`${table.name}에 책 놓기`,target:{kind:'table',tableId:table.id,slot:0}}
