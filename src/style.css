@@ -187,3 +187,5 @@ canvas { touch-action:none; }
 .plan-floor-0 .plan-stairs b,.plan-floor-0 .plan-basementstairs b,.plan-floor-0 .plan-stairs em,.plan-floor-0 .plan-basementstairs em{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
 .plan-floor-0 .plan-stairs,.plan-floor-0 .plan-basementstairs{padding:0;min-width:0;background:repeating-linear-gradient(0deg,#ead9b8 0 9px,#bfa37a 10px 11px)}
 .plan-floor-0 .plan-stairs .plan-symbol,.plan-floor-0 .plan-basementstairs .plan-symbol{font-size:14px}
+
+.spine-preview{display:flex;align-items:center;gap:1rem}.spine-preview img{max-width:110px;max-height:220px;object-fit:contain}.edit-grid button:disabled{opacity:.55;cursor:wait}

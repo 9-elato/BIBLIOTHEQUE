@@ -1,3 +1,4 @@
+import {spineSource} from './bookMetadata'
 import React,{useEffect,useState} from 'react'
 import {TextureLoader,SRGBColorSpace} from 'three'
 import {normalizeCoverUrl} from './coverUrl'
@@ -11,7 +12,7 @@ export function CoverImage({url,title='',className='',onStatus}){
 
 // Do not suspend the entire scene on an external image; preserve the book on failure.
 export function BookCoverMesh({url,position=[0,0,0],rotation=[0,0,0],size=[.3,.4]}){
- const src=normalizeCoverUrl(url),[loaded,setLoaded]=useState(null)
+ const src=spineSource(url)||normalizeCoverUrl(url),[loaded,setLoaded]=useState(null)
  useEffect(()=>{
   if(!src)return
   let live=true

@@ -1,3 +1,4 @@
+import {shelfImage} from './bookMetadata'
 import {HALL_ARCH,archInfillPoints,SECRET_BOOKCASE_SCALE,SECRET_BOOKCASE_TOP,CORRIDOR_TOP} from './groundArchitecture'
 import {cutFloor} from './basementLayout'
 import {advanceGate,gatePose} from './secretGate'
@@ -147,7 +148,7 @@ function Bookcase({item,genre,onGenre,onPick,heldBook}) {
         return <group key={i} position={[(i-2.5)*.373,y+h/2,.15]} {...click(book?()=>onPick(book.id):null)}>
           <Box p={[0,0,0]} s={[.3,h,.35]} c={book?.color||covers[(i+row)%covers.length]}/>
           <Box p={[0,h*.23,.178]} s={[.255,.025,.014]} c={book?gold:'#a18262'} metal={book ? .45 : 0}/>
-          {book?.cover&&<BookCoverMesh url={book.cover} position={[0,0,.196]} size={[.28,h-.02]}/>}
+          {shelfImage(book)&&<BookCoverMesh url={shelfImage(book)} position={[0,0,.196]} size={[.28,h-.02]}/>}
           {book&&<Round p={[0,-h*.23,.182]} r={.034} scale={[1,1,.28]}/>}
         </group>
       })}

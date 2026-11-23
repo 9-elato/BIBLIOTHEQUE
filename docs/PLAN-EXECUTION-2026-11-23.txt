@@ -69,3 +69,10 @@ Rocks and shared solar lighting
 - Shared normalized sun direction for sky disc, shadow light and ocean specular. Added morning/noon alongside afternoon/evening per latest request.
 - Two cloud scales with independent drift and varying opacity; horizon fade retained.
 - Validation: 145 tests pass; production build and asset checks pass. Existing large-bundle warning remains. Actual browser shader rendering, visual review and FPS have not been measured.
+
+
+Book metadata and spine uploads
+- Half-star selection 1..5 (0 remains unrated); translator, publisher, page count and keywords fields/detail/search.
+- JPG signature validation, 10MB input limit, resize to 768px JPEG and persist with book. Shelf prefers spine; held/table books retain cover URL. Quota failure retains editor.
+- Supabase schema and existing-install migration added at supabase/book-metadata-migration.sql. No live database connection available; migration not executed remotely.
+- 149 tests and production build passed. Browser upload/rendering not visually verified.
