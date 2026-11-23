@@ -2,6 +2,7 @@
 export const ATTIC_EXPANSION=1.12
 export const atticX=x=>-11.45+(x+11.45)*ATTIC_EXPANSION
 export const originalAtticX=x=>-11.45+(x+11.45)/ATTIC_EXPANSION
+export const ATTIC_TERRACE_BOUNDS=[atticX(-19.5),atticX(-11.65),6.35,10.8]
 
 // Shared architectural elevations after the attic headroom extension.
 export const ATTIC_SHELL_SCALE=1.25
@@ -13,7 +14,9 @@ export const atticRoofY=x=>ATTIC_RIDGE-Math.abs(x)*(ATTIC_RIDGE-ATTIC_EAVE)/ATTI
 export const ATTIC_SCREEN=[2.2,6.4,-.4]
 export const ATTIC_SCREEN_SLOPE=(ATTIC_RIDGE-ATTIC_EAVE)/ATTIC_HALF_WIDTH
 export const ATTIC_SCREEN_TARGET=[atticX(-15.6+ATTIC_SCREEN[0]),10.6+ATTIC_SCREEN[1],ATTIC_SCREEN[2]]
-export function replaceAtticEndWall(name,z){return /^WALL.*end/.test(name)&&z>6}
+export function replaceAtticEndWall(name,z){
+ return (/^WALL.*end/.test(name)&&z>6)||/^WINDOW · (rear|vertical mullion)/.test(name)||/^GABLE.*-6\.64$/.test(name)
+}
 export function atticArchitecture(name){return /^(ROOF|RAFTER|WALL|WINDOW|SKYLIGHT)/.test(name)}
 
 export const ATTIC_MOBILE=[0,6.7,3.8]

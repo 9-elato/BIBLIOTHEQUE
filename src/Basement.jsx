@@ -57,5 +57,5 @@ export default function Basement({time,visible=true}){return <group>
  <B p={[23,H+.45,-.7]} s={[2.5,.12,.75]} c="#806b50"/>{[22,24].map(x=><B key={x} p={[x,H+.23,-.7]} s={[.12,.46,.65]} c="#5c4937"/>)}
  {[22.5,23].map(x=><Soft key={x} p={[x,H+.56,-.7]} s={[.42,.12,.54]} c="#aba994" r={.04}/>)}
 
- </StaticBatch><ForestSpring time={time}/></group>
+ </StaticBatch><ForestSpring time={time} active={visible}/></group>
  </group>}

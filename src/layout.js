@@ -1,5 +1,6 @@
 import {archBlocks} from './groundArchitecture.js'
 import {inMeadow,meadowHeight} from './meadowLayout.js'
+import {eastMeadowWalk,inEastMeadow} from './eastMeadowLayout.js'
 import {atticX} from './atticLayout.js'
 export const GENRES = [
   { id:'literature', name:'문학', categories:['소설','희곡','시·에세이','시','에세이','기타'], wood:'#4c2c20', trim:'#865437', plate:'#b99150' },
@@ -15,7 +16,8 @@ export function genreOf(category) {
 }
 
 export const ROOM_SPOTS = {
-  terrace:[-13.2,8,10.6,0],basement:[14,-3.4,-5.2,0],bathroom:[19.3,0,-5.2,Math.PI],basementstairs:[3,-4.8,0,-Math.PI/2],
+  eastmeadow:[21,-19,0,Math.PI/2],
+  terrace:[-13.2,8,10.6,0],basement:[14,-2.9,-5.2,-2.75],bathroom:[19.3,0,-5.2,2.7],basementstairs:[3,-4.8,0,-Math.PI/2],
   veranda:[-10.2,-8.5,0,0], greenhouse:[0,-6,7.2,0], vestibule:[0,9.3,0,0], 'garden-west':[-5.6,17.75,0,Math.PI], 'garden-east':[5.6,23.75,0,Math.PI],
   meadow:[0,48,meadowHeight(0,48),Math.PI], estate:[0,23,0,0], main:[0,5.5,0,0], lounge:[-8.8,0,0,-Math.PI/2],
   stacks:[8.4,0,0,Math.PI/2], corridor:[0,-9,0,0], secret:[0,-20,0,0],
@@ -72,6 +74,8 @@ const SOLIDS = [
 ]
 
 export function canWalk(x,z,{end,gateReady,entranceOpen,verandaDoor}) {
+  const meadow=eastMeadowWalk(x,z,gateReady)
+  if(meadow!==null)return meadow
   if(archBlocks(x,z))return false
   if(x < -8.8 && z < -6.35){
     if(z > -7.15)return Math.abs(x+10.2)<.64 && verandaDoor?.open && (verandaDoor?.amount??0)>.85
@@ -103,6 +107,7 @@ export function canWalk(x,z,{end,gateReady,entranceOpen,verandaDoor}) {
 }
 
 export function zoneAt(x,z) {
+  if(inEastMeadow(x,z))return '동쪽 잔디 들판'
   if (z > 32) return '잔디 동산'
   if (z > 12.2) return '저택 정원'
   if (z > 7.1) return '현관'

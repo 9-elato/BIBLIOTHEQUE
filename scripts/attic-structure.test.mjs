@@ -13,7 +13,8 @@ test('attic gables share raised roof height and screen stays below both roof slo
 test('actual GLB rear piers are replaced and every rafter follows the raised architecture',()=>{
  const bytes=fs.readFileSync(new URL('../public/models/starlight_attic.glb',import.meta.url));const gltf=JSON.parse(bytes.subarray(20,20+bytes.readUInt32LE(12)))
  const rear=gltf.nodes.filter(n=>replaceAtticEndWall(n.name||'',n.translation?.[2]||0))
- assert.equal(rear.length,4)
+ assert.ok(rear.some(n=>n.name.startsWith('GABLE')))
+ assert.ok(rear.some(n=>n.name.includes('rear glazed opening')))
  assert.ok(rear.some(n=>n.name.includes('opening pier')))
  const rafters=gltf.nodes.filter(n=>n.name?.startsWith('RAFTER'))
  assert.ok(rafters.length>=8);assert.ok(rafters.every(n=>atticArchitecture(n.name)))

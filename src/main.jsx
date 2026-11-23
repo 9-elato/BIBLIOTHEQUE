@@ -1,3 +1,4 @@
+import CatPaw from './CatPaw'
 import CinemaControls from './CinemaControls'
 import {localDateKey} from './activityRecords'
 import LibraryActivity from './LibraryActivity'
@@ -8,7 +9,7 @@ import useReadingTime from './useReadingTime'
 import Experiences from './Experiences'
 import React,{useState,useEffect,useMemo,useRef} from 'react'
 import {createRoot} from 'react-dom/client'
-import {Footprints,BookOpen,Film,Plane,NotebookPen,Music2,Users,Settings,Sun,CloudRain,Moon,Search,X,Plus,Check,Copy,ArrowLeft,BarChart3,MessageCircle,Save,Trash2,ExternalLink,Eye,Navigation,DoorOpen,Home,Library,Lock,Map,ChevronDown,ChevronUp} from 'lucide-react'
+import {BookOpen,Film,Plane,NotebookPen,Music2,Users,Settings,Sun,CloudRain,Moon,Search,X,Plus,Check,Copy,ArrowLeft,BarChart3,MessageCircle,Save,Trash2,ExternalLink,Eye,Navigation,DoorOpen,Home,Library,Lock,Map,ChevronDown,ChevronUp} from 'lucide-react'
 import {createClient} from '@supabase/supabase-js'
 import ArchiveScene from './ArchiveScene'
 import SceneBoundary from './SceneBoundary'
@@ -19,7 +20,7 @@ import {CoverImage} from './BookCover'
 import {normalizeCoverUrl} from './coverUrl'
 import {firstEmptySlot,TABLES} from './placements'
 import {DEMO_BOOKS,CATEGORIES,STATUSES} from './data'
-import {GENRES,genreOf} from './layout'
+import {GENRES,genreOf,makeStacks} from './layout'
 import './style.css'
 const db=import.meta.env.VITE_SUPABASE_URL&&import.meta.env.VITE_SUPABASE_ANON_KEY?createClient(import.meta.env.VITE_SUPABASE_URL,import.meta.env.VITE_SUPABASE_ANON_KEY):null
 const OWNER=import.meta.env.VITE_OWNER_UID
@@ -43,24 +44,27 @@ function App(){const [blanket,setBlanket]=useState(false);const [experience,setE
  async function saveBook(book){if(!owner)return;if(db){const {error}=await db.from('books').upsert({...book,completed:book.completed||null});if(error)return alert('저장 실패: '+error.message);const {data}=await db.from('books').select('*').order('created_at',{ascending:true});if(data)setBooks(data)}else setBooks(b=>[...b.filter(x=>x.id!==book.id),book]);setSelected(book.id);setAdding(false);setEditing(false)}
  async function deleteBook(id){if(!owner)return;if(db){const {error}=await db.from('books').delete().eq('id',id);if(error)return alert(error.message)}setBooks(b=>b.filter(x=>x.id!==id));if(heldBook===id)setHeldBook(null);setSelected(null);setEditing(false)}
  const close=()=>{setSelected(null);setAdding(false);setEditing(false);setPanel('')};async function copyText(t){try{await navigator.clipboard.writeText(t);setCopyDone(true);setTimeout(()=>setCopyDone(false),1800)}catch{window.prompt('아래 내용을 복사해 주세요',t)}}
- const page=(p)=>{stopJoy();setMapOpen(false);setShelfGenre(null);setPanel(p);setSelected(null);setAdding(false);setMobile(false)};const jump=(p)=>{stopJoy();setTeleport(t=>({room:p,seq:t.seq+1}));setMode('third');setMapOpen(false);close()};const openGenre=id=>{page('books');setShelfGenre(id);setCategory('전체');setSearch('')};const menu=[['books','내 책장',BookOpen],['movies','영화 기록',Film],['music','음악 플레이',Music2]];
+ const [recordMenuOpen,setRecordMenuOpen]=useState(false);
+ const page=(p)=>{stopJoy();setRecordMenuOpen(false);setMapOpen(false);setShelfGenre(null);setPanel(p);setSelected(null);setAdding(false);setMobile(false)};const jump=(p)=>{stopJoy();setTeleport(t=>({room:p,seq:t.seq+1}));setMode('third');setMapOpen(false);close()};const openGenre=id=>{page('books');setShelfGenre(id);setCategory('전체');setSearch('')};const menu=[['books','내 책장',BookOpen],['movies','영화 기록',Film],['music','음악 플레이',Music2]];
  const performInteract=()=>{if(interactAction==='seat'){/* seat state is controlled in 3D scene */}window.dispatchEvent(new CustomEvent('library-interact'))};
  const isOverlay=Boolean(selected||adding||panel);
- const togglePlan=()=>{stopJoy();if(!mapOpen)setMapFloor(floorForZone(zone));setMapOpen(v=>!v)};
+ const togglePlan=()=>{stopJoy();setRecordMenuOpen(false);if(!mapOpen)setMapFloor(floorForZone(zone));setMapOpen(v=>!v)};
  const readingTimes=useReadingTime(heldBook,Boolean(heldBook&&(/독서 중|누워 읽기/.test(seatStatus))&&!isOverlay&&!mapOpen&&(!experience||experience==='reader')));
  useEffect(()=>{const front=()=>setMode('third');window.addEventListener('library-third-person',front);return()=>window.removeEventListener('library-third-person',front)},[]);
  const selectRecord=(index,automatic=false)=>setRecordSelection(previous=>({index,seq:automatic?previous?.seq??0:(previous?.seq??0)+1}));
  const readHeldBook=id=>{setSelected(id);setPanel('');setEditing(false);setAdding(false)};
  return <div className={showRooms?'app rooms-visible':'app'}><div className="world"><SceneBoundary><ArchiveScene blanket={blanket} onBlanket={()=>setBlanket(v=>!v)} onMusic={index=>{page('music');if(Number.isInteger(index))selectRecord(index)}} onExperience={kind=>{stopJoy();setExperience(kind)}} books={books} placements={placementState.placements} canPlace={owner&&booksReady} onPlaceNearby={placeNearby} heldBook={heldBook} onPick={id=>{setSelected(id);setHeldBook(id);setPanel('')}} mode={mode} weather={weather} time={time} blocked={isOverlay||mapOpen||Boolean(experience)} joy={joy} onZone={setZone} onSeatStatus={setSeatStatus} teleport={teleport} onDoor={jump} onRead={readHeldBook} character={character} season={season} onOpenNotes={()=>page('activities')} onGenre={openGenre} onInteraction={(label,action)=>{setInteractHint(label||'');setInteractAction(action||null)}}/></SceneBoundary></div><div className="warm-vignette"/><PerformancePanel onTravel={jump}/><RecordPlayer selection={recordSelection} onSelect={selectRecord} onTracks={setRecordTracks} onStop={()=>setRecordSelection(null)} onOpenShelf={()=>page('music')}/><FurnitureTour/>
  <header className="site-header" aria-label="저택 환경 설정과 지도">
-   <div className="top-tools"><button className="gear-button" onClick={()=>page('activities')} aria-label="도서관 활동" title="출석 · 등록 · 독서기록 · 주문"><Footprints size={24}/></button>
+   <div className="top-tools"><button className="gear-button" onClick={()=>page('activities')} aria-label="도서관 활동" title="출석 · 등록 · 독서기록 · 주문"><CatPaw size={24}/></button>
      <button className="gear-button map-trigger" onClick={togglePlan} aria-label="지도 열기" title="지도"><Map size={23}/></button>
+     <button className="gear-button archive-trigger" aria-label="기록 메뉴" title="기록 메뉴" aria-expanded={recordMenuOpen} aria-controls="record-menu-items" onClick={()=>{setMapOpen(false);setRecordMenuOpen(v=>!v)}}><Library size={18}/></button>
      <button className="gear-button" onClick={()=>page('settings')} aria-label="환경 설정 열기" title="환경 설정"><Settings size={24}/></button>
    </div>
+   <nav id="record-menu-items" className="record-popover floating" aria-label="기록 메뉴" hidden={!recordMenuOpen}>{menu.map(([id,name,Icon])=><button key={id} onClick={()=>page(id)}><Icon size={15} aria-hidden="true"/>{name}</button>)}</nav>
  </header>
  {showWelcome&&<div className={'welcome floating '+(!welcomeOpen?'welcome-collapsed':'')}><div className="welcome-head"><strong>✧ 어서 오세요!</strong><button onClick={()=>setWelcomeOpen(v=>!v)} aria-label={welcomeOpen?'안내 접기':'안내 펼치기'}>{welcomeOpen?<ChevronUp size={18}/>:<ChevronDown size={18}/>}</button></div>{welcomeOpen&&<><p>현관에 다가가 E를 눌러 문을 열어 보세요.<br/>문 너머에는 훨씬 큰 도서관이 펼쳐집니다.<br/>PC: WASD 이동 · 마우스 드래그로 시점 전환 · F 정면 보기<br/>상호작용: 가까이 이동한 뒤 E (문 · 앉기 · 서가 · 책 놓기)<br/>계단은 방향키로 걸어서 오르내립니다.<br/>모바일: 방향키 · 화면 드래그 · E 버튼</p><button onClick={()=>setWelcomeOpen(false)}>안내 닫기 ×</button></>}</div>}
  {showRooms&&<div className="room-nav"><nav className="room-signs" aria-label="방 바로 이동">{AREAS.map(([id,name])=><button key={id} onClick={()=>jump(id)}>{name}</button>)}</nav></div>}
- {mapOpen&&<WorldMap floor={mapFloor} onFloor={setMapFloor} zone={zone} onTravel={jump} onClose={togglePlan}/>}
+ {mapOpen&&<WorldMap floor={mapFloor} onFloor={setMapFloor} zone={zone} onTravel={jump} onClose={togglePlan} stackLayout={makeStacks(books,placementState.placements)}/>}
 
  <div className="joystick" aria-label="이동 컨트롤러"><button aria-label="앞으로" onPointerDown={e=>{e.currentTarget.setPointerCapture(e.pointerId);setJoy({x:0,y:1})}} onPointerUp={stopJoy} onPointerCancel={stopJoy}>▲</button><div><button aria-label="왼쪽" onPointerDown={e=>{e.currentTarget.setPointerCapture(e.pointerId);setJoy({x:-1,y:0})}} onPointerUp={stopJoy} onPointerCancel={stopJoy}>◀</button><button className="joystick-center" onClick={()=>{setMapOpen(false);setMode(mode==='first'?'third':'first')}} aria-label="시점 전환">{mode==='first'?'1인칭':'3인칭'}</button><button aria-label="오른쪽" onPointerDown={e=>{e.currentTarget.setPointerCapture(e.pointerId);setJoy({x:1,y:0})}} onPointerUp={stopJoy} onPointerCancel={stopJoy}>▶</button></div><button aria-label="뒤로" onPointerDown={e=>{e.currentTarget.setPointerCapture(e.pointerId);setJoy({x:0,y:-1})}} onPointerUp={stopJoy} onPointerCancel={stopJoy}>▼</button></div>
  <div className="room-badge">⌂ {zone}</div>{interactHint&&<button className="interaction-hint" onClick={performInteract} aria-label="현재 위치에서 상호작용"><kbd>E</kbd>{interactHint}</button>}
