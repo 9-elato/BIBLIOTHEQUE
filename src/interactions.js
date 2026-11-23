@@ -10,7 +10,7 @@ import {canToggleGlassDoor} from './greenhouseLayout.js'
 
 export function interactionAt(s, {entranceOpen, gateReady, gateOpening=false, bookcases=[], heldBook, canPlace=false,world}) {
   const near = (x,z,r=1.8) => (s.x-x)**2+(s.z-z)**2<r*r
-  if(s.ladder)return {type:'ladderExit',label:s.ladder.blocked?'하차 공간 대기 중':'W/S 오르내리기 · A/D 레일 사다리 이동 · E 내려오기'}
+  if(s.ladder)return {type:'ladderExit',label:s.ladder.blocked?(s.ladder.phase==='boarding'?'탑승 경로 대기 중 · E 취소':'하차 공간 대기 중'):'W/S 오르내리기 · A/D 레일 사다리 이동 · E 내려오기'}
   if (s.seated) {
     if(s.seated.transitionBlocked)return {type:'wait',label:'이동 공간이 막혀 잠시 멈췄습니다 · 공간이 비면 이어집니다'}
     return s.seated.phase&&s.seated.phase!=='seated'?null:{type:'stand',label:s.seated.exitBlocked?'하차 공간이 막혀 있습니다 · 공간을 비운 뒤 다시 시도':heldBook?'책을 들고 일어나기':'일어나기'}

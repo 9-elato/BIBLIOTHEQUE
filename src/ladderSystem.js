@@ -20,11 +20,19 @@ export function boardLadder(player,item,isClear,pathClear=()=>true){
 }
 export function advanceRider(player,dt,vertical,horizontal,isClear){
  const ride=player.ladder;if(!ride)return
- const l=ride.item,step=Math.min(dt,.05)
+ const l=ride.item,step=Math.max(0,Math.min(dt,.05))
+ // E during the floor approach cancels at the current safe position. It must
+ // not teleport the visitor to the ladder's landing before releasing them.
+ if(ride.phase==='descending'&&ride.progress<1){l.occupied=false;player.ladder=null;return}
  if(ride.phase==='boarding'){
-  ride.progress=Math.min(1,ride.progress+step*2.5)
-  const t=ride.progress*ride.progress*(3-2*ride.progress)
-  player.x=ride.from.x+(ride.entry.x-ride.from.x)*t;player.z=ride.from.z+(ride.entry.z-ride.from.z)*t
+  const progress=Math.min(1,ride.progress+step*2.5)
+  const t=progress*progress*(3-2*progress)
+  const x=ride.from.x+(ride.entry.x-ride.from.x)*t,z=ride.from.z+(ride.entry.z-ride.from.z)*t
+  const steps=Math.max(1,Math.ceil(Math.hypot(x-player.x,z-player.z)/.055))
+  for(let i=0;i<=steps;i++){
+   if(!isClear(player.x+(x-player.x)*i/steps,player.z+(z-player.z)*i/steps)){ride.blocked=true;return}
+  }
+  ride.blocked=false;ride.progress=progress;player.x=x;player.z=z
   if(ride.progress===1)ride.phase='climbing'
   return
  }

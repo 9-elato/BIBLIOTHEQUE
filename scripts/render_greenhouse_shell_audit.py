@@ -21,10 +21,11 @@ for variant in ['before','after']:
   obj=bpy.context.object;obj.name=name;obj.dimensions=(sx,sz,sy*scale);obj.data.materials.append(mat)
  def window(name,x,z,w,turn=False):
   import math
-  height=3.25 if variant=='before' else 3.4
-  center=2.65 if variant=='before' else 2.7
-  width=w-(.1 if variant=='before' else .04)
-  if variant=='before':
+  old_arch=variant=='before' and not data.get('beforeRectangular',False)
+  height=3.25 if old_arch else 3.4
+  center=2.65 if old_arch else 2.7
+  width=w-(.1 if old_arch else .04)
+  if old_arch:
    r=width/2
    points=[(-r,-height/2),(r,-height/2),(r,height/2-r)]+[(r*math.cos(t*math.pi/32),height/2-r+r*math.sin(t*math.pi/32)) for t in range(33)]
   else:points=[(-width/2,-height/2),(width/2,-height/2),(width/2,height/2),(-width/2,height/2)]
@@ -48,7 +49,17 @@ for variant in ['before','after']:
   for x in [5.3,6.3667,7.4333,8.5]:box('return column',(x,2.65,z),(.06,3.5,.09),iron)
   for y in [1,2.3,4.4]:box('return rail',(6.9,y,z),(3.2,.06,.1),iron)
  for p in data[variant]:panel(p['z'],p['w'])
- box('ground',(7,-.3,-14),(22,.1,22),ground)
+ if variant=='after' and data.get('portal'):
+  p=data['portal'];top=4.4
+  for side in [-1,1]:box('portal jamb',(p['x'],p['height']/2,p['z']+side*(p['width']/2+.04)),(.15,p['height'],.08),iron)
+  for y in [p['height']+.04,top]:box('portal lintel',(p['x'],y,p['z']),(.15,.08,p['width']+.16),iron)
+  box('portal transom',(p['x'],(top+p['height'])/2,p['z']),(.015,top-p['height'],p['width']+.08),glass)
+ if data.get('stair'):
+  stair=data['stair'];a=stair['from'];b=stair['to'];steps=stair['steps'];rise=(b[1]-a[1])/steps
+  for i in range(steps):
+   t=(i+.5)/steps;x=a[0]+(b[0]-a[0])*t;y=a[1]+(b[1]-a[1])*t;z=a[2]+(b[2]-a[2])*t
+   box('outdoor stair tread',(x,(y-rise/2-.05-data['level'])/scale,z),(abs(b[0]-a[0])/steps+.012,(rise+.1)/scale,stair['width']),stone)
+ box('ground',(7,-data.get('level',0)/scale-.3,-14),(30,.1,30),ground)
  scene=bpy.context.scene;scene.render.engine='CYCLES';scene.cycles.samples=24
  scene.render.resolution_x=640;scene.render.resolution_y=480;scene.render.resolution_percentage=100
  scene.world=bpy.data.worlds.new('world');scene.world.use_nodes=True;scene.world.node_tree.nodes['Background'].inputs[0].default_value=(.65,.7,.8,1);scene.world.node_tree.nodes['Background'].inputs[1].default_value=.6

@@ -1,3 +1,4 @@
+import {MEADOW_STAIRS} from './eastMeadowLayout.js'
 // One source of truth for planting, seating and walking footprints.
 export const GARDEN_LEVEL=7.2
 export const GREENHOUSE_REGIONS=[[-5.25,5.25,-24,-6.3],[-8.4,-4.95,-17.1,-11],[4.95,8.4,-17.1,-11]]
@@ -77,3 +78,11 @@ export const GREENHOUSE_HEIGHT_SCALE=1.4
 export const GREENHOUSE_DOOR_HEIGHT=3.4
 export const GREENHOUSE_CEILING_LAMP_Y=5.7
 export const greenhouseCeilingAt=x=>(6.44-Math.abs(x)*.389)*GREENHOUSE_HEIGHT_SCALE
+
+// The east bay meets the outdoor stair: retain a framed opening rather than
+// filling this deliberate connection with a floor-to-ceiling glass panel.
+export const GREENHOUSE_MEADOW_PORTAL={x:8.5,z:MEADOW_STAIRS.to[2],width:MEADOW_STAIRS.width,height:GREENHOUSE_DOOR_HEIGHT}
+export const GREENHOUSE_EAST_ALCOVE_PANELS=[
+ [GREENHOUSE_ALCOVE_BACK,GREENHOUSE_MEADOW_PORTAL.z-GREENHOUSE_MEADOW_PORTAL.width/2],
+ [GREENHOUSE_MEADOW_PORTAL.z+GREENHOUSE_MEADOW_PORTAL.width/2,GREENHOUSE_ALCOVE_FRONT],
+].map(([back,front])=>({z:(back+front)/2,w:front-back}))
