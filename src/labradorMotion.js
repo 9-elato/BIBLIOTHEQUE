@@ -30,6 +30,7 @@ function recolorMaterial(source,[color,bakedLuminance]){
  return material
 }
 export function prepareLabrador(scene){
+ const ownedGeometries=new Set(),ownedMaterials=new Set()
  const copy=scene.clone(true),bounds=new Box3().setFromObject(copy),scale=1.7/(bounds.max.y-bounds.min.y)
  const depthScale=FOX_MATCH.depth/(bounds.max.z-bounds.min.z)
  copy.updateMatrixWorld(true)
@@ -42,7 +43,8 @@ export function prepareLabrador(scene){
   g.translate(-center.x,-center.y,-center.z)
   g.scale(FOX_MATCH.eye[0]/scale/size.x,FOX_MATCH.eye[1]/scale/size.y,FOX_MATCH.eye[2]/depthScale/size.z)
   g.translate(center.x,center.y,center.z);g.applyMatrix4(eye.matrixWorld.clone().invert());g.computeBoundingBox();g.computeBoundingSphere()
-  eye.geometry=g;eye.material=eye.material.clone();eye.material.color.fromArray(FOX_MATCH.eyeColor);eye.material.roughness=.22
+  eye.geometry=g;ownedGeometries.add(g)
+  eye.material=eye.material.clone();ownedMaterials.add(eye.material);eye.material.color.fromArray(FOX_MATCH.eyeColor);eye.material.roughness=.22
  }
  copy.scale.set(scale,scale,depthScale);copy.position.y=-bounds.min.y*scale
  const parts={}
@@ -57,9 +59,15 @@ export function prepareLabrador(scene){
   const swatch=palette[o.material?.name]
   if(!swatch)return
   if(!materials.has(o.material))materials.set(o.material,recolorMaterial(o.material,swatch))
-  o.material=materials.get(o.material)
+  o.material=materials.get(o.material);ownedMaterials.add(o.material)
  })
- return {copy,scale,parts,read:0,materials}
+ return {copy,scale,parts,read:0,materials,ownedGeometries,ownedMaterials}
+}
+// Geometry and textures from the loader cache are shared across avatar switches.
+// Dispose only resources created by prepareLabrador, never traverse the clone.
+export function disposeLabrador(model){
+ for(const geometry of model.ownedGeometries)geometry.dispose()
+ for(const material of model.ownedMaterials)material.dispose()
 }
 export function animateLabrador(model,t,dt,moving,reading,sit){
  const a=MathUtils.clamp(sit||0,0,1),walk=moving?(1-a):0

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import {readFileSync} from 'node:fs'
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js'
 import {Box3,Vector3,Texture} from 'three'
-import {prepareLabrador,animateLabrador,FOX_MATCH} from '../src/labradorMotion.js'
+import {prepareLabrador,animateLabrador,disposeLabrador,FOX_MATCH} from '../src/labradorMotion.js'
 const data=readFileSync(new URL('../public/models/labrador_arsenal.glb',import.meta.url))
 // Node validates geometry/animation; embedded image headers are checked separately below.
 const loader=new GLTFLoader().register(()=>({name:'node-test-texture',loadTexture:()=>Promise.resolve(new Texture())}))
@@ -79,4 +79,38 @@ test('fur, knit and jersey retain distinct normal maps and UV scales in the web 
  assert.deepEqual(materials[1].normalTexture.extensions.KHR_texture_transform.scale,[3,3])
  assert.deepEqual(materials[2].normalTexture.extensions.KHR_texture_transform.scale,[7,7])
  assert.ok(materials[1].pbrMetallicRoughness.roughnessFactor>materials[2].pbrMetallicRoughness.roughnessFactor)
+})
+
+
+test('repeated Labrador switches dispose owned eyes and palette without releasing cached assets',()=>{
+ const originalGeometries=new Set(),originalMaterials=new Set(),originalTextures=new Set()
+ gltf.scene.traverse(o=>{
+  if(!o.isMesh)return
+  originalGeometries.add(o.geometry)
+  for(const material of Array.isArray(o.material)?o.material:[o.material]){
+   originalMaterials.add(material)
+   for(const value of Object.values(material))if(value?.isTexture)originalTextures.add(value)
+  }
+ })
+ let sharedDisposals=0
+ const onSharedDispose=()=>sharedDisposals++
+ const shared=[...originalGeometries,...originalMaterials,...originalTextures]
+ shared.forEach(resource=>resource.addEventListener('dispose',onSharedDispose))
+ try{
+  for(let i=0;i<20;i++){
+   const model=prepareLabrador(gltf.scene)
+   assert.equal(model.ownedGeometries.size,2)
+   assert.equal(model.ownedMaterials.size,model.materials.size+2)
+   const owned=[...model.ownedGeometries,...model.ownedMaterials]
+   let ownDisposals=0
+   for(const resource of owned){
+    assert.ok(!shared.includes(resource))
+    resource.addEventListener('dispose',()=>ownDisposals++)
+   }
+   animateLabrador(model,1,.016,true,false,0)
+   disposeLabrador(model)
+   assert.equal(ownDisposals,owned.length)
+   assert.equal(sharedDisposals,0)
+  }
+ }finally{shared.forEach(resource=>resource.removeEventListener('dispose',onSharedDispose))}
 })

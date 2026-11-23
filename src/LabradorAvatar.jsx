@@ -2,12 +2,12 @@ import React,{useEffect,useMemo,useRef} from 'react'
 import {useFrame} from '@react-three/fiber'
 import {useLibraryModel} from './useLibraryModel'
 import {FloatingBook} from './GhostGLB'
-import {prepareLabrador,animateLabrador} from './labradorMotion'
+import {prepareLabrador,animateLabrador,disposeLabrador} from './labradorMotion'
 const url=import.meta.env.BASE_URL+'models/labrador_arsenal.glb'
 export default function LabradorAvatar({moving,book,pose}){
  const {scene}=useLibraryModel(url),root=useRef()
  const model=useMemo(()=>prepareLabrador(scene),[scene])
- useEffect(()=>()=>model.materials.forEach(material=>material.dispose()),[model])
+ useEffect(()=>()=>disposeLabrador(model),[model])
  useFrame(({clock},dt)=>{
   const sit=pose?.current?.amount||0,t=clock.elapsedTime
   animateLabrador(model,t,dt,moving.current,Boolean(book),sit)
