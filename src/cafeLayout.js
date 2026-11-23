@@ -1,12 +1,12 @@
 export const CAFE_BOUNDS=[-30,-16,15,31]
 export const CAFE_SEATS=[[-28,20],[-28,23],[-28,27],[-25,27],[-22,27]]
 export const CAFE_SOLIDS=[
- {id:'cafe-counter',rect:[-19.2,-16.7,16.1,20.4]},
+ {id:'cafe-counter',rect:[-19.25,-16.55,16,20.5]},
  {id:'cafe-curation',rect:[-29.6,-25.5,15.4,16.3]},
  {id:'cafe-goods',rect:[-24.8,-20.5,15.4,16.3]},
  ...CAFE_SEATS.map(([x,z],i)=>({id:`cafe-seat-${i}`,rect:[x-.6,x+.6,z-.48,z+.48]})),
  {id:'cafe-table',rect:[-26.7,-25.3,20,21.1]},
- {id:'cafe-divider',rect:[-30,-22,24,24.3]},
+ {id:'cafe-divider',rect:[-30,-22,24,24.47]},
 ]
 export function inCafe(x,z){return x>-30&&x<-16&&z>15&&z<31}
 export function cafeWalk(x,z){

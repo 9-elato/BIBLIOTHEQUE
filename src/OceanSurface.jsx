@@ -19,8 +19,8 @@ float wave(vec2 p,float t,out vec2 slope){
 }`
 export default function OceanSurface({w,h,time,weather}){
  const rocks=useMemo(()=>[-1,1].map(side=>({position:[side*w*.40,-h*.46,.01],scale:[w*.075,h*.08,.19],seed:side+8,waterLevel:-h*.49,moss:side===1})),[w,h])
- const ref=useRef(),uniforms=useMemo(()=>({clock:{value:0},size:{value:new THREE.Vector2(w,h)},sun:{value:new THREE.Vector3(.3,.65,.7).normalize()},dim:{value:1},storm:{value:0}}),[w,h])
- useFrame(({clock})=>{if(!ambientUpdateDue(ref.current,clock.elapsedTime,null))return;uniforms.clock.value=clock.elapsedTime;uniforms.dim.value=time==='evening'?.35:1;uniforms.sun.value.fromArray(natureMood(time,weather).sunDirection);uniforms.storm.value=weather==='rain'?1:0})
+ const lastUpdate=useRef(null),ref=useRef(),uniforms=useMemo(()=>({clock:{value:0},size:{value:new THREE.Vector2(w,h)},sun:{value:new THREE.Vector3(.3,.65,.7).normalize()},dim:{value:1},storm:{value:0}}),[w,h])
+ useFrame(({clock})=>{if(!ambientUpdateDue(ref.current,clock.elapsedTime,lastUpdate.current))return;lastUpdate.current=clock.elapsedTime;uniforms.clock.value=clock.elapsedTime;uniforms.dim.value=time==='evening'?.35:1;uniforms.sun.value.fromArray(natureMood(time,weather).sunDirection);uniforms.storm.value=weather==='rain'?1:0})
  return <group><mesh ref={ref} userData={{noBatch:true}} frustumCulled={false}>
   <planeGeometry args={[w,h*.5,112,64]}/>
   <shaderMaterial uniforms={uniforms} toneMapped={false} side={THREE.DoubleSide}

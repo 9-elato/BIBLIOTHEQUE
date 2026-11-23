@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {environmentMix,nextBirdDelay} from '../src/environmentAudioMix.js'
 import {resolveQuality} from '../src/graphicsQuality.js'
-import {windEnvelope,windStrength,grassDensity,leafDensity} from '../src/vegetationWind.js'
+import {windEnvelope,windStrength,grassDensity,leafDensity,leafScale,easeLeafScale} from '../src/vegetationWind.js'
 test('coast and woodland produce distinct proximity mixes',()=>{
  const coast=environmentMix({x:-38,z:0},'저택 정원'),forest=environmentMix({x:35,z:22},'동쪽 잔디 들판')
  assert.ok(coast.surf>forest.surf);assert.ok(forest.leaves>coast.leaves);assert.ok(forest.birds>coast.birds)
@@ -26,4 +26,10 @@ test('wind evolves over time rather than remaining a still pose',()=>{
  const values=Array.from({length:60},(_,i)=>windEnvelope(i*.2,windStrength('sunny')))
  assert.ok(Math.max(...values)-Math.min(...values)>.02)
  assert.ok(windEnvelope(3,windStrength('rain'))>windEnvelope(3,windStrength('sunny')))
+})
+
+test('LOD leaf size is bounded and eases without overshoot across frame rates',()=>{
+ assert.equal(leafScale(1000,0),1.5)
+ for(const dt of [1/144,1/60,1/20,.5]){let value=1;for(let i=0;i<60;i++){const next=easeLeafScale(value,1.5,dt);assert.ok(next>=value&&next<=1.5);value=next}assert.ok(value>1.3)}
+ assert.equal(easeLeafScale(1,1.5,0),1)
 })

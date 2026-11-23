@@ -34,7 +34,7 @@ function UpperShelf({x,z}){return <group position={[x,GALLERY_HEIGHT,z]}>
   <Piece p={[0,2.52,0]} s={[.73,.15,1.83]} c={mat.gold}/>
  </group>}
 function BrassChandelier(){return <group position={[0,9.0,1.75]}>
-  <Rod a={[0,.4,0]} b={[0,1.7,0]} r={.045}/>
+  <Rod a={[0,0,0]} b={[0,7.1,0]} r={.045}/><Piece p={[0,7.08,0]} s={[.4,.1,.4]} c={mat.gold}/>
   <mesh rotation={[Math.PI/2,0,0]}><torusGeometry args={[1.25,.085,12,34]}/><meshStandardMaterial color={mat.gold} metalness={.58} roughness={.32}/></mesh>
   <mesh position={[0,.12,0]} rotation={[Math.PI/2,0,0]}><torusGeometry args={[.62,.05,8,28]}/><meshStandardMaterial color={mat.gold} metalness={.6}/></mesh>
   {Array.from({length:10},(_,i)=>{const a=i*Math.PI/5,x=Math.cos(a),z=Math.sin(a);return <group key={i}><Rod a={[x*.25,0,z*.25]} b={[x*1.25,0,z*1.25]} r={.04}/><mesh position={[x*1.22,.22,z*1.22]}><sphereGeometry args={[.14,12,8]}/><meshStandardMaterial color="#ffdfab" emissive="#ffd29b" emissiveIntensity={.9}/></mesh></group>})}
@@ -63,7 +63,7 @@ function WindowSeat({x,z,rot=0}){return <group position={[x,0,z]} rotation={[0,r
 export default function InteriorDetails(){return <group>
  <BrassChandelier/>
  {[-3.1,2.4].map(z=><group key={z}><UpperShelf x={7.55} z={z}/></group>)}
- {[-7.3,7.3].map(x=><group key={x}><WallSconce x={x} y={4.1} z={0} rot={x<0?Math.PI/2:-Math.PI/2}/><WallSconce x={x} y={8.25} z={-2.6} rot={x<0?Math.PI/2:-Math.PI/2}/><WallSconce x={x} y={8.25} z={2.7} rot={x<0?Math.PI/2:-Math.PI/2}/></group>)}
+ {[-7.3,7.3].map(x=><group key={x}><WallSconce x={x} y={4.1} z={2.65} rot={x<0?Math.PI/2:-Math.PI/2}/><WallSconce x={x} y={8.25} z={-2.6} rot={x<0?Math.PI/2:-Math.PI/2}/><WallSconce x={x} y={8.25} z={2.7} rot={x<0?Math.PI/2:-Math.PI/2}/></group>)}
  {[[7.3,-3.1,'ARTS'],[7.3,2.4,'LANGUAGES']].map(([x,z,title],i)=><group key={i}><Piece p={[x,GALLERY_HEIGHT+2.75,z]} s={[.08,.36,1.75]} c={mat.walnut}/><Text position={[x+(x>0?-.08:.08),GALLERY_HEIGHT+2.75,z]} rotation={[0,x>0?Math.PI/2:-Math.PI/2,0]} fontSize={.19} color="#f2dcae" anchorX="center">{title}</Text></group>)}
- <Text position={[0,8.6,-6.3]} fontSize={.21} color="#916748" anchorX="center">THE GRAND LIBRARY</Text>
+ <Text position={[0,11.2,-6.78]} fontSize={.21} color="#916748" anchorX="center">THE GRAND LIBRARY</Text>
 </group>}

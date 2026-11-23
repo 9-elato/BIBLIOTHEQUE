@@ -19,3 +19,11 @@ test('garden connects to cafe and cinema via clear door and aisle',()=>{
  assert.equal(zoneAt(p.x,p.z,45),'북카페 미니 극장')
  assert.equal(walkHeight(-30,20,0,world),null);assert.equal(walkHeight(-18,18,0,world),null)
 })
+
+test('cafe overhanging counter and cinema screen block the avatar while the doorway stays open',()=>{
+ assert.equal(walkHeight(-19.4,18,0,world),null)
+ assert.equal(walkHeight(-26,24.62,0,world),null)
+ assert.equal(walkHeight(-16,22.25,0,world),0)
+ let p={x:-20.8,z:25.5,level:0,yaw:0}
+ for(const [x,z] of [[-20.8,22.25],[-11,22.25]]){p=movePlayer(p,x-p.x,z-p.z,world);assert.ok(Math.hypot(p.x-x,p.z-z)<.03)}
+})

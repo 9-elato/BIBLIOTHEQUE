@@ -2,7 +2,7 @@ import useGraphicsQuality from './useGraphicsQuality'
 import React,{useMemo,useLayoutEffect,useRef,useEffect} from 'react'
 import {useFrame} from '@react-three/fiber'
 import * as THREE from 'three'
-import {seeded,windMaterial,windStrength,leafDensity} from './vegetationWind'
+import {seeded,windMaterial,windStrength,leafDensity,leafScale,easeLeafScale} from './vegetationWind'
 
 export function estateTrees(){return Array.from({length:90},(_,i)=>{
  const east=i<42,bank=i>=64
@@ -51,7 +51,7 @@ function TreeCell({trees,seed,weather,quality}){
   if(!root.current)return
   if(clock.elapsedTime-last.current>.25){last.current=clock.elapsedTime;root.current.localToWorld(world.copy(center));const d=camera.position.distanceTo(world);leaves.current.castShadow=d<quality.leafShadow;branches.current.castShadow=d<quality.branchShadow;root.current.visible=d<205;leaves.current.userData.target=Math.ceil(assets.l.length*leafDensity(d)*quality.density)}
   const target=leaves.current.userData.target??assets.l.length,delta=Math.ceil(dt*1000)
-  leaves.current.count+=Math.sign(target-leaves.current.count)*Math.min(delta,Math.abs(target-leaves.current.count));uniforms.detail.value=Math.sqrt(assets.l.length/Math.max(1,leaves.current.count))
+  leaves.current.count+=Math.sign(target-leaves.current.count)*Math.min(delta,Math.abs(target-leaves.current.count));uniforms.detail.value=easeLeafScale(uniforms.detail.value,leafScale(assets.l.length,leaves.current.count),dt)
   if(root.current.visible){uniforms.clock.value=clock.elapsedTime;uniforms.strength.value=windStrength(weather)}
  })
  return <group ref={root} userData={{noBatch:true,noCameraCollision:true}}>

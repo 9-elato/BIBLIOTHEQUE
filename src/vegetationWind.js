@@ -3,6 +3,9 @@ export const windStrength=weather=>weather==='rain'?.82:weather==='snow'?.62:.24
 export function windEnvelope(t,strength){return strength*(.72+.18*Math.sin(t*.31)+.1*Math.sin(t*.73))}
 export function grassDensity(distance){return distance<15?1:distance>55?.08:1-(distance-15)/40*.92}
 export function leafDensity(distance){return Math.max(.16,Math.min(1,1-(distance-30)/90))}
+// Bound distant leaf enlargement and ease transitions after quality/LOD changes.
+export function leafScale(total,count){return Math.min(1.5,Math.sqrt(total/Math.max(1,count)))}
+export function easeLeafScale(current,target,dt){return current+(target-current)*(1-Math.exp(-5*Math.min(.1,Math.max(0,dt))))}
 export function seeded(seed){return ()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296}}
 
 // Used by the visible material AND shadow material so moving silhouettes match.
