@@ -1,3 +1,4 @@
+import {CORRIDOR_CEILING,PASSAGE_CEILING,underside,suspension} from './fixtureMounts'
 import {bookDimensions} from './bookAppearance'
 import {shelfImage,spineSource} from './bookMetadata'
 import {HALL_ARCH,archInfillPoints,SECRET_BOOKCASE_SCALE,SECRET_BOOKCASE_TOP,CORRIDOR_TOP} from './groundArchitecture'
@@ -72,8 +73,9 @@ function Arch({x=0,z,turn=0,title,top=HALL_ARCH.wallTop}) {
     <Plate p={[0,6.12,.13]} label={title} w={1.65}/>
   </group>
 }
-function Lamp({p}) {
-  return <group position={p}><Box p={[0,.35,0]} s={[.06,.75,.06]} c={gold}/><Round p={[0,0,0]} r={.23} c="#ffdfa1"/><Box p={[0,-.03,0]} s={[.58,.12,.58]} c="#876143" metal={.6}/></group>
+function Lamp({p,ceiling}) {
+  const mount=suspension(p[1],underside(ceiling))
+  return <group position={p}><Box p={[0,mount.center,0]} s={[.06,mount.length,.06]} c={gold}/><Box p={[0,mount.cap,0]} s={[.3,.10,.3]} c={gold} metal={.6}/><Round p={[0,0,0]} r={.23} c="#ffdfa1"/><Box p={[0,-.03,0]} s={[.58,.12,.58]} c="#876143" metal={.6}/></group>
 }
 function Rug({x,z,w,d,c}) {
   return <group>
@@ -232,7 +234,7 @@ function North({open,onKey,onReady,onNote}) {
     {[-1,1].map(a=><SecretCabinet key={a} x={a*.75} half={a} moving open={open} onKey={onKey} onReady={onReady}/>)}
     <Box p={[0,(CORRIDOR_TOP+SECRET_BOOKCASE_TOP)/2,-14.96]} s={[3.05,CORRIDOR_TOP-SECRET_BOOKCASE_TOP,.24]} c={cream}/>
     <Box p={[0,SECRET_BOOKCASE_TOP+.06,-14.59]} s={[3.1,.12,.22]} c="#896744"/>
-    <Lamp p={[0,3.63,-10.6]}/><Lamp p={[0,3.4,-13.3]}/>
+    <Lamp p={[0,3.63,-10.6]} ceiling={CORRIDOR_CEILING}/><Lamp p={[0,3.4,-13.3]} ceiling={CORRIDOR_CEILING}/>
     {open&&<>
       <Floor x={0} z={-17} w={2.95} d={4.08}/>
       <Floor x={0} z={-24.3} w={14.5} d={10.65} c="#79523b"/>
@@ -243,7 +245,7 @@ function North({open,onKey,onReady,onNote}) {
         <group position={[a*5.55,0,-29]}><Box p={[0,1.25,0]} s={[2,2.5,.55]} c="#593a2d"/>{[.46,1.15,1.84].map(y=><Box key={y} p={[0,y,.25]} s={[1.8,.11,.4]} c="#ac7e55"/>)}</group>
       </group>)}
       <Wall x={0} z={-29.63} w={14.6} d={.24} h={7.6}/>
-      <Lamp p={[0,2.93,-17.2]}/>
+      <Lamp p={[0,2.93,-17.2]} ceiling={PASSAGE_CEILING}/>
 
 
 

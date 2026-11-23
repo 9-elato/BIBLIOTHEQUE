@@ -1,11 +1,14 @@
+import {CORRIDOR_CEILING,suspension} from './fixtureMounts'
 import {STACKS_CEILING_START} from './upperArchitecture'
 import React,{useState} from 'react'
 import {useFrame} from '@react-three/fiber'
 import {CarvedBox as B,Quill} from './StorybookDecor'
 import {DESKS} from './layout'
 
-function Pendant({p,color='#76543c',time,large=false,lit=false}){const r=large?1.12:.39;return <group position={p}>
- <B p={[0,(large?7.6:2.8)/2,0]} s={[.035,large?7.6:2.8,.035]} c="#ad8c56" metal={.6}/>
+function Pendant({p,color='#76543c',time,large=false,lit=false,mountY}){const r=large?1.12:.39,mount=suspension(p[1],mountY);return <group position={p}>
+ <B p={[0,mount.center,0]} s={[.035,mount.length,.035]} c="#ad8c56" metal={.6}/>
+ <B p={[0,mount.cap,0]} s={[.28,.08,.28]} c="#ad8c56" metal={.6}/>
+ {[0,Math.PI/2].map(a=><B key={a} p={[0,0,0]} s={[r*2,.045,.045]} rot={[0,a,0]} c="#ad8c56" metal={.6}/>)}
  <mesh rotation={[Math.PI/2,0,0]}><torusGeometry args={[r,.045,8,40]}/><meshStandardMaterial color="#a98752" metalness={.65} roughness={.4}/></mesh>
  {Array.from({length:large?8:4},(_,i)=>{const a=i*Math.PI*2/(large?8:4);return <group key={i} position={[Math.cos(a)*r,0,Math.sin(a)*r]}>
   <B p={[0,.13,0]} s={[.07,.31,.07]} c="#c3a66c" metal={.4}/>
@@ -27,7 +30,7 @@ export default function MainRoomDetails({layout,time,zone}){
  useFrame(({camera})=>{if(zone!=='서가')return;let index=0;layout.sections.forEach((s,i)=>{if(Math.abs(s.start-camera.position.x)<Math.abs(layout.sections[index].start-camera.position.x))index=i});if(index!==nearest)setNearest(index)})
  return <group>
 
- <Pendant p={[0,8.6,1]} large time={time} lit={zone==='중앙 홀'}/>
+ <Pendant p={[0,8.6,1]} mountY={16.1} large time={time} lit={zone==='중앙 홀'}/>
  {/* Carved table apron and brass corner details stay inside its collision bounds. */}
  {[-1,1].map(a=><group key={a}>
   <B p={[a*1.92,.88,1.75]} s={[.07,.18,2.42]} c="#ad8d57"/>
@@ -39,8 +42,8 @@ export default function MainRoomDetails({layout,time,zone}){
   <B p={[a*4.2,3.55,-6.55]} s={[1.05,.08,.08]} c="#a48b5e"/>
  </group>)}
  {/* Ceiling and framed botanical prints give the north corridor an enclosed scale. */}
- <B p={[0,6.55,-9.96]} s={[4.5,.16,6.35]} c="#cbb697"/>
- <B p={[0,6.55,-14.03]} s={[9.5,.16,1.9]} c="#cbb697"/>
+ <B p={[0,CORRIDOR_CEILING.y,-9.96]} s={[4.5,CORRIDOR_CEILING.thickness,6.35]} c="#cbb697"/>
+ <B p={[0,CORRIDOR_CEILING.y,-14.03]} s={[9.5,CORRIDOR_CEILING.thickness,1.9]} c="#cbb697"/>
  <B p={[0,6.13,-15.03]} s={[9.5,.82,.16]} c="#c4ad8e"/>
  {[-7.4,-9.6,-11.8].map(z=><group key={z}>
   <B p={[0,6.39,z]} s={[4.45,.17,.16]} c="#79573b"/>
@@ -56,7 +59,7 @@ export default function MainRoomDetails({layout,time,zone}){
  <B p={[(layout.end+STACKS_CEILING_START)/2,10.4,0]} s={[layout.end-STACKS_CEILING_START,.16,11.7]} c="#cbb697"/>
  {layout.sections.map(({genre,start,cases},i)=><group key={genre.id}>
   <B p={[start,10.29,0]} s={[.16,.17,11.5]} c={genre.trim}/>
-  <Pendant p={[start,7.6,0]} color={genre.wood} time={time} lit={zone==='서가'&&i===nearest}/>
+  <Pendant p={[start,7.6,0]} mountY={10.29-.17/2} color={genre.wood} time={time} lit={zone==='서가'&&i===nearest}/>
   {[-1].map(a=><group key={a}>
    <B p={[start,4.86,a*4.8]} s={[3.1,.10,.34]} c={genre.trim}/>
    <Print p={[start,2.4,a*5.69]} turn={a>0?Math.PI:0} color={genre.wood} kind={i%2}/>

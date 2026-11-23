@@ -36,8 +36,8 @@ function UpperShelf({x,z}){return <group position={[x,GALLERY_HEIGHT,z]}>
 function BrassChandelier(){return <group position={[0,9.0,1.75]}>
   <Rod a={[0,0,0]} b={[0,7.1,0]} r={.045}/><Piece p={[0,7.08,0]} s={[.4,.1,.4]} c={mat.gold}/>
   <mesh rotation={[Math.PI/2,0,0]}><torusGeometry args={[1.25,.085,12,34]}/><meshStandardMaterial color={mat.gold} metalness={.58} roughness={.32}/></mesh>
-  <mesh position={[0,.12,0]} rotation={[Math.PI/2,0,0]}><torusGeometry args={[.62,.05,8,28]}/><meshStandardMaterial color={mat.gold} metalness={.6}/></mesh>
-  {Array.from({length:10},(_,i)=>{const a=i*Math.PI/5,x=Math.cos(a),z=Math.sin(a);return <group key={i}><Rod a={[x*.25,0,z*.25]} b={[x*1.25,0,z*1.25]} r={.04}/><mesh position={[x*1.22,.22,z*1.22]}><sphereGeometry args={[.14,12,8]}/><meshStandardMaterial color="#ffdfab" emissive="#ffd29b" emissiveIntensity={.9}/></mesh></group>})}
+  <Rod a={[0,.12,0]} b={[.62,.12,0]} r={.035}/><Rod a={[0,.12,0]} b={[-.62,.12,0]} r={.035}/><mesh position={[0,.12,0]} rotation={[Math.PI/2,0,0]}><torusGeometry args={[.62,.05,8,28]}/><meshStandardMaterial color={mat.gold} metalness={.6}/></mesh>
+  {Array.from({length:10},(_,i)=>{const a=i*Math.PI/5,x=Math.cos(a),z=Math.sin(a);return <group key={i}><Rod a={[0,0,0]} b={[x*1.25,0,z*1.25]} r={.04}/><mesh position={[x*1.22,.22,z*1.22]}><sphereGeometry args={[.14,12,8]}/><meshStandardMaterial color="#ffdfab" emissive="#ffd29b" emissiveIntensity={.9}/></mesh></group>})}
   <pointLight position={[0,-.3,0]} color="#ffda9a" intensity={3.7} distance={15}/>
  </group>}
 function GalleryArch({z=0}){const pts=[];for(let i=0;i<=24;i++){const t=Math.PI*i/24;pts.push(new THREE.Vector3(-7.75+Math.sin(t)*.13,7.55+Math.sin(t)*.75,z-1.1+Math.cos(t)*1.1))}const curve=new THREE.CatmullRomCurve3(pts);return <mesh><tubeGeometry args={[curve,32,.07,8,false]}/><meshStandardMaterial color="#b48a60"/></mesh>}
@@ -50,7 +50,7 @@ function ReadingDesk({x,z,chair='#5f725f'}){return <group position={[x,0,z]}>
  <Piece p={[0,.52,.9]} s={[.8,.10,.8]} c={chair}/><Piece p={[0,1.08,1.25]} s={[.8,1.0,.10]} c={chair}/>
  {[-.28,.28].flatMap(a=>[-.28,.28].map(b=><Piece key={`${a}/${b}`} p={[a,.25,.88+b*.2]} s={[.08,.5,.08]} c={mat.walnut}/>))}
  </group>}
-function WallSconce({x,y,z,rot=0}){return <group position={[x,y,z]} rotation={[0,rot,0]}><Piece p={[0,0,0]} s={[.18,.48,.14]} c={mat.gold}/><mesh position={[0,.38,.16]}><sphereGeometry args={[.14,12,8]}/><meshStandardMaterial color="#ffe4b3" emissive="#ffd59e" emissiveIntensity={.9}/></mesh><pointLight position={[0,.32,.42]} intensity={1.1} distance={4} color="#ffd5a0"/></group>}
+function WallSconce({x,y,z,rot=0}){return <group position={[x,y,z]} rotation={[0,rot,0]}><Piece p={[0,0,0]} s={[.18,.48,.14]} c={mat.gold}/><Rod a={[0,0,.02]} b={[0,0,.16]} r={.035}/><Rod a={[0,0,.16]} b={[0,.38,.16]} r={.035}/><mesh position={[0,.38,.16]}><sphereGeometry args={[.14,12,8]}/><meshStandardMaterial color="#ffe4b3" emissive="#ffd59e" emissiveIntensity={.9}/></mesh><pointLight position={[0,.32,.42]} intensity={1.1} distance={4} color="#ffd5a0"/></group>}
 function GlobeStand(){return <group position={[7.3,0,3.0]}>
  <Piece p={[0,.95,0]} s={[.55,.10,.55]} c={mat.mahogany}/><Piece p={[0,.40,0]} s={[.10,.80,.10]} c={mat.mahogany}/>
  <mesh position={[0,1.4,0]}><sphereGeometry args={[.42,14,12]}/><meshStandardMaterial color="#7895a8" roughness={.8}/></mesh>
