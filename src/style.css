@@ -205,3 +205,15 @@ canvas { touch-action:none; }
 .map-canvas{overflow-x:auto;overscroll-behavior:contain;border-radius:18px}
 .map-canvas .floor-drawing{min-width:540px}
 .map-canvas:focus-visible{outline:2px solid #6d884c;outline-offset:2px}
+
+/* Fit the entire floor initially; enlarged maps scroll on both axes. */
+.detailed-map{display:flex;flex-direction:column;overflow:hidden;max-height:calc(100dvh - 110px)}
+.detailed-map .world-map-head,.detailed-map .map-location,.detailed-map .map-tabs{flex-shrink:0}
+#floor-map-panel{min-height:0;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y}
+.map-zoom-tools{display:flex;align-items:center;justify-content:center;gap:8px;padding:8px 0;position:sticky;top:0;background:#fff7e8;z-index:1}
+.map-zoom-tools button{min-width:40px;min-height:40px;border:1px solid #b89a6c;border-radius:9px;background:#fff4df;color:#694b32;padding:5px 10px}
+.map-zoom-tools button:disabled{opacity:.4;cursor:default}
+.map-zoom-tools output{min-width:45px;text-align:center;font-size:13px}
+.map-canvas{user-select:none;-webkit-user-select:none;width:100%;height:clamp(150px,45dvh,475px);overflow:auto;touch-action:pan-x pan-y;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.map-canvas .floor-drawing.story-map{display:block;min-width:0;max-width:none;max-height:none;margin:0;border:0;border-radius:0}
+@media(max-width:700px){.detailed-map{max-height:calc(100dvh - 76px)}.map-zoom-tools{gap:5px}.map-canvas{height:clamp(150px,43dvh,420px)}}

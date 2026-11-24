@@ -1,4 +1,4 @@
-import React,{useId} from 'react'
+import React,{useId,useState,useRef,useEffect} from 'react'
 import MapIllustration from './MapIllustration'
 import {STAIRS} from './navigation'
 import {GREENHOUSE_REGIONS,FOUNTAIN,POND} from './greenhouseLayout'
@@ -64,7 +64,9 @@ function StairTreads({stair}){
 }
 
 export default function WorldMap({floor,onFloor,zone,onTravel,onClose,stackLayout}){
- const pattern=useId()
+ const pattern=useId(),[zoom,setZoom]=useState(1),viewport=useRef()
+ const fit=()=>{setZoom(1);viewport.current?.scrollTo?.({left:0,top:0})}
+ useEffect(()=>{fit()},[floor])
  const plan=floors(stackLayout.end)[floor]
  const [left,right,north,south]=plan.bounds
  const stops=[...new Map([...plan.rooms.filter(room=>room.id).map(({id,name})=>[id,name]),...plan.links])]
@@ -75,7 +77,13 @@ export default function WorldMap({floor,onFloor,zone,onTravel,onClose,stackLayou
   <p className="map-location" role="status">● 현재 공간 {zone}</p>
   <div className="map-tabs" role="tablist" aria-label="층 선택">{floorNames.map((name,i)=><button key={name} id={'floor-tab-'+i} aria-controls="floor-map-panel" role="tab" aria-selected={floor===i} onClick={()=>onFloor(i)}>{name}</button>)}</div>
   <div id="floor-map-panel" role="tabpanel" aria-labelledby={'floor-tab-'+floor}>
-   <div className="map-canvas" tabIndex={0} aria-label="확대된 지도, 작은 화면에서는 좌우로 밀어 볼 수 있습니다"><svg className={`floor-drawing story-map floor-${floor}`} viewBox={`${left} ${north} ${right-left} ${south-north}`} role="group" aria-label={floorNames[floor]+' 공간 연결 안내도'}>
+   <div className="map-zoom-tools" role="group" aria-label="지도 확대 축소">
+    <button type="button" onClick={()=>setZoom(z=>Math.max(1,z-.5))} disabled={zoom<=1} aria-label="지도 축소">−</button>
+    <output aria-live="polite">{Math.round(zoom*100)}%</output>
+    <button type="button" onClick={()=>setZoom(z=>Math.min(3,z+.5))} disabled={zoom>=3} aria-label="지도 확대">＋</button>
+    <button type="button" onClick={fit}>전체 보기</button>
+   </div>
+   <div ref={viewport} className="map-canvas" tabIndex={0} aria-label="지도. 확대 후 상하좌우로 밀어 이동할 수 있습니다"><svg style={{width:`${zoom*100}%`,height:`${zoom*100}%`}} preserveAspectRatio="xMidYMid meet" className={`floor-drawing story-map floor-${floor}`} viewBox={`${left} ${north} ${right-left} ${south-north}`} role="group" aria-label={floorNames[floor]+' 공간 연결 안내도'}>
     <defs>
      <pattern id={pattern} width="2" height="2" patternUnits="userSpaceOnUse"><path d="M0 2V0H2" fill="none" stroke="#ded2ba" strokeWidth=".055"/></pattern>
      <marker id={pattern+'up'} markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0 0L5 2.5L0 5Z" fill="#846349"/></marker>
@@ -100,7 +108,7 @@ export default function WorldMap({floor,onFloor,zone,onTravel,onClose,stackLayou
     <text x={right-(right-left)*.065} y={north+(south-north)*.085} className="plan-label" style={{fontSize:(right-left)*.028}}>↑ N</text>
     </g>
    </svg></div>
-   <p className="map-scale-note">공간의 연결을 보기 쉽게 그린 안내도입니다.</p>
+   <p className="map-scale-note">확대·축소 버튼으로 크기를 조절하고, 확대한 지도는 상하좌우로 밀어 보세요.</p>
    <div className="map-legend"><span>● 현재 공간</span><span>━ 출입구</span><span>▤ 계단</span></div>
    <div className="plan-destinations" aria-label="공간 바로 이동">{stops.map(([id,name])=><button key={id} aria-current={zone===name?'location':undefined} onClick={()=>onTravel(id)}>{name}</button>)}</div>
   </div>
