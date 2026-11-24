@@ -37,8 +37,10 @@ export function advanceRider(player,dt,vertical,horizontal,isClear){
   return
  }
  const exiting=ride.phase==='descending'
- ride.height=Math.max(0,Math.min(l.climb.maxHeight,ride.height+(exiting?-1.1:vertical)*step*1.15))
  if(!exiting){const nx=Math.max(l.min,Math.min(l.max,l.x+horizontal*step*.65));if(isClear(nx,l.z+1.2)){l.x=nx;l.target=nx}}
+ const height=Math.max(0,Math.min(l.climb.maxHeight,ride.height+(exiting?-1.1:vertical)*step*1.15))
+ if(height<ride.height&&!isClear(l.x,l.z+1.2)){ride.blocked=true;return}
+ ride.blocked=false;ride.height=height
  player.x=l.x;player.z=l.z+1.2-Math.min(1,ride.height)*.7-ride.height*.12;player.level=ride.height;player.bodyYaw=Math.PI
  if(exiting&&ride.height===0){
   if(isClear(l.x,l.z+1.2)){player.z=l.z+1.2;player.level=0;l.occupied=false;player.ladder=null}

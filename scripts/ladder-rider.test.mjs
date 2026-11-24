@@ -12,8 +12,8 @@ test('rider climbs, travels along rail, descends and waits for a blocked landing
  assert.equal(p.level,6.3);assert.equal(l.x,l.max);assert.equal(p.x,l.x)
  p.ladder.phase='descending'
  for(let i=0;i<200;i++)advanceRider(p,.05,0,0,()=>false)
- assert.ok(p.ladder.blocked);assert.equal(p.level,0)
- advanceRider(p,.05,0,0,clear);assert.equal(p.ladder,null);assert.equal(clear(p.x,p.z),true)
+ assert.ok(p.ladder.blocked);assert.equal(p.level,6.3)
+ for(let i=0;i<200&&p.ladder;i++)advanceRider(p,.05,0,0,clear);assert.equal(p.ladder,null);assert.equal(clear(p.x,p.z),true)
 })
 test('blocked or distant boarding is refused without moving the character',()=>{
  const [l]=makeLadders(makeStacks([])),p={x:l.x,z:l.z+1.2,level:0}
@@ -65,4 +65,15 @@ test('E during ladder boarding cancels in place instead of snapping to the entry
  advanceRider(p,.05,0,0,()=>true)
  assert.equal(p.ladder,null);assert.equal(l.occupied,false)
  assert.deepEqual({x:p.x,z:p.z,level:p.level},before)
+})
+
+test('manual descent waits above a blocked landing and resumes gradually',()=>{
+ const l={x:5,z:0,min:4,max:8,climb:{maxHeight:6.3}},p={x:5,z:1.2,level:0}
+ boardLadder(p,l,()=>true)
+ for(let i=0;i<40;i++)advanceRider(p,.05,1,0,()=>true)
+ const height=p.level
+ for(let i=0;i<10;i++)advanceRider(p,.05,-1,0,()=>false)
+ assert.equal(p.level,height);assert.equal(p.ladder.blocked,true)
+ advanceRider(p,.05,-1,0,()=>true)
+ assert.ok(p.level<height&&p.level>height-.07)
 })

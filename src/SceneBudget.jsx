@@ -3,12 +3,17 @@ import {useLayoutEffect,useRef} from 'react'
 import {useFrame,useThree} from '@react-three/fiber'
 import {PointLight,Vector3} from 'three'
 
+export function liveLight(source,scene){
+ for(let p=source?.parent;p;p=p.parent){if(!p.visible)return false;if(p===scene)return true}
+ return false
+}
+
 // Fixed shader light count: source lamps animate normally; six world-space
 // slots illuminate the scene without six-face point-light shadow renders.
 export default function SceneBudget(){
  const profile=useGraphicsQuality()
  const {scene,gl,setDpr}=useThree()
- const state=useRef({elapsed:1,shadow:1,managed:new Map(),slots:[],selected:[],position:new Vector3()})
+ const state=useRef({elapsed:1,shadow:1,managed:new Map(),slots:[],selected:[],position:new Vector3(),camera:new Vector3()})
  const resolution=useRef({elapsed:0,frames:0,fastWindows:0,dpr:1})
  useLayoutEffect(()=>{resolution.current.dpr=profile.maxDpr;setDpr(profile.maxDpr)},[profile,setDpr])
  useLayoutEffect(()=>{
@@ -33,8 +38,8 @@ export default function SceneBudget(){
   }
   const s=state.current;s.elapsed+=dt;s.shadow+=dt
   if(s.shadow>=Math.max(profile.shadowInterval,quality.dpr<.9?.25:.125)){gl.shadowMap.needsUpdate=true;s.shadow=0}
-  if(s.elapsed>=.2){
-   s.elapsed=0
+  if(s.elapsed>=.2||s.camera.distanceToSquared(camera.position)>16||s.selected.some(light=>!liveLight(light,scene))){
+   s.elapsed=0;s.camera.copy(camera.position)
    for(const [light,visible] of s.managed)light.visible=visible
    s.managed.clear()
    const candidates=[]

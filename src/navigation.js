@@ -1,3 +1,4 @@
+import {GALLERY_RAIL_SOLIDS} from './upperArchitecture.js'
 import {CAFE_SOLIDS} from './cafeLayout.js'
 import {MEADOW_STAIRS} from './eastMeadowLayout.js'
 import {inMeadow,meadowHeight} from './meadowLayout.js'
@@ -37,6 +38,7 @@ const upperRegions=[...GREENHOUSE_REGIONS,[-7.6,-5.3,-6.7,-4.85],[-7.6,-5.3,5.25
   [5.3,7.6,-6.7,6.7],[-7.6,7.6,-6.7,-4.45],[-7.6,7.6,4.9,6.7],[7.3,15,-4.85,4.85]]
 // Bounds match the actual furniture footprints. Each box has its floor's height.
 export const FURNITURE=[
+ ...GALLERY_RAIL_SOLIDS.map(s=>({...s,floor:GALLERY_HEIGHT})),
  ...CAFE_SOLIDS.map(s=>({...s,floor:0})),
  ...BASEMENT_SOLIDS.map(s=>({...s,floor:BASEMENT_HEIGHT})),
  ...BASEMENT_GROUND_GUARDS.map(s=>({...s,floor:0})),
@@ -142,12 +144,15 @@ function crossesRail(a,b){
       Math.abs(a.level-(stair.from[1]+p.t*(stair.to[1]-stair.from[1])))<1.7
   })
 }
-export function movePlayer(position,dx,dz,world){
-  const next={...position}
+export function movePlayer(position,dx,dz,world,scratch){
+  // Floor-path probes may reuse these two tiny records within one synchronous
+  // query. Normal avatar movement still preserves every field on the player.
+  const next=scratch?scratch.next:{...position}
+  if(scratch){next.x=position.x;next.z=position.z;next.level=position.level}
   const steps=Math.max(1,Math.ceil(Math.hypot(dx,dz)/.055))
   const stepX=dx/steps,stepZ=dz/steps
   // The avatar carries animation and interaction state; never copy it per substep.
-  const candidate={x:next.x,z:next.z,level:next.level}
+  const candidate=scratch?scratch.candidate:{x:next.x,z:next.z,level:next.level}
   for(let i=0;i<steps;i++)for(let axisIndex=0;axisIndex<2;axisIndex++){
     const axis=axisIndex===0?'x':'z',delta=axisIndex===0?stepX:stepZ
     if(!delta)continue

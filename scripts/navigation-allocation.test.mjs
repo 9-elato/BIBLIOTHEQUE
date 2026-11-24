@@ -26,3 +26,15 @@ test('collision optimization sees newly placed and relocated blockers without st
  }finally{FURNITURE.splice(FURNITURE.indexOf(obstacle),1)}
  assert.equal(walkHeight(4,-3,0,world),0)
 })
+
+test('floor probe scratch movement agrees with normal movement across rooms and stairs',()=>{
+ const scratch={next:{},candidate:{}}
+ for(const start of [{x:2.3,z:1,level:0},{x:-6.35,z:5.25,level:0},{x:6.4,z:0,level:7.2},{x:25.27,z:8.6,level:-5.2}]){
+  let normal={...start},probe={...start}
+  for(const [dx,dz] of [[0,-.1],[.1,-.1],[-.2,.2],[0,.3]]){
+   normal=movePlayer(normal,dx,dz,world)
+   probe=movePlayer(probe,dx,dz,world,scratch)
+   assert.deepEqual(probe,normal)
+  }
+ }
+})

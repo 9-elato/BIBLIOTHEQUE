@@ -45,14 +45,14 @@ export function seatGroundPathClear(from,to,level,world){
  const initial=walkHeight(from.x,from.z,level,world)
  if(initial===null||Math.abs(initial-level)>.08)return false
  const steps=Math.max(1,Math.ceil(distance/.05))
- let previous={x:from.x,z:from.z,level}
+ const previous={x:from.x,z:from.z,level},scratch={next:{},candidate:{}}
  for(let i=1;i<=steps;i++){
   const x=from.x+(to.x-from.x)*i/steps,z=from.z+(to.z-from.z)*i/steps
   // movePlayer already samples collision and floor height every 5.5 cm.
   // Do not repeat those complete world queries for each exit-path probe.
-  const moved=movePlayer(previous,x-previous.x,z-previous.z,world)
+  const moved=movePlayer(previous,x-previous.x,z-previous.z,world,scratch)
   if(Math.hypot(moved.x-x,moved.z-z)>.001||Math.abs(moved.level-level)>.08)return false
-  previous={x,z,level}
+  previous.x=x;previous.z=z;previous.level=level
  }
  return true
 }

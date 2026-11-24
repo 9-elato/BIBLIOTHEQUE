@@ -34,3 +34,9 @@ test('gallery void and outer edges are blocked while stair landings remain usabl
  for(const [x,z] of [[0,0],[5,0],[0,4.4],[0,-4.2],[8,6.9],[-6.4,0]])assert.equal(walkHeight(x,z,level,world),null)
  for(const [x,z] of [[6.4,0],[0,-5.7],[0,5.7],[-6.35,-5.7],[-7.1,5.7]])assert.equal(walkHeight(x,z,level,world),level)
 })
+
+test('gallery guardrails stop body penetration without blocking parallel sliding',()=>{
+ for(const [x,z] of [[0,6.47],[0,4.8],[5.45,0],[0,-4.6],[3,-6.47],[-6.4,5.45]])assert.equal(walkHeight(x,z,level,world),null)
+ const p=movePlayer({x:0,z:6.1,level},1,1,world)
+ assert.ok(p.z<6.33);assert.ok(Math.abs(p.x-1)<.001)
+})

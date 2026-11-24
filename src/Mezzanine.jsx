@@ -1,4 +1,4 @@
-import {READING_CLEAR_HEIGHT as RH} from './upperArchitecture'
+import {GALLERY_RAILS,READING_CLEAR_HEIGHT as RH} from './upperArchitecture'
 import React from 'react'
 import {UpperDetails} from './RoomDetails'
 import {Text} from '@react-three/drei'
@@ -77,13 +77,8 @@ export default function Mezzanine({time}){const y=GALLERY_HEIGHT;return <group>
   <B p={[6.5,y-.13,0]} s={[2.25,.26,13.4]}/>
   {[[-5.775,1.85],[5.975,1.45]].map(([z,d])=><B key={z} p={[-6.45,y-.13,z]} s={[2.3,.26,d]}/>)}
   {[-5.58,5.72].map(z=><B key={z} p={[.6,y-.13,z]} s={[11.8,.26,2.25]}/>)}
-  <HandRail axis="z" constant={5.28} start={-4.42} end={4.6}/>
-  <HandRail axis="x" constant={-4.4} start={-5.2} end={5.2}/>
-  <HandRail axis="x" constant={4.58} start={-5.2} end={5.2}/>
-  <HandRail axis="x" constant={-6.65} start={-7.5} end={-1.5}/><HandRail axis="x" constant={-6.65} start={1.5} end={7.5}/>
-  <HandRail axis="x" constant={6.65} start={-7.5} end={7.5}/>
+  {GALLERY_RAILS.map((rail,i)=><HandRail key={i} {...rail}/>)}
   {/* Guard the upper balcony's dead-end above the foot of the stair. */}
-  <HandRail axis="x" constant={5.28} start={-7.45} end={-5.35}/>
   {STAIRS.filter(stair=>stair.id!=='basement').map(stair=><Staircase key={stair.id} stair={stair}/>)}
   <Plate title="2층 · 걸어서 올라가기" p={[-5.15,1.3,5.4]}/>
   <Plate title="다락 · 연결 계단" p={[-7.25,y+1.5,6.5]}/>
