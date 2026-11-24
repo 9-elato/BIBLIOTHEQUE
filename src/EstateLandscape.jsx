@@ -1,3 +1,4 @@
+import CoastTerrain from './CoastTerrain'
 import NaturalRocks from './NaturalRocks'
 import ForestTrees,{estateTrees} from './ForestTrees'
 import Meadow from './Meadow'
@@ -13,11 +14,11 @@ export default function EstateLandscape({time,weather}){
  const trees=useMemo(estateTrees,[]),rocks=useMemo(()=>Array.from({length:30},(_,i)=>({position:[i<18?-39+i*4.8:-39,-4.8+(i%3)*.3,i<18?-34:-28+(i-18)*5.8],scale:[3.2+Math.sin(i)*.7,3.1+(i%3),2.6+Math.cos(i)*.6],seed:i+3,waterLevel:-7,moss:i%4===0})),[]),hills=useRef(),m= natureMood(time,weather),night=m.evening
  useLayoutEffect(()=>{
   const o=new THREE.Object3D()
-  for(let i=0;i<6;i++){o.position.set(70+i*8,-7,8+i*13);o.scale.set(20,16+(i%3)*6,25);o.rotation.set(0,i*.7,0);o.updateMatrix();hills.current.setMatrixAt(i,o.matrix)}
+  for(let i=0;i<6;i++){o.position.set(130+i*8,-7,14+i*13);o.scale.set(20,16+(i%3)*6,25);o.rotation.set(0,i*.7,0);o.updateMatrix();hills.current.setMatrixAt(i,o.matrix)}
   for(const r of [hills]){r.current.instanceMatrix.needsUpdate=true;r.current.computeBoundingSphere()}
  },[weather,time])
  return <group><Meadow time={time} weather={weather}/>
- <ForestTrees positions={trees} weather={weather}/>
+ <CoastTerrain weather={weather}/><ForestTrees positions={trees} weather={weather}/>
  <instancedMesh ref={hills} castShadow receiveShadow args={[null,null,6]}><sphereGeometry args={[1,16,10]}/><meshStandardMaterial color={m.far} roughness={1}/></instancedMesh>
  <NaturalRocks rocks={rocks}/>
  <StaticBatch revision={weather}>
@@ -30,7 +31,7 @@ export default function EstateLandscape({time,weather}){
  <B p={[7.0,-2.7,2]} s={[.5,5,9]} c="#82816c"/>
  </StaticBatch>
  <SeaWater position={[0,-7,-88]} size={[200,105]} time={time} weather={weather}/>
- <SeaWater position={[-83,-7,0]} size={[90,130]} time={time} weather={weather}/>
+ <SeaWater position={[-83,-7,-12]} size={[90,88]} time={time} weather={weather}/>
  <mesh position={[25,-5.38,17]} rotation={[-Math.PI/2,0,0]} scale={[1.5,1,1]}><circleGeometry args={[6,48]}/><meshPhysicalMaterial color={night?'#284a43':'#527f71'} metalness={.45} roughness={.18} clearcoat={1}/></mesh>
  </group>
 }

@@ -1,0 +1,39 @@
+import test,{after} from 'node:test'
+import assert from 'node:assert/strict'
+import {mkdtemp,rm} from 'node:fs/promises'
+import path from 'node:path'
+import {pathToFileURL} from 'node:url'
+import {build} from 'esbuild'
+import {mountBookcase,THREE} from './bookcase-harness.mjs'
+import {coastPoint} from '../src/coastTerrainMath.js'
+import {environmentMix} from '../src/environmentAudioMix.js'
+import {movePlayer,walkHeight} from '../src/navigation.js'
+const dir=await mkdtemp(path.resolve('outputs/scenery-audit-'))
+after(()=>rm(dir,{recursive:true,force:true}))
+async function component(name){const file=path.join(dir,name+'.mjs');await build({entryPoints:['src/'+name+'.jsx'],outfile:file,bundle:true,packages:'external',platform:'node',format:'esm',logLevel:'silent',plugins:[{name:'rock-fixture',setup(b){b.onLoad({filter:/NaturalRocks\.jsx$/},()=>({contents:'export default function Rocks(){return null}',loader:'jsx'}))}}]});return (await import(pathToFileURL(file).href)).default}
+const Ocean=await component('OceanSurface'),Portal=await component('AtticTerracePortal'),Clouds=await component('DriftingClouds')
+test('ocean time advances, pauses while hidden and resumes without freezing',async()=>{
+ const m=await mountBookcase(Ocean,{w:11.5,h:6.2,time:'afternoon',weather:'sunny',motion:1.65})
+ try{let water;m.scene.traverse(o=>{if(o.material?.uniforms?.motion)water=o});assert.ok(water.geometry.attributes.position.count>1000);m.advance(1);const first=water.material.uniforms.clock.value;m.advance(2);assert.ok(water.material.uniforms.clock.value>first);water.parent.visible=false;const held=water.material.uniforms.clock.value;m.advance(3);assert.equal(water.material.uniforms.clock.value,held);water.parent.visible=true;m.advance(4);assert.ok(water.material.uniforms.clock.value>held)}finally{await m.dispose()}
+})
+test('actual terrace gable geometry closes above the opening and keeps doorway clear',async()=>{
+ const m=await mountBookcase(Portal,{})
+ try{m.scene.updateMatrixWorld(true);const ray=new THREE.Raycaster();const hit=(x,y)=>{ray.set(new THREE.Vector3(x,y,5),new THREE.Vector3(0,0,1));return ray.intersectObjects(m.scene.children,true).filter(h=>h.object.visible)};assert.equal(hit(0,2).length,0);assert.ok(hit(0,6).length>0);assert.ok(hit(4.07,2).length>0)}finally{await m.dispose()}
+})
+test('shore joins grass to submerged wet rock continuously on both coastal sides',()=>{
+ for(const west of [false,true])for(const along of [-20,0,20]){assert.ok(Math.abs(coastPoint(along,0,west)[1])<1e-9);assert.equal(coastPoint(along,1,west)[1],-7.35);let prev=0;for(let i=1;i<=100;i++){const y=coastPoint(along,i/100,west)[1];assert.ok(y<=prev&&prev-y<.12);prev=y}}
+})
+test('expanded greenhouse rear and east meadow doorway remain walkable',()=>{
+ const world={end:45,gateReady:true,entranceOpen:true,glassDoor:{amount:1,open:true}}
+ let p={x:0,z:-20,level:7.2};p=movePlayer(p,0,-8.5,world);assert.ok(Math.abs(p.z+28.5)<.02);assert.equal(walkHeight(0,-30.2,7.2,world),null)
+ p={x:55,z:0,level:0};p=movePlayer(p,40,0,world);assert.ok(Math.abs(p.x-95)<.02)
+})
+test('veranda ocean mix is quieter while keeping independent water bands',()=>{
+ const mix=environmentMix({x:-15,z:-11},'바다 마루');assert.ok(mix.surf>0&&mix.surf<.04);assert.ok(mix.rocks<mix.surf&&mix.water<mix.surf)
+})
+
+
+test('shared sky cloud shader receives advancing time through side windows and skylights',async()=>{
+ const m=await mountBookcase(Clouds,{time:'afternoon',weather:'sunny'})
+ try{let sky;m.scene.traverse(o=>{if(o.material?.uniforms?.sunlight)sky=o});m.advance(1);const t=sky.material.uniforms.clock.value;m.advance(2);assert.ok(sky.material.uniforms.clock.value>t)}finally{await m.dispose()}
+})

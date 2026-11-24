@@ -7,7 +7,7 @@ const world={end:45,gateReady:true,entranceOpen:true,glassDoor:{open:true,amount
 test('winter garden water, front glazing and outer edges block walking',()=>{
  for(const p of [FOUNTAIN,POND]){assert.equal(walkHeight(p.x,p.z,level,world),null);assert.equal(walkHeight(p.x+p.radius+.3,p.z,level,world),level)}
  assert.equal(walkHeight(3,-6.95,level,world),null)
- assert.equal(walkHeight(0,-24.1,level,world),null)
+ assert.equal(walkHeight(0,-30.1,level,world),null)
  assert.equal(walkHeight(8.4,-14,level,world),null)
 })
 test('glass door opens from both approaches and never closes on a visitor',()=>{

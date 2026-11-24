@@ -20,8 +20,8 @@ async function compile(baseline){
 const before=await compile(true),updated=await compile(false)
 const context={beginPath(){},moveTo(){},lineTo(){},bezierCurveTo(){},quadraticCurveTo(){},stroke(){},fill(){},ellipse(){},createLinearGradient(){return {addColorStop(){}}}}
 const options={context,browser:true},initial={time:'afternoon',weather:'sunny',event:'none',active:false}
-// Atmosphere is the first child; the separately mounted static room is second.
-const shell=scene=>scene.children[0].children[1]
+// Outside trees and atmosphere precede the separately mounted static room.
+const shell=scene=>scene.children[0].children[2]
 function sameBatchSurfaces(a,b){
  assert.equal(a.length,b.length)
  for(let i=0;i<a.length;i++){

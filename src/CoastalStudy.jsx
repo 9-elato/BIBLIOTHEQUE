@@ -4,8 +4,8 @@ import {useFrame} from '@react-three/fiber'
 import React,{useMemo,useRef} from 'react'
 import * as THREE from 'three'
 import {CarvedBox as B} from './StorybookDecor'
-export function OceanWindow({p,turn=0,w,h=5.2,time,weather}){
- return <group position={p} rotation={[0,turn,0]} userData={{noBatch:true}}><LivingOcean w={w} h={h} time={time} weather={weather}/><OceanSurface w={w} h={h} time={time} weather={weather}/>{[-1,1].map(a=><group key={a}><B p={[a*w/2,0,.055]} s={[.12,h+.2,.16]} c="#3d332c"/><B p={[0,a*h/2,.055]} s={[w,.12,.16]} c="#3d332c"/></group>)}<mesh position={[0,0,.07]}><planeGeometry args={[w-.05,h-.05]}/><meshStandardMaterial color="#b7d6db" transparent opacity={.035} roughness={.15} metalness={.15} depthWrite={false}/></mesh></group>
+export function OceanWindow({p,turn=0,w,h=5.2,time,weather,motion=1}){
+ return <group position={p} rotation={[0,turn,0]} userData={{noBatch:true}}><LivingOcean w={w} h={h} time={time} weather={weather}/><OceanSurface w={w} h={h} time={time} weather={weather} motion={motion}/>{[-1,1].map(a=><group key={a}><B p={[a*w/2,0,.055]} s={[.12,h+.2,.16]} c="#3d332c"/><B p={[0,a*h/2,.055]} s={[w,.12,.16]} c="#3d332c"/></group>)}<mesh position={[0,0,.07]}><planeGeometry args={[w-.05,h-.05]}/><meshStandardMaterial color="#b7d6db" transparent opacity={.035} roughness={.15} metalness={.15} depthWrite={false}/></mesh></group>
 }
 export default function CoastalStudy({time,weather,onMusic}){return <group>
  <OceanWindow p={[0,4.10,-29.30]} w={13.7} time={time} weather={weather}/>

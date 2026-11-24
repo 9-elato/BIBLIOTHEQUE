@@ -1,7 +1,7 @@
 import {MEADOW_STAIRS} from './eastMeadowLayout.js'
 // One source of truth for planting, seating and walking footprints.
 export const GARDEN_LEVEL=7.2
-export const GREENHOUSE_REGIONS=[[-5.25,5.25,-24,-6.3],[-8.4,-4.95,-17.1,-11],[4.95,8.4,-17.1,-11]]
+export const GREENHOUSE_REGIONS=[[-5.25,5.25,-30,-6.3],[-8.4,-4.95,-17.1,-11],[4.95,8.4,-17.1,-11]]
 export const FOUNTAIN={x:0,z:-14,radius:1.32}
 export const POND={x:-6.65,z:-14.6,radius:1.22}
 export const GARDEN_SEATING=[
@@ -71,10 +71,10 @@ export const GREENHOUSE_ALCOVE_PANELS=Array.from({length:3},(_,i)=>{
  const w=(GREENHOUSE_ALCOVE_FRONT-GREENHOUSE_ALCOVE_BACK)/3
  return {z:GREENHOUSE_ALCOVE_BACK+(i+.5)*w,w}
 })
-export const GREENHOUSE_SIDE_PANELS=[{z:-8.9,w:4.2},{z:-20.8,w:7.2}]
-export const GREENHOUSE_GABLE={halfWidth:5.4,eave:4.35,ridge:6.46,front:-6.8,back:-24.4}
+export const GREENHOUSE_SIDE_PANELS=[{z:-8.9,w:4.2},{z:-23.8,w:13.2}]
+export const GREENHOUSE_GABLE={halfWidth:5.4,eave:4.35,ridge:6.46,front:-6.8,back:-30.4}
 
-export const GREENHOUSE_HEIGHT_SCALE=1.4
+export const GREENHOUSE_HEIGHT_SCALE=1.75
 export const GREENHOUSE_DOOR_HEIGHT=3.4
 export const GREENHOUSE_CEILING_LAMP_Y=5.7
 export const greenhouseCeilingAt=x=>(6.44-Math.abs(x)*.389)*GREENHOUSE_HEIGHT_SCALE

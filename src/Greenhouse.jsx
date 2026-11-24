@@ -1,3 +1,4 @@
+import {northBankHeight} from './coastTerrainMath.js'
 import StaticBatch from './StaticBatch'
 import GreenhouseAtmosphere from './GreenhouseAtmosphere'
 import {useGreenhouseRain} from './greenhouseRainAudio'
@@ -8,8 +9,9 @@ import React,{useMemo,useRef,useEffect} from 'react'
 import {useFrame} from '@react-three/fiber'
 import * as THREE from 'three'
 import {Box as B} from './GroundFloor'
-import {WindowLandscape} from './WindowLandscape'
+import ForestTrees from './ForestTrees'
 import {GREENHOUSE_HEIGHT_SCALE,GREENHOUSE_DOOR_HEIGHT,GREENHOUSE_ALCOVE_PANELS,GREENHOUSE_EAST_ALCOVE_PANELS,GREENHOUSE_MEADOW_PORTAL,GREENHOUSE_ALCOVE_BACK,GREENHOUSE_ALCOVE_FRONT,GREENHOUSE_SIDE_PANELS,GREENHOUSE_GABLE,GARDEN_LEVEL,HERBS,TROPICALS,FLOWERS,GARDEN_SEATING,FOUNTAIN,POND} from './greenhouseLayout'
+const OUTSIDE_TREES=[[-14,0,-22],[-17,0,-30],[-9,0,-35],[0,0,-37],[10,0,-35],[16,0,-25]].map(([x,,z])=>[x,northBankHeight(x,z)/2,z])
 const iron='#254b3c',stone='#ded9c4',brass='#b79b58',rattan='#b7a07b'
 function Ball({p,s,c}){return <mesh position={p} scale={s}><sphereGeometry args={[1,12,8]}/><meshStandardMaterial color={c} roughness={.83}/></mesh>}
 function Tube({p,r,h,c=stone,top=r}){return <mesh position={p} receiveShadow><cylinderGeometry args={[top,r,h,24]}/><meshStandardMaterial color={c} roughness={.7}/></mesh>}
@@ -43,7 +45,7 @@ function Water({pond=false,active=false}){const rings=useRef();useFrame(({clock}
 function FlowersSmall(){return <group>{[0,1,2,3,4,5].map(i=><Ball key={i} p={[Math.sin(i)*.07,.045,Math.cos(i)*.07]} s={[.08,.055,.04]} c="#f0d4cd"/>)}</group>}
 function Glazing({x,z,w=2.2,turn=0,time,weather,event}){return <group position={[x,0,z]} rotation={[0,turn,0]}>
  <B p={[0,.45,0]} s={[w,.9,.18]} c={stone}/><B p={[0,.94,0]} s={[w+.06,.12,.3]} c="#ece5d2"/>
- <group position={[0,2.7,-.04]} userData={{noBatch:true}}><WindowLandscape rectangular width={w-.04} height={3.4} celestial={x===0&&z<-24} time={time} weather={weather} event={event}/></group>
+ <mesh position={[0,2.7,0]}><planeGeometry args={[w-.04,3.4]}/><meshStandardMaterial color="#d4e8de" transparent opacity={.07} side={THREE.DoubleSide} depthWrite={false}/></mesh>
  {Array.from({length:Math.ceil(w/1.2)+1},(_,i)=>-w/2+i*w/Math.ceil(w/1.2)).map(x=><B key={x} p={[x,2.65,.04]} s={[.06,3.5,.09]} c={iron}/>)}{[1,2.3,4.4].map(y=><B key={y} p={[0,y,.05]} s={[w,.06,.1]} c={iron}/>)}<B p={[0,2.7,.06]} s={[w,.025,.025]} c={brass}/>
  </group>}
 function MeadowStairPortal(){
@@ -79,25 +81,26 @@ export default function Greenhouse({time,weather,event,door,active,playerPositio
  // Climate-driven windows, water and moving doors opt out; the room shell
  // itself is invariant and must not be rebuilt for time/weather/event changes.
  return <group ref={shell} position={[0,GARDEN_LEVEL,0]}>
+ <group position={[0,-GARDEN_LEVEL,0]} scale={[1,2,1]}><ForestTrees positions={OUTSIDE_TREES} weather={weather}/></group>
  <GreenhouseAtmosphere time={time} weather={weather} active={active}/><StaticBatch>
- <B p={[0,-.12,-15.55]} s={[10.8,.24,17.7]} c={stone}/>{[-1,1].map(a=><B key={a} p={[a*6.9,-.12,-14.05]} s={[3.3,.24,6.5]} c={stone}/>)}
- {Array.from({length:17},(_,j)=>Array.from({length:10},(_,i)=><B key={j+':'+i} p={[-4.78+i*1.06,.005,-7.3-j]} s={[1.03,.015,.97]} c={(i+j)%3?'#d5d5c7':'#bec4bb'}/>))}
+ <B p={[0,-.12,-18.55]} s={[10.8,.24,23.7]} c={stone}/>{[-1,1].map(a=><B key={a} p={[a*6.9,-.12,-14.05]} s={[3.3,.24,6.5]} c={stone}/>)}
+ {Array.from({length:23},(_,j)=>Array.from({length:10},(_,i)=><B key={j+':'+i} p={[-4.78+i*1.06,.005,-7.3-j]} s={[1.03,.015,.97]} c={(i+j)%3?'#d5d5c7':'#bec4bb'}/>))}
  <group scale={[1,GREENHOUSE_HEIGHT_SCALE,1]}>
  {[-1,1].map(a=><group key={a}>{GREENHOUSE_SIDE_PANELS.map(({z,w})=><Glazing key={z} x={a*5.35} z={z} w={w} turn={-a*Math.PI/2} time={time} weather={weather} event={event}/>)}
  {(a<0?GREENHOUSE_ALCOVE_PANELS:GREENHOUSE_EAST_ALCOVE_PANELS).map(({z,w})=><Glazing key={z} x={a*8.5} z={z} w={w} turn={-a*Math.PI/2} time={time} weather={weather} event={event}/>)}
  {[GREENHOUSE_ALCOVE_FRONT,GREENHOUSE_ALCOVE_BACK].map(z=><Glazing key={z} x={a*6.9} z={z} w={3.2} turn={z===GREENHOUSE_ALCOVE_FRONT?Math.PI:0} time={time} weather={weather} event={event}/>)}
- <B p={[a*2.7,5.4,-15.55]} s={[5.82,.045,17.7]} rot={[0,0,-a*.37]} c="#d1e7dc" opacity={.18}/>
- {[-7,-9,-11,-13,-15,-17,-19,-21,-23,-24.3].map(z=><group key={z}><B p={[a*2.7,5.4,z]} s={[5.82,.075,.075]} rot={[0,0,-a*.37]} c={iron}/><Ball p={[a*5.35,4.38,z]} s={[.1,.1,.1]} c={brass}/></group>)}
- {[1.2,2.7,4.2].map(x=><B key={x} p={[a*x,6.44-x*.389,-15.55]} s={[.05,.05,17.7]} c={iron}/>)}
+ <B p={[a*2.7,5.4,-18.55]} s={[5.82,.045,23.7]} rot={[0,0,-a*.37]} c="#d1e7dc" opacity={.18}/>
+ {[-7,-9,-11,-13,-15,-17,-19,-21,-23,-25,-27,-29,-30.3].map(z=><group key={z}><B p={[a*2.7,5.4,z]} s={[5.82,.075,.075]} rot={[0,0,-a*.37]} c={iron}/><Ball p={[a*5.35,4.38,z]} s={[.1,.1,.1]} c={brass}/></group>)}
+ {[1.2,2.7,4.2].map(x=><B key={x} p={[a*x,6.44-x*.389,-18.55]} s={[.05,.05,23.7]} c={iron}/>)}
  {[-11.1,-17.1].map(z=><B key={'post'+z} p={[a*5.25,2.2,z]} s={[.12,4.4,.12]} c={iron}/>)}<group position={[a*5.25,2,-14.1]} rotation={[0,Math.PI/2,0]} scale={[1, .75,1]}><Ring p={[0,0,0]} r={3} rot={[0,0,0]} arc={Math.PI}/></group>
  <B p={[a*6.9,4.4,-14.1]} s={[3.2,.045,6.2]} c="#cde1d5" opacity={.22}/>{[-11,-13,-15,-17.2].map(z=><B key={z} p={[a*6.9,4.45,z]} s={[3.3,.09,.08]} c={iron}/>)}
  {[-11.1,-17.1].map(z=><Vine key={z} x={a*5.23} z={z}/>)}
  <B p={[a*3.4,GREENHOUSE_DOOR_HEIGHT/2,-6.95]} s={[3.9,GREENHOUSE_DOOR_HEIGHT,.12]} c="#b9d3c5" opacity={.25}/><B p={[a*3.4,.45,-6.95]} s={[3.9,.9,.2]} c={stone}/>
  </group>)}
- {[-4.25,-2.12,0,2.12,4.25].map(x=><Glazing key={x} x={x} z={-24.3} w={2.12} time={time} weather={weather} event={event}/>)}
+ {[-4.25,-2.12,0,2.12,4.25].map(x=><Glazing key={x} x={x} z={-30.3} w={2.12} time={time} weather={weather} event={event}/>)}
  {[-1,1].map(a=><B key={'entry-corner'+a} p={[a*5.35,2.175,-6.875]} s={[.10,4.35,.25]} c={iron}/>)}
  <GableClosure/><MeadowStairPortal/>
- <B p={[0,6.46,-15.55]} s={[.12,.13,17.7]} c={brass}/>
+ <B p={[0,6.46,-18.55]} s={[.12,.13,23.7]} c={brass}/>
  <mesh position={[0,6.43,-14]} scale={[1.3,.8,1.8]}><sphereGeometry args={[1,24,12,0,Math.PI*2,0,Math.PI/2]}/><meshStandardMaterial color="#badbd2" transparent opacity={.28} side={THREE.DoubleSide}/></mesh>
  <Ring p={[0,6.45,-14]} r={1.3} c={brass}/>
  {[-1,1].map(a=><group key={a} position={[a*1.4,0,-6.95]}><B p={[0,1.75,0]} s={[.1,3.5,.15]} c={iron}/><group ref={a<0?left:right} userData={{noBatch:true}}><B p={[-a*.7,GREENHOUSE_DOOR_HEIGHT/2,0]} s={[1.34,GREENHOUSE_DOOR_HEIGHT-.05,.055]} c="#c9e4d7" opacity={.23}/>{[0,.7,1.4].map(x=><B key={x} p={[-a*x,GREENHOUSE_DOOR_HEIGHT/2,0]} s={[.04,GREENHOUSE_DOOR_HEIGHT,.08]} c={iron}/>)}{[.1,1.2,GREENHOUSE_DOOR_HEIGHT].map(y=><B key={y} p={[-a*.7,y,0]} s={[1.4,.045,.08]} c={iron}/>)}<B p={[-a*1.2,1.18,.09]} s={[.04,.28,.06]} c={brass}/></group></group>)}

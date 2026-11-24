@@ -27,7 +27,7 @@ export async function mountBookcase(Component,props,{context={},browser=false}={
  const previousDocument=globalThis.document,previousAct=globalThis.IS_REACT_ACT_ENVIRONMENT,previousWindow=globalThis.window
  globalThis.IS_REACT_ACT_ENVIRONMENT=true
  globalThis.document={addEventListener(){},removeEventListener(){},createElement(){return {getContext:()=>({fillRect(){},strokeRect(){},fillText(){},...context})}}}
- if(browser&&!globalThis.window)globalThis.window={addEventListener(){},removeEventListener(){}}
+ if(browser&&!globalThis.window)globalThis.window={addEventListener(){},removeEventListener(){},matchMedia(){return {matches:false,addEventListener(){},removeEventListener(){}}}}
  const canvas={width:400,height:400,addEventListener(){},removeEventListener(){}}
  const gl={domElement:canvas,render(){},setSize(){},setPixelRatio(){},shadowMap:{},xr:{addEventListener(){},removeEventListener(){}},getContext(){return {}}}
  const root=createRoot(canvas);let state

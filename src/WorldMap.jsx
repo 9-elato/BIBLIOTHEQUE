@@ -25,7 +25,7 @@ function floors(end){
   ],doors:[[[37,47],[41,47]],[[28,54],[28,60]],[[48,54],[48,60]],[[37,67],[41,67]],[[37,75],[41,75]],[[94,53],[94,61]],[[48,20],[48,24]]],
   stairs:[{id:'hall',from:[30,0,51],to:[30,0,64],width:2},{id:'meadow',from:[51,0,36],to:[65,0,36],width:2.5}],
   links:[['stairs','중앙 계단'],['basementstairs','지하 계단'],['garden-west','서쪽 정원 벤치'],['garden-east','동쪽 정원 벤치']]},
-  {bounds:[-12,22,-26,9],rooms:[
+  {bounds:[-19,22,-33,9],rooms:[
    ...GREENHOUSE_REGIONS.map((rect,i)=>room('greenhouse','실내 온실',rect,i===0?[0,-18.8]:null,'glass')),
    ...[[-7.6,7.6,-6.7,-4.45],[-7.6,7.6,4.9,6.7],[5.3,7.6,-4.45,4.9]].map((rect,i)=>room('mezzanine','2층 갤러리',rect,i===0?[-3.3,-5.55]:null)),
    room(null,'중앙 홀 상부',[-5.3,5.3,-4.45,4.9],[0,.7],'void'),

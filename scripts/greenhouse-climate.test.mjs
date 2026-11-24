@@ -10,7 +10,7 @@ test('winter garden changes sunlight, lamps and wildlife with time and weather',
 })
 test('rain stays on the outer roof and snow remains above glass and dome',()=>{
  for(const t of [0,1,20,1000])for(let i=0;i<180;i++){
-  const [x,y,z]=roofDrop(i,t);assert.ok(y>gardenRoofY(x));assert.ok(Math.abs(x)<5.3&&z<-7&&z>-24)
+  const [x,y,z]=roofDrop(i,t);assert.ok(y>gardenRoofY(x));assert.ok(Math.abs(x)<5.3&&z<-7&&z>-30)
   const [,snowY]=skyFlake(i,t);assert.ok(snowY>=8.1)
  }
 })

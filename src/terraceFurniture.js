@@ -1,5 +1,6 @@
 // Before atticX expansion; matches the terrace props at ATTIC_ORIGIN.x=-15.6.
 export const TERRACE_FURNITURE=[
+ ...[-19.67,-11.53].map(x=>({id:'terrace-portal-post-'+x,rect:[x-.31,x+.31,6.39,6.73]})),
  ...[-23.5,-7.7].map(x=>({id:'terrace-side-rail-'+x,rect:[x-.05,x+.05,6.7,10.9]})),
  {id:'terrace-front-rail',rect:[-23.55,-7.65,10.8,10.9]},
  ...[[-23.5,-19.5],[-11.7,-7.7]].map(([l,r])=>({id:'terrace-rear-rail-'+l,rect:[l,r,6.6,6.7]})),

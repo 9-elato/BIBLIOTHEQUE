@@ -14,7 +14,7 @@ export default function SeaVeranda({door,time,weather,onExperience,playerPositio
   {Array.from({length:21},(_,i)=><B key={i} p={[-14.7,.004,-6.85-i*.35]} s={[11.7,.012,.016]} c="#4b392e"/>)}
   <B p={[-14.7,6.3,-10.4]} s={[11.8,.2,7.5]} c="#584132"/>
   {[-20.5,-8.9].map(x=><B key={x} p={[x,3.1,-10.4]} s={[.2,6.2,7.5]} c="#b2a28b"/>)}
-  <group userData={{noBatch:true}}><OceanWindow p={[-14.7,3.1,-14.08]} w={11.5} h={6.2} time={time} weather={weather}/></group>
+  <group userData={{noBatch:true}}><OceanWindow p={[-14.7,3.1,-14.08]} w={11.5} h={6.2} motion={1.65} time={time} weather={weather}/></group>
   <B p={[-14.7,.13,-13.85]} s={[11.6,.26,.3]} c="#5d4736"/>
   <B p={[-14.7,4.25,-13.8]} s={[11.2,.10,.12]} c="#554031"/>
   {[-20.2,-9.2].map(x=><group key={x}>
