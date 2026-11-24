@@ -11,7 +11,7 @@ import {movePlayer,walkHeight} from '../src/navigation.js'
 const dir=await mkdtemp(path.resolve('outputs/scenery-audit-'))
 after(()=>rm(dir,{recursive:true,force:true}))
 async function component(name){const file=path.join(dir,name+'.mjs');await build({entryPoints:['src/'+name+'.jsx'],outfile:file,bundle:true,packages:'external',platform:'node',format:'esm',logLevel:'silent',plugins:[{name:'rock-fixture',setup(b){b.onLoad({filter:/NaturalRocks\.jsx$/},()=>({contents:'export default function Rocks(){return null}',loader:'jsx'}))}}]});return (await import(pathToFileURL(file).href)).default}
-const Ocean=await component('OceanSurface'),Portal=await component('AtticTerracePortal'),Clouds=await component('DriftingClouds')
+const Ocean=await component('OceanSurface'),Portal=await component('AtticTerracePortal'),Clouds=await component('DriftingClouds'),Sea=await component('SeaWater')
 test('ocean time advances, pauses while hidden and resumes without freezing',async()=>{
  const m=await mountBookcase(Ocean,{w:11.5,h:6.2,time:'afternoon',weather:'sunny',motion:1.65})
  try{let water;m.scene.traverse(o=>{if(o.material?.uniforms?.motion)water=o});assert.ok(water.geometry.attributes.position.count>1000);m.advance(1);const first=water.material.uniforms.clock.value;m.advance(2);assert.ok(water.material.uniforms.clock.value>first);water.parent.visible=false;const held=water.material.uniforms.clock.value;m.advance(3);assert.equal(water.material.uniforms.clock.value,held);water.parent.visible=true;m.advance(4);assert.ok(water.material.uniforms.clock.value>held)}finally{await m.dispose()}
@@ -36,4 +36,13 @@ test('veranda ocean mix is quieter while keeping independent water bands',()=>{
 test('shared sky cloud shader receives advancing time through side windows and skylights',async()=>{
  const m=await mountBookcase(Clouds,{time:'afternoon',weather:'sunny'})
  try{let sky;m.scene.traverse(o=>{if(o.material?.uniforms?.sunlight)sky=o});m.advance(1);const t=sky.material.uniforms.clock.value;m.advance(2);assert.ok(sky.material.uniforms.clock.value>t)}finally{await m.dispose()}
+})
+
+
+test('world sea waves use shared world coordinates and update surface normals',async()=>{
+ const m=await mountBookcase(Sea,{position:[-14.9,-7,-29],size:[16,25],time:'afternoon',weather:'sunny'})
+ try{let water;m.scene.traverse(o=>{if(o.material?.onBeforeCompile&&o.userData.noBatch)water=o});assert.ok(water);m.scene.updateMatrixWorld(true);const normal=new THREE.Vector3(0,0,1).transformDirection(water.matrixWorld);assert.ok(normal.y>.99)
+ const shader={uniforms:{},vertexShader:'#include <beginnormal_vertex>\n#include <begin_vertex>',fragmentShader:'#include <color_fragment>'};water.material.onBeforeCompile(shader)
+ assert.deepEqual(shader.uniforms.waveOrigin.value.toArray(),[-14.9,-29]);assert.ok(shader.vertexShader.includes('objectNormal=normalize'));assert.ok(shader.vertexShader.includes('transformed.z+=waveHeight'));m.advance(1);const t=shader.uniforms.waveClock.value;m.advance(2);assert.ok(shader.uniforms.waveClock.value>t)
+ }finally{await m.dispose()}
 })

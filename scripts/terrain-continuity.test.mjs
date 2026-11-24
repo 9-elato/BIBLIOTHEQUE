@@ -16,3 +16,9 @@ test('both old gables and terrace window trim are replaced while front walls rem
  for(const name of ['GABLE · end triangular infill 6.64','GABLE · end triangular infill -6.64','WINDOW · rear stone sill','WINDOW · vertical mullion'])assert.ok(replaceAtticEndWall(name,0))
  assert.equal(replaceAtticEndWall('WALL · end low plinth',-6.64),false)
 })
+
+
+test('veranda inlet has no ground backing in its sea sightline',()=>{
+ for(const z of [-16,-20,-26,-33])assert.ok(!GROUND_BACKING.some(r=>inside(-14.7,z,r)))
+ assert.ok(GROUND_BACKING.some(r=>inside(-14.7,-12,r)))
+})

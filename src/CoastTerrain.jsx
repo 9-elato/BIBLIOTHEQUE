@@ -1,6 +1,7 @@
 import React,{useMemo,useEffect} from 'react'
 import * as THREE from 'three'
-import {coastPoint} from './coastTerrainMath.js'
+import {cutFloor} from './basementLayout.js'
+import {coastPoint,VERANDA_INLET} from './coastTerrainMath.js'
 export default function CoastTerrain({weather}){
  const geometry=useMemo(()=>[false,true].map(west=>{
  const g=new THREE.PlaneGeometry(1,1,80,14),p=g.attributes.position,c=[]
@@ -12,5 +13,5 @@ export default function CoastTerrain({weather}){
  g.setAttribute('color',new THREE.Float32BufferAttribute(c,3));g.computeVertexNormals();return g
  }),[weather])
  useEffect(()=>()=>geometry.forEach(g=>g.dispose()),[geometry])
- return <group><mesh position={[41,-.07,-26]} rotation={[-Math.PI/2,0,0]} receiveShadow><planeGeometry args={[158,16]}/><meshStandardMaterial color={weather==='snow'?'#d9e0d4':'#719951'} roughness={1}/></mesh>{geometry.map((g,i)=><mesh key={i} geometry={g} receiveShadow><meshStandardMaterial vertexColors side={THREE.DoubleSide} roughness={.91}/></mesh>)}</group>
+ return <group>{cutFloor([-38,120,-34,-18],VERANDA_INLET).map(([l,r,b,f],i)=><mesh key={'bank'+i} position={[(l+r)/2,-.07,(b+f)/2]} rotation={[-Math.PI/2,0,0]} receiveShadow><planeGeometry args={[r-l,f-b]}/><meshStandardMaterial color={weather==='snow'?'#d9e0d4':'#719951'} roughness={1}/></mesh>)}{geometry.map((g,i)=><mesh key={i} geometry={g} receiveShadow><meshStandardMaterial vertexColors side={THREE.DoubleSide} roughness={.91}/></mesh>)}</group>
 }
