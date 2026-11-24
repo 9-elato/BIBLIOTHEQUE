@@ -7,3 +7,6 @@ export function suspension(lightY,mountY){
  const length=mountY-lightY
  return {length,center:length/2,cap:length}
 }
+
+// The first shelf bay precedes its lower ceiling; keep its support under the slab.
+export const stacksPendantX=start=>Math.max(start,15.7)

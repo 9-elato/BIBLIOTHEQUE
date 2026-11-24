@@ -6,13 +6,13 @@ import * as THREE from 'three'
 import {Box as B} from './GroundFloor'
 import StaticBatch from './StaticBatch'
 import {ambientUpdateDue} from './ambientUpdates'
-import {BASEMENT_HEIGHT as H,SPRING_POOL as P,SPRING_WALK_REGION,SPRING_LANTERNS,cutFloor} from './basementLayout'
+import {BASEMENT_HEIGHT as H,SPRING_POOL as P,SPRING_WALK_REGION,BASEMENT_BOUNDS,SPRING_OUTDOOR_REGION,SPRING_CURBS,SPRING_CANOPY_HEIGHT,SPRING_LANTERNS,cutFloor} from './basementLayout'
 const rockCount=18,tileColumns=16,tileRows=40
 function LandscapeInstances(){
- const rocks=useMemo(()=>Array.from({length:rockCount},(_,i)=>{return {position:[18.5-(i%3)*.35,H+.12,1.5+i*.85],scale:[.3+(i%3)*.07,.18+(i%4)*.03,.35],seed:i+31,waterLevel:H+.13,moss:true}}),[]),leaves=useRef(),tiles=useRef()
+ const rocks=useMemo(()=>Array.from({length:rockCount},(_,i)=>{return {position:[13.4-(i%3)*.35,H+.12,1.5+i*.85],scale:[.3+(i%3)*.07,.18+(i%4)*.03,.35],seed:i+31,waterLevel:H+.13,moss:true}}),[]),leaves=useRef(),tiles=useRef()
  useLayoutEffect(()=>{const o=new THREE.Object3D(),c=new THREE.Color()
 
-  for(let i=0;i<180;i++){const plant=Math.floor(i/12),j=i%12,side=plant%2?-1:1,baseX=side<0?17.8:26.4,baseZ=1.4+Math.floor(plant/2)*1.6,a=j*2.4;o.position.set(baseX+Math.cos(a)*.4,H+.6+Math.sin(j*.7)*.28,baseZ+Math.sin(a)*.4);o.scale.set(.11,.52,.045);o.rotation.set(.7,a,.65);o.updateMatrix();leaves.current.setMatrixAt(i,o.matrix);c.set(['#365a3a','#567448','#77935a'][j%3]);leaves.current.setColorAt(i,c)}
+  for(let i=0;i<180;i++){const plant=Math.floor(i/12),j=i%12,side=plant%2?-1:1,baseX=side<0?13.3:28.5,baseZ=1.4+Math.floor(plant/2)*1.6,a=j*2.4;o.position.set(baseX+Math.cos(a)*.4,H+.6+Math.sin(j*.7)*.28,baseZ+Math.sin(a)*.4);o.scale.set(.11,.52,.045);o.rotation.set(.7,a,.65);o.updateMatrix();leaves.current.setMatrixAt(i,o.matrix);c.set(['#365a3a','#567448','#77935a'][j%3]);leaves.current.setColorAt(i,c)}
   for(let i=0;i<tileColumns*tileRows;i++){o.position.set(18.25+(i%tileColumns)*.48,H+.025,-6.35+Math.floor(i/tileColumns)*.62);o.rotation.set(0,0,0);const inPool=Math.abs(o.position.x-P.x)<P.rx+.24&&Math.abs(o.position.z-P.z)<P.rz+.31;o.scale.set(inPool?0:.46,inPool?0:.06,inPool?0:.60);o.updateMatrix();tiles.current.setMatrixAt(i,o.matrix);c.set(['#48564e','#56625a','#606a5e','#414e49'][i%4]);tiles.current.setColorAt(i,c)}
   for(const ref of [leaves,tiles]){ref.current.instanceMatrix.needsUpdate=true;if(ref.current.instanceColor)ref.current.instanceColor.needsUpdate=true;ref.current.computeBoundingSphere()}
  },[])
@@ -57,10 +57,10 @@ function Fireflies({time,active}){
  </points>
 }
 export default function ForestSpring({time,weather,active=true}){
- const trees=useMemo(()=>[[28,H,11],[17.6,H,16],[27,H,21]],[])
- const [,right,near,end]=SPRING_WALK_REGION
+ const trees=useMemo(()=>[[28,H,11],[12,H,16],[29.3,H,21]],[])
  return <group><StaticBatch revision={time}>
- {cutFloor([18.1,26,near,end],[P.x-P.rx,P.x+P.rx,P.z-P.rz,P.z+P.rz]).map(([l,r,b,f],i)=><B key={'slab'+i} p={[(l+r)/2,H-.11,(b+f)/2]} s={[r-l,.22,f-b]} c="#465449"/>)}
+ {cutFloor(SPRING_WALK_REGION,BASEMENT_BOUNDS).flatMap(bounds=>cutFloor(bounds,[P.x-P.rx,P.x+P.rx,P.z-P.rz,P.z+P.rz])).map(([l,r,b,f],i)=><B key={'slab'+i} p={[(l+r)/2,H-.11,(b+f)/2]} s={[r-l,.22,f-b]} c="#465449"/>)}
+ {[SPRING_OUTDOOR_REGION].map(([l,r,b,f])=><B key="outside-deck" p={[(l+r)/2,H-.11,(b+f)/2]} s={[r-l,.22,f-b]} c="#70664e"/>)}
  <B p={[P.x,H-1.04,P.z]} s={[P.rx*2,.16,P.rz*2]} c="#344c43"/>
  {[-1,1].map(side=><group key={'rim'+side}>
  <B p={[P.x+side*(P.rx+.08),H-.38,P.z]} s={[.16,1.24,P.rz*2+.32]} c="#56645b"/>
@@ -69,8 +69,8 @@ export default function ForestSpring({time,weather,active=true}){
  <B p={[P.x,H+.24,P.z+side*(P.rz+.08)]} s={[P.rx*2,.12,.28]} c="#899083"/>
  </group>)}
  <B p={[P.x+P.rx-.42,H-.62,P.z]} s={[.78,.24,P.rz*2-.6]} c="#65776a"/>
- <B p={[25.35,H+4.6,9]} s={[1.6,.18,16]} c="#493d2e"/>
- {[2.6,16.8].map(z=><B key={'post'+z} p={[25.85,H+2.3,z]} s={[.14,4.6,.14]} c="#493d2e"/>)}
+ <B p={[25.35,H+SPRING_CANOPY_HEIGHT,12]} s={[1.6,.18,10]} c="#493d2e"/>
+ {[7.1,16.8].map(z=><B key={'post'+z} p={[25.85,H+SPRING_CANOPY_HEIGHT/2,z]} s={[.14,SPRING_CANOPY_HEIGHT,.14]} c="#493d2e"/>)}
  {/* Dry edge deck and quiet timber lintel frame the existing open garden. */}
  {Array.from({length:40},(_,i)=><B key={'deck'+i} p={[25.35,H+.07,1.6+i*.39]} s={[.9,.04,.37]} c={i%3?'#705d45':'#806b50'}/>)}
 
@@ -79,11 +79,10 @@ export default function ForestSpring({time,weather,active=true}){
  <B p={[26,H+2.43,0]} s={[.13,4.86,13.3]} c="#35453b"/>
  {Array.from({length:25},(_,i)=><B key={i} p={[25.92,H+.12+i*.19,0]} s={[.07,.025,13.25]} c="#637063"/>)}
 
- <B p={[22.1,H+.17,end-.05]} s={[7.8,.34,.26]} c="#59644f"/>
- {[18.22,right-.15].map(x=><B key={x} p={[x,H+.14,(6.75+end-.05)/2]} s={[.23,.28,end-.05-6.75]} c="#59644f"/>)}
- {SPRING_LANTERNS.map(([x,z])=><group key={x+':'+z} position={[x,H+.20,z]}><B p={[0,0,0]} s={[.18,.4,.18]} c="#d8b77b" glow={time==='evening'?'#e3ab59':undefined}/><B p={[0,.24,0]} s={[.28,.06,.28]} c="#374339"/></group>)}
+ {SPRING_CURBS.map(({id,rect:[l,r,b,f]})=><B key={id} p={[(l+r)/2,H+.14,(b+f)/2]} s={[r-l,.28,f-b]} c="#59644f"/>)}
+ {SPRING_LANTERNS.map(([x,z])=><group key={x+':'+z} position={[x,H+.20,z]}><B p={[0,0,0]} s={[.18,.4,.18]} c="#d8b77b" glow="#e3ab59"/><B p={[0,.24,0]} s={[.28,.06,.28]} c="#374339"/></group>)}
  <mesh position={[29,H+3.4,26]} scale={[3.4,4,1.4]}><dodecahedronGeometry args={[1,1]}/><meshStandardMaterial color="#596b56" roughness={1}/></mesh>
 
- </StaticBatch>{[5,13].map(z=><pointLight key={z} position={[25.1,H+.65,z]} color="#ffd393" intensity={active?(time==='evening'?1.6:.65):0} distance={4.5} decay={2}/>)}<ForestTrees positions={trees} weather={weather}/><LandscapeInstances/><SpringWater/><Fireflies time={time} active={active}/>
+ </StaticBatch>{[[25.1,5],[25.1,13],[15.1,16],[21,25.5]].map(([x,z])=><pointLight key={x+':'+z} position={[x,H+.65,z]} color="#ffd393" intensity={active?(time==='evening'?1.6:.65):0} distance={4.5} decay={2}/>)}<ForestTrees positions={trees} weather={weather}/><LandscapeInstances/><SpringWater/><Fireflies time={time} active={active}/>
  </group>
 }

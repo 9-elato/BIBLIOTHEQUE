@@ -2,7 +2,7 @@ import React,{useId} from 'react'
 import MapIllustration from './MapIllustration'
 import {STAIRS} from './navigation'
 import {GREENHOUSE_REGIONS,FOUNTAIN,POND} from './greenhouseLayout'
-import {BASEMENT_BOUNDS,BASEMENT_PORTAL,SPRING_WALK_REGION,SPRING_POOL} from './basementLayout'
+import {BASEMENT_BOUNDS,BASEMENT_PORTAL,SPRING_WALK_REGION,SPRING_OUTDOOR_REGION,SPRING_POOL} from './basementLayout'
 import {atticX,ATTIC_TERRACE_BOUNDS} from './atticLayout'
 
 const room=(id,name,space,label,kind='room')=>({id,name,space,label,kind})
@@ -32,12 +32,12 @@ function floors(end){
    room('reading','열람실',[7.6,15,-5,5],[11.2,-2.7]),
   ],doors:[[[-1.35,-6.65],[1.35,-6.65]],[[8.4,-16.9],[8.4,-14.9]],[[7.6,-4.7],[7.6,4.7]]],
   links:[['stairs','중앙 계단'],['attic','다락 계단'],['eastmeadow','동쪽 잔디 들판']]},
-  {bounds:[-22,-9,-8,13],rooms:[
+  {bounds:[-26,-6,-8,13],rooms:[
    room('attic','다락방',[atticX(-19.8),-11.45,-6.62,6.35],[-15.4,2]),
    room('terrace','별빛 테라스',ATTIC_TERRACE_BOUNDS,[-15.9,9.7],'outdoor'),
   ],doors:[[[ATTIC_TERRACE_BOUNDS[0],6.35],[ATTIC_TERRACE_BOUNDS[1],6.35]], [[-11.45,4.8],[-11.45,6.48]]],
   links:[['atticbed','다락 데이베드'],['mezzanine','2층 갤러리']]},
-  {bounds:[2,27,-8,20],rooms:[room('basement','지하 숲 라운지',[BASEMENT_BOUNDS[0],BASEMENT_PORTAL.x,BASEMENT_BOUNDS[2],BASEMENT_BOUNDS[3]],[14,0]),room('bathroom','숲 온천',[BASEMENT_PORTAL.x,BASEMENT_BOUNDS[1],BASEMENT_BOUNDS[2],6.2],[23,-2]),room('bathroom','숲 온천',SPRING_WALK_REGION,null,'outdoor')],doors:[[[BASEMENT_PORTAL.x,-1.1],[BASEMENT_PORTAL.x,1]]],links:[['basementstairs','1층 중앙 홀']]},
+  {bounds:[2,30,-8,29],rooms:[room('basement','지하 숲 라운지',[BASEMENT_BOUNDS[0],BASEMENT_PORTAL.x,BASEMENT_BOUNDS[2],BASEMENT_BOUNDS[3]],[14,0]),room('bathroom','숲 온천',[BASEMENT_PORTAL.x,BASEMENT_BOUNDS[1],BASEMENT_BOUNDS[2],6.2],[23,-2]),room('bathroom','숲 온천',SPRING_WALK_REGION,null,'outdoor'),room('bathroom','온천 숲 데크',SPRING_OUTDOOR_REGION,[19,24],'outdoor')],doors:[[[BASEMENT_PORTAL.x,-1.1],[BASEMENT_PORTAL.x,1]]],links:[['basementstairs','1층 중앙 홀']]},
  ]
 }
 

@@ -1,4 +1,4 @@
-import {CORRIDOR_CEILING,suspension} from './fixtureMounts'
+import {CORRIDOR_CEILING,suspension,stacksPendantX} from './fixtureMounts'
 import {STACKS_CEILING_START} from './upperArchitecture'
 import React,{useState} from 'react'
 import {useFrame} from '@react-three/fiber'
@@ -58,8 +58,8 @@ export default function MainRoomDetails({layout,time,zone}){
  <B p={[15.4,11.69,0]} s={[.22,2.78,11.7]} c="#cbb697"/>
  <B p={[(layout.end+STACKS_CEILING_START)/2,10.4,0]} s={[layout.end-STACKS_CEILING_START,.16,11.7]} c="#cbb697"/>
  {layout.sections.map(({genre,start,cases},i)=><group key={genre.id}>
-  <B p={[start,10.29,0]} s={[.16,.17,11.5]} c={genre.trim}/>
-  <Pendant p={[start,7.6,0]} mountY={10.29-.17/2} color={genre.wood} time={time} lit={zone==='서가'&&i===nearest}/>
+  <B p={[stacksPendantX(start),10.29,0]} s={[.16,.17,11.5]} c={genre.trim}/>
+  <Pendant p={[stacksPendantX(start),7.6,0]} mountY={10.29-.17/2} color={genre.wood} time={time} lit={zone==='서가'&&i===nearest}/>
   {[-1].map(a=><group key={a}>
    <B p={[start,4.86,a*4.8]} s={[3.1,.10,.34]} c={genre.trim}/>
    <Print p={[start,2.4,a*5.69]} turn={a>0?Math.PI:0} color={genre.wood} kind={i%2}/>

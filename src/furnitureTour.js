@@ -1,6 +1,6 @@
-import {SEATS,startSitting,startStanding} from './seating.js'
+import {SEATS,seatsForWorld,startSitting,startStanding} from './seating.js'
 import {walkHeight,movePlayer} from './navigation.js'
-export function createFurnitureTour(player,onlyBed=false){return {seats:onlyBed?SEATS.filter(s=>s.id==='attic-daybed'):SEATS,index:-1,phase:'next',elapsed:0,results:[],saved:{x:player.x,z:player.z,level:player.level,yaw:player.yaw,bodyYaw:player.bodyYaw,pitch:player.pitch},running:true}}
+export function createFurnitureTour(player,onlyBed=false,world){return {seats:onlyBed?SEATS.filter(s=>s.id==='attic-daybed'):seatsForWorld(world),index:-1,phase:'next',elapsed:0,results:[],saved:{x:player.x,z:player.z,level:player.level,yaw:player.yaw,bodyYaw:player.bodyYaw,pitch:player.pitch},running:true}}
 export function advanceFurnitureTour(t,s,world,dt){
  if(!t.running)return
  t.elapsed+=Math.min(dt,.1)

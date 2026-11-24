@@ -4,7 +4,6 @@ import React,{useEffect,useMemo,useState,useRef} from 'react'
 import {Html} from '@react-three/drei'
 import * as THREE from 'three'
 import {Box as B} from './GroundFloor'
-import {DetailedTelescope} from './AtticComfort'
 import CozyTerrace from './CozyTerrace'
 import StaticBatch from './StaticBatch'
 export default function AtticTerraceCinema({time,weather}){
@@ -17,13 +16,14 @@ export default function AtticTerraceCinema({time,weather}){
  return <group>
   <CozyTerrace time={time}/>
   <StaticBatch revision={time}>
-  <B p={[0,-.14,8.75]} s={[7.9,.28,4.3]} c="#775944"/>
-  {Array.from({length:23},(_,i)=><B key={i} p={[-3.8+i*.34,.008,8.75]} s={[.32,.025,4.3]} c={i%3?'#967154':'#866047'}/>)}
-  {[-3.95,3.95].map(x=><group key={x}><B p={[x,.62,8.8]} s={[.06,1.24,4.2]} c="#d0b998" opacity={.18}/><B p={[x,1.2,8.8]} s={[.1,.12,4.2]} c="#a88551"/>{[6.8,8.8,10.8].map(z=><B key={z} p={[x,.6,z]} s={[.1,1.2,.1]} c="#52483c"/>)}</group>)}
-  <B p={[0,1.2,10.85]} s={[8,.12,.1]} c="#a88551"/>
-  {Array.from({length:27},(_,i)=><B key={i} p={[-3.95+i*(7.9/26),.6,10.85]} s={[.06,1.2,.06]} c="#52483c"/>)}
+  <B p={[0,-.14,8.75]} s={[15.8,.28,4.3]} c="#775944"/>
+  {Array.from({length:46},(_,i)=><B key={i} p={[-7.65+i*.34,.008,8.75]} s={[.32,.025,4.3]} c={i%3?'#967154':'#866047'}/>)}
+  {[-7.9,7.9].map(x=><group key={x}><B p={[x,.62,8.8]} s={[.06,1.24,4.2]} c="#d0b998" opacity={.18}/><B p={[x,1.2,8.8]} s={[.1,.12,4.2]} c="#a88551"/>{[6.8,8.8,10.8].map(z=><B key={z} p={[x,.6,z]} s={[.1,1.2,.1]} c="#52483c"/>)}</group>)}
+  <B p={[0,1.2,10.85]} s={[15.9,.12,.1]} c="#a88551"/>
+  {Array.from({length:53},(_,i)=><B key={i} p={[-7.9+i*(15.8/52),.6,10.85]} s={[.06,1.2,.06]} c="#52483c"/>)}
+  {[-5.9,5.9].map(x=><B key={'rear-guard'+x} p={[x,.6,6.65]} s={[4,1.2,.10]} c="#775944"/>)}
   <B p={[0,-.045,6.57]} s={[7.9,.09,.38]} c="#a18a65"/>
-  <group position={[.45,0,4.7]}><DetailedTelescope/></group>
+
   {[-3.5,3.5].map(x=><mesh key={x} position={[x,.12,10.3]}><boxGeometry args={[.22,.18,.22]}/><meshStandardMaterial color="#e9c58b" emissive="#ffc778" emissiveIntensity={time==='evening'?1.5:.15}/></mesh>)}
   </StaticBatch>
   {time==='evening'&&weather!=='rain'&&weather!=='snow'&&<points><bufferGeometry><bufferAttribute attach="attributes-position" args={[stars,3]}/></bufferGeometry><pointsMaterial size={.085} color="#fff0d1" sizeAttenuation/></points>}

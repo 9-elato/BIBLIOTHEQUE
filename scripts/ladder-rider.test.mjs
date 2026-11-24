@@ -24,15 +24,15 @@ test('blocked or distant boarding is refused without moving the character',()=>{
 test('T gallery reaches both arms and the centered east meadow arch without crossing shelves',()=>{
  for(const end of [43.1,50]){
   const world={end,entranceOpen:true,gateReady:true}
-  for(const target of [[end+3,-10],[end+3,10],[end+11,0],[end+11,-9]]){
+  for(const target of [[end+5,-10],[end+5,10],[end+15,0],[end+15,-9]]){
    let p={x:end-2,z:0,level:0}
-   p=movePlayer(p,5,0,world)
-   if(target[0]>end+8)p=movePlayer(p,target[0]-p.x,0,world)
+   p=movePlayer(p,7,0,world)
+   if(target[0]>end+12)p=movePlayer(p,target[0]-p.x,0,world)
    p=movePlayer(p,target[0]-p.x,target[1]-p.z,world)
    assert.ok(Math.hypot(p.x-target[0],p.z-target[1])<.01)
   }
-  assert.equal(walkHeight(end+8,6,0,world),null)
-  assert.equal(walkHeight(end+7.5,9,0,world),null)
+  assert.equal(walkHeight(end+12,6,0,world),null)
+  assert.equal(walkHeight(end+11.5,9,0,world),null)
  }
 })
 

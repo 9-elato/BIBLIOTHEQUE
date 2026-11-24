@@ -32,7 +32,7 @@ test('forest spring dry promenade loops around pool without entering water or ga
  let p={x:19,z:0,level:H}
  const route=[[18.7,0],[18.7,17.3],[25.45,17.3],[25.45,.2],[19,.2],[19,0]]
  for(const [x,z] of route){p=movePlayer(p,x-p.x,z-p.z,world);assert.ok(Math.hypot(p.x-x,p.z-z)<.03,`spring promenade blocked at ${x},${z}`)}
- for(const [x,z] of [[22,5],[22,8],[22,15.5],[22,18.5],[26.2,9]])assert.equal(walkHeight(x,z,H,world),null)
+ for(const [x,z] of [[22,5],[22,8],[22,15.5],[22,27.5],[28.2,9]])assert.equal(walkHeight(x,z,H,world),null)
  const towardWater=movePlayer({x:18.7,z:5,level:H},5,0,world);assert.ok(towardWater.x<19.3)
 })
 
@@ -44,6 +44,6 @@ test('stairwell lining blocks underground shortcuts while its landing remains op
 })
 test('spring curb collision matches the visible stone boundary and leaves the loop clear',()=>{
  for(const curb of SPRING_CURBS){const [l,r,b,f]=curb.rect;assert.equal(walkHeight((l+r)/2,(b+f)/2,H,world),null)}
- const p=movePlayer({x:22,z:17.3,level:H},0,3,world);assert.ok(p.z<18.12)
+ const p=movePlayer({x:22,z:17.3,level:H},0,3,world);assert.ok(Math.abs(p.z-20.3)<.03)
  for(const [x,z] of [[18.7,17.3],[25.45,17.3]])assert.equal(walkHeight(x,z,H,world),H)
 })

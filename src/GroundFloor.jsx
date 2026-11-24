@@ -1,3 +1,4 @@
+import {WING_FURNITURE} from './stacksLayout'
 import StaticBatch from './StaticBatch'
 import {CORRIDOR_CEILING,PASSAGE_CEILING,underside,suspension} from './fixtureMounts'
 import {bookDimensions} from './bookAppearance'
@@ -178,14 +179,28 @@ function Stacks({layout,onGenre,onPick,heldBook}) {
     <Floor opening x={x} z={0} w={w} d={11.65} c="#825e43"/>
     <Wall x={x-.5} z={5.85} w={w-1} d={.26} h={10.3}/>
     <Wall x={x-.5} z={-5.85} w={w-1} d={.26} h={10.3}/>
-    <Floor x={layout.end+3.5} z={0} w={9} d={24}/>
-    {[-12,12].map(z=><Wall key={z} x={layout.end+3.5} z={z} w={9} d={.26} h={10.3}/>)}
-    {[-1,1].map(a=><group key={a}>
-      <Wall x={layout.end-1} z={a*8.9} w={.26} d={6.2} h={10.3}/>
-      <Wall x={layout.end+8} z={a*7.1} w={.26} d={9.8} h={10.3}/>
+    <Floor x={layout.end+5.5} z={0} w={13} d={32}/>
+    {[-16,16].map(z=><group key={z}>
+      <Wall x={layout.end+5.5} z={z} w={13} d={.26} h={1.4}/>
+      <Box p={[layout.end+5.5,9.65,z]} s={[13,1.3,.26]} c={cream}/>
+      {[-1,3.33,7.66,12].map(x=><Box key={x} p={[layout.end+x,5.2,z]} s={[.14,7.6,.28]} c={oak}/>)}
+      <Box p={[layout.end+5.5,5.2,z]} s={[12.8,7.6,.04]} c="#afccd0" opacity={.12}/>
     </group>)}
-    <group position={[layout.end+8,0,0]} scale={[1,1,1.24]}><Arch z={0} turn={-Math.PI/2} title="동쪽 잔디 들판" top={10.3}/></group>
-    <Box p={[layout.end+3.5,10.4,0]} s={[9,.16,24]} c={cream}/>
+    {[-1,1].map(a=><group key={a}>
+      <Wall x={layout.end-1} z={a*10.9} w={.26} d={10.2} h={10.3}/>
+      <Wall x={layout.end+12} z={a*9.1} w={.26} d={13.8} h={10.3}/>
+    </group>)}
+    <group position={[layout.end+12,0,0]} scale={[1,1,1.24]}><Arch z={0} turn={-Math.PI/2} title="동쪽 잔디 들판" top={10.3}/></group>
+    <Box p={[layout.end+5.5,10.4,0]} s={[13,.16,32]} c={cream}/>
+    <StaticBatch revision={layout.end}><group>
+     {WING_FURNITURE.map(f=><group key={f.id} position={[layout.end+f.x,0,f.z]} rotation={[0,f.turn,0]}>
+      <mesh position={[0,f.height/2,0]} scale={[f.w/2,f.height/2,f.d/2]}><sphereGeometry args={[1,20,12]}/><meshStandardMaterial color={f.kind==='floor'?'#c9b78c':'#567159'} roughness={.96}/></mesh>
+      {['sofa','window'].includes(f.kind)&&<Box p={[0,f.height+.3,-f.d/2+.1]} s={[f.w,.6,.2]} c="#58705b"/>}
+      {f.kind==='sofa'&&[-1,0,1].map(x=><Round key={x} p={[x,f.height+.23,-.3]} r={.29} c="#c6b283" scale={[1,1,.55]}/>)}
+      {f.kind==='beanbag'&&<Round p={[0,.58,-.35]} r={.52} c="#65795c" scale={[1,.9,.7]}/>}
+     </group>)}
+     <Rug x={layout.end+4.5} z={-10} w={6} d={4} c="#939576"/>
+    </group></StaticBatch>
     {DESKS.map(([a,z])=><Desk key={a+'/'+z} x={a} z={z}/>)}
     {layout.sections.map(({genre,cases,start})=><group key={genre.id}>
       <Rug x={start} z={0} w={2.45} d={3.45} c={genre.wood}/>

@@ -79,7 +79,7 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
     if(!tourEnabled)return
     const publish=()=>window.dispatchEvent(new CustomEvent('library-tour-status',{detail:{running:Boolean(tour.current?.running),label:tour.current?.label,results:[...(tour.current?.results||[])]}}))
     const stop=()=>{if(tour.current?.running){Object.assign(state.current,tour.current.saved,{seated:null});state.current.keys.clear();tour.current.running=false;publish()}}
-    const start=e=>{if(status.current.blocked||status.current.mode!=='third'||state.current.seated)return;stop();tour.current=createFurnitureTour(state.current,e.detail==='bed');publish()}
+    const start=e=>{if(status.current.blocked||status.current.mode!=='third'||state.current.seated)return;stop();tour.current=createFurnitureTour(state.current,e.detail==='bed',status.current.world);publish()}
     const key=e=>{if(MOVE.includes(e.code)||e.code==='Escape')stop()}
     window.addEventListener('library-tour-start',start);window.addEventListener('library-tour-stop',stop);window.addEventListener('keydown',key)
     const timer=setInterval(publish,500)
@@ -113,14 +113,14 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
       if(ui.blocked||ui.mode==='overview'||tour.current?.running)return
       const trace=profiling?startInteractionTrace({now:()=>performance.now(),requestFrame:callback=>requestAnimationFrame(callback),visible:()=>document.visibilityState==='visible',publish:detail=>window.dispatchEvent(new CustomEvent('library-interaction-result',{detail}))},{x:s.x,z:s.z,level:s.level}):null
       try{
-      const action=interactionAt(s,ui)
+      const action=interactionAt(s,ui,true)
       trace?.resolved(action?.type)
       hintScheduler.invalidate()
       if(!action)return
       s.keys.clear()
       if(action.type==='place')ui.onPlaceNearby?.(action.target)
       else if(action.type==='stand')s.seated=startStanding(s.seated,ui.world)
-      else if(action.type==='seat'){const sitting=startSitting(s,action.seat,ui.world);if(sitting){s.skyGaze=false;s.seated=sitting;s.yaw=-action.seat.turn-.4;s.pitch=0}}
+      else if(action.type==='seat'){const sitting=action.sitting||startSitting(s,action.seat,ui.world);if(sitting){s.skyGaze=false;s.seated=sitting;s.yaw=-action.seat.turn-.4;s.pitch=0}}
       else if(action.type==='door'){
         // Do not swing the door through a visitor standing in its sweep.
         if(ui.entranceOpen&&s.z>10.1&&s.z<12.05&&Math.abs(s.x)<1.8)return

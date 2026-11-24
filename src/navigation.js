@@ -3,7 +3,7 @@ import {CAFE_SOLIDS} from './cafeLayout.js'
 import {MEADOW_STAIRS} from './eastMeadowLayout.js'
 import {inMeadow,meadowHeight} from './meadowLayout.js'
 import {TERRACE_FURNITURE} from './terraceFurniture.js'
-import {SPRING_WALK_REGION,BASEMENT_HEIGHT,BASEMENT_STAIR,BASEMENT_BOUNDS,BASEMENT_SOLIDS,BASEMENT_GROUND_GUARDS} from './basementLayout.js'
+import {SPRING_WALK_REGION,SPRING_OUTDOOR_REGION,BASEMENT_HEIGHT,BASEMENT_STAIR,BASEMENT_BOUNDS,BASEMENT_SOLIDS,BASEMENT_GROUND_GUARDS} from './basementLayout.js'
 import {GREENHOUSE_REGIONS,GARDEN_SOLIDS as CONSERVATORY_SOLIDS,gardenWaterBlocks,glassDoorBlocks} from './greenhouseLayout.js'
 import {studyDoorBlocks} from './studyLayout.js'
 import {entranceDoorBlocks,verandaDoorBlocks} from './doorMotion.js'
@@ -72,7 +72,6 @@ export const FURNITURE=[
   {floor:GALLERY_HEIGHT,rect:[13.65,14.8,-4.3,4.3],id:'reading-shelves'},
   ...[-3.1,2.4].map(z=>({floor:GALLERY_HEIGHT,rect:[7.05,7.95,z-.92,z+.92],id:'gallery-shelf'})),
   ...TERRACE_FURNITURE.map(s=>({...s,rect:[...s.rect],floor:ATTIC_HEIGHT})),
-  {floor:ATTIC_HEIGHT,rect:[-17.25,-16.35,8.8,9.8],id:'terrace-telescope'},
   {floor:ATTIC_HEIGHT,rect:[-19.15,-16.05,-1.65,1.65],id:'daybed'},
   {floor:ATTIC_HEIGHT,rect:[-17.45,-14.35,-6.3,-5.1],id:'attic-shelves'},
   {floor:ATTIC_HEIGHT,rect:[-13.78,-12,-5.85,-4.9],id:'attic-cabinet'},
@@ -90,7 +89,7 @@ function occupied(x,z,y){
   return false
 }
 const SUPPORT_OFFSETS=[[0,0],[PLAYER_RADIUS,0],[-PLAYER_RADIUS,0],[0,PLAYER_RADIUS],[0,-PLAYER_RADIUS]]
-const basementRegions=[BASEMENT_BOUNDS,SPRING_WALK_REGION]
+const basementRegions=[BASEMENT_BOUNDS,SPRING_WALK_REGION,SPRING_OUTDOOR_REGION]
 const atticRegions=[ATTIC_TERRACE_BOUNDS,[atticX(-19.5),-11.65,-6.35,6.35],[-12,-11.43,5.03,6.27]]
 const atticLanding=[-11.7,-11.43,5.15,6.15]
 function supported(regions,x,z){
@@ -167,7 +166,7 @@ export function movePlayer(position,dx,dz,world,scratch){
 export function floorName(x,z,y){
   if(x>8.4&&Math.abs(z-MEADOW_STAIRS.from[2])<1&&y>.12&&y<GALLERY_HEIGHT-.12)return '온실 계단'
   if(y<-.12&&y>BASEMENT_HEIGHT+.12)return '지하 계단'
-  if(y<=BASEMENT_HEIGHT+.12)return x>17.8?'숲 온천':'지하 숲 라운지'
+  if(y<=BASEMENT_HEIGHT+.12)return x>17.8||z>6.5?'숲 온천':'지하 숲 라운지'
   if(y>.12&&y<GALLERY_HEIGHT-.12)return '중앙 계단'
   if(y>GALLERY_HEIGHT+.12&&y<ATTIC_HEIGHT-.12)return '다락 계단'
   if(y>=ATTIC_HEIGHT-.12)return z>6.7?'별빛 테라스':'다락방'

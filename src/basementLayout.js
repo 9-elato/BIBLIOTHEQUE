@@ -7,20 +7,24 @@ export const BASEMENT_GROUND_GUARDS=[-1,1].map(side=>({
  rect:[3.495,12.745,-4.8+side*.85-.035,-4.8+side*.85+.035],
 }))
 export const BASEMENT_BOUNDS=[7.4,26,-6.65,6.5]
-export const SPRING_WALK_REGION=[18.1,26,6.2,18.3]
+export const SPRING_WALK_REGION=[14,28,6.2,20.3]
+export const SPRING_OUTDOOR_REGION=[10,28,20.3,27]
+export const SPRING_CANOPY_HEIGHT=6.2
 export const SPRING_POOL={x:22.1,z:8.6,rx:2.45,rz:7.2,barrier:[19.3,24.9,1.05,16.15]}
 export const SPRING_BATH={id:'spring-bath',label:'숲 온천',level:BASEMENT_HEIGHT,height:-.72,turn:Math.PI/2,entry:{x:25.27,z:8.6},anchor:{x:23.85,z:8.6},bathing:true}
-export const SPRING_LANTERNS=[[18.35,1],[25.85,1],[18.35,17.65],[25.85,17.65],[25.85,5],[25.85,13]]
+export const SPRING_LANTERNS=[[18.35,1],[25.85,1],[18.35,17.65],[25.85,17.65],[25.85,5],[25.85,13],[15.1,8],[15.1,16],[15.1,22.5],[21,25.5],[26.8,22.5]]
 export const BASEMENT_CEILING=-.30
 export const BASEMENT_PORTAL={x:17.92,z:-.05,width:2.1,clearHeight:4.65}
 export const SPRING_CURBS=[
- {id:'spring-rear-curb',rect:[18.2,26,18.12,18.38]},
- {id:'spring-west-curb',rect:[18.105,18.335,6.75,18.25]},
- {id:'spring-east-curb',rect:[25.735,25.965,6.75,18.25]},
+ {id:'spring-rear-curb',rect:[10,28,26.85,27.05]},
+ {id:'spring-west-curb',rect:[13.9,14.1,6.2,20]},
+ {id:'spring-garden-west-curb',rect:[9.9,10.1,20,27]},
+ {id:'spring-east-curb',rect:[27.85,28.05,6.2,27]},
 ]
 export const BASEMENT_SOLIDS=[
  ...SPRING_CURBS,
- ...[2.6,16.8].map(z=>({id:'spring-canopy-post-'+z,rect:[25.78,25.92,z-.07,z+.07]})),
+ {id:'basement-forest-glass',rect:[7.4,17.8,6.45,6.65]},
+ ...[7.1,16.8].map(z=>({id:'spring-canopy-post-'+z,rect:[25.78,25.92,z-.07,z+.07]})),
  {id:'basement-stairwell-north',rect:[3.5,12.75,-5.83,-5.65]},
  {id:'basement-stairwell-south',rect:[3.5,12.75,-3.95,-3.77]},
  ...SPRING_LANTERNS.map(([x,z],i)=>({id:'spring-lantern-'+i,rect:[x-.09,x+.09,z-.09,z+.09]})),

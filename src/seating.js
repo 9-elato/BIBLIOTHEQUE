@@ -1,3 +1,4 @@
+import {WING_FURNITURE} from './stacksLayout.js'
 import {SPRING_BATH} from './basementLayout.js'
 import {CAFE_SEATS} from './cafeLayout.js'
 import {GARDEN_SEATING,GARDEN_LEVEL} from './greenhouseLayout.js'
@@ -38,12 +39,13 @@ const bed=SEATS.find(s=>s.id==='attic-daybed')
 bed.anchor.x=atticX(bed.anchor.x);bed.entry.x=atticX(bed.entry.x)
 const terrace=SEATS.find(s=>s.id==='terrace-sofa')
 terrace.anchor.x=atticX(terrace.anchor.x);terrace.entry.x=atticX(terrace.entry.x)
-export function seatGroundPathClear(from,to,level,world){
+export function seatGroundPathClear(from,to,level,world,knownStartHeight){
  if(!Number.isFinite(from.x+from.z+to.x+to.z+level))return false
  const distance=Math.hypot(to.x-from.x,to.z-from.z)
  if(distance>1.05)return false
- const initial=walkHeight(from.x,from.z,level,world)
+ const initial=knownStartHeight===undefined?walkHeight(from.x,from.z,level,world):knownStartHeight
  if(initial===null||Math.abs(initial-level)>.08)return false
+ if(distance<1e-10)return true
  const steps=Math.max(1,Math.ceil(distance/.05))
  const previous={x:from.x,z:from.z,level},scratch={next:{},candidate:{}}
  for(let i=1;i<=steps;i++){
@@ -56,11 +58,17 @@ export function seatGroundPathClear(from,to,level,world){
  }
  return true
 }
+let wingEnd,wingSeats=[]
+export function seatsForWorld(world){
+ if(!Number.isFinite(world?.end))return SEATS
+ if(wingEnd!==world.end){wingEnd=world.end;wingSeats=[...WING_FURNITURE.map(f=>seat(f.id,f.label,world.end+f.x,f.z,f.turn,0,f.height,0,.1,f.d/2+.65))]}
+ return [...SEATS,...wingSeats]
+}
 export function nearbySeat(position,world){
   // Pick by cheap distance first. Previously each successively closer seat
   // performed a complete floor-path query, even when a nearer seat won later.
   let nearest=null,best=.88*.88
-  for(const seat of SEATS){
+  for(const seat of seatsForWorld(world)){
     if(Math.abs(position.level-seat.level)>=.08)continue
     const d=(position.x-seat.entry.x)**2+(position.z-seat.entry.z)**2
     if(d<best){nearest=seat;best=d}
@@ -70,7 +78,7 @@ export function nearbySeat(position,world){
   // reachable selection and stable tie order, without caching dynamic blockers.
   const blocked=nearest
   nearest=null;best=.88*.88
-  for(const seat of SEATS){
+  for(const seat of seatsForWorld(world)){
     if(seat===blocked||Math.abs(position.level-seat.level)>=.08)continue
     const d=(position.x-seat.entry.x)**2+(position.z-seat.entry.z)**2
     if(d>=best||!seatGroundPathClear(position,seat.entry,seat.level,world))continue
@@ -82,24 +90,36 @@ export function nearbySeat(position,world){
 const smooth=t=>t*t*(3-2*t)
 const lerp=(a,b,t)=>a+(b-a)*t
 const angle=(a,b,t)=>a+Math.atan2(Math.sin(b-a),Math.cos(b-a))*t
-export function startSitting(position,chosen,world){
-  if(world&&(Math.abs(position.level-chosen.level)>.08||!seatGroundPathClear(position,chosen.entry,chosen.level,world)))return null
+function sittingState(position,chosen){
   return {seat:chosen,posture:chosen.posture||'sitting',phase:'entering',elapsed:0,duration:chosen.bathing?3.2:1.05,
     origin:{x:position.x,z:position.z,level:position.level,yaw:position.yaw,bodyYaw:position.bodyYaw??-position.yaw}}
 }
-export function exitForSeat(sitting,world,includeOrigin=true){
+export function prepareNearbySitting(position,world){
+ const chosen=nearbySeat(position,world)
+ return chosen?sittingState(position,chosen):null
+}
+export function startSitting(position,chosen,world){
+  if(world&&(Math.abs(position.level-chosen.level)>.08||!seatGroundPathClear(position,chosen.entry,chosen.level,world)))return null
+  return sittingState(position,chosen)
+}
+export function exitForSeat(sitting,world,includeOrigin=true,clear){
   const {seat:s,origin}=sitting
   const candidates=[...(includeOrigin?[origin]:[]),{...s.entry,level:s.level,yaw:origin.yaw},...[-.35,.35].map(offset=>({...point(s.entry.x,s.entry.z,s.turn,offset,.3),level:s.level,yaw:origin.yaw}))]
-  return candidates.find(p=>Math.abs(p.level-s.level)<.08&&seatGroundPathClear(s.entry,p,s.level,world))||null
+  return candidates.find(p=>Math.abs(p.level-s.level)<.08&&(clear?clear(s.entry,p):seatGroundPathClear(s.entry,p,s.level,world)))||null
 }
 export function startStanding(sitting,world){
   if(sitting.phase!=='seated')return sitting
   const s=sitting.seat,o=sitting.origin
-  const path=Math.abs(o.level-s.level)<.08?findSeatExitPath(s.entry,o,(a,b)=>seatGroundPathClear(a,b,s.level,world)):null
+  // One synchronous exit search only: repeated graph nodes share their floor
+  // result, while every edge still checks the full swept collision path.
+  // Nothing survives the E action, so later furniture/door changes stay visible.
+  const floors=new Map()
+  const clear=(a,b)=>{const key=a.x+':'+a.z;if(!floors.has(key))floors.set(key,walkHeight(a.x,a.z,s.level,world));return seatGroundPathClear(a,b,s.level,world,floors.get(key))}
+  const path=Math.abs(o.level-s.level)<.08?findSeatExitPath(s.entry,o,clear):null
   if(path&&path.length>2)return {...sitting,origin:{...s.entry,level:s.level,yaw:o.yaw},floorExit:path,exitBlocked:false,phase:'leaving',elapsed:0,duration:s.bathing?3.2:['attic-daybed','meadow-rest'].includes(s.id)?2.8:.9,exitRecline:sitting.recline||0}
   // findSeatExitPath already checked the original connector. Reuse its
   // direct success, or skip that failed candidate when testing safe landings.
-  const exit=path?.length===2?o:exitForSeat(sitting,world,false)
+  const exit=path?.length===2?o:exitForSeat(sitting,world,false,clear)
   return exit?{...sitting,origin:exit,exitBlocked:false,phase:'leaving',elapsed:0,duration:s.bathing?3.2:['attic-daybed','meadow-rest'].includes(sitting.seat.id)?2.8:.9,exitRecline:sitting.recline||0}:{...sitting,exitBlocked:true}
 }
 function sampleSeating(sitting,dt){

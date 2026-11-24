@@ -2,7 +2,7 @@
 export const ATTIC_EXPANSION=1.12
 export const atticX=x=>-11.45+(x+11.45)*ATTIC_EXPANSION
 export const originalAtticX=x=>-11.45+(x+11.45)/ATTIC_EXPANSION
-export const ATTIC_TERRACE_BOUNDS=[atticX(-19.5),atticX(-11.65),6.35,10.8]
+export const ATTIC_TERRACE_BOUNDS=[atticX(-23.5),atticX(-7.7),6.35,10.8]
 
 // Shared architectural elevations after the attic headroom extension.
 export const ATTIC_SHELL_SCALE=1.25
