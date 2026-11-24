@@ -11,7 +11,7 @@ import {movePlayer,walkHeight} from '../src/navigation.js'
 const dir=await mkdtemp(path.resolve('outputs/scenery-audit-'))
 after(()=>rm(dir,{recursive:true,force:true}))
 async function component(name){const file=path.join(dir,name+'.mjs');await build({entryPoints:['src/'+name+'.jsx'],outfile:file,bundle:true,packages:'external',platform:'node',format:'esm',logLevel:'silent',plugins:[{name:'rock-fixture',setup(b){b.onLoad({filter:/NaturalRocks\.jsx$/},()=>({contents:'export default function Rocks(){return null}',loader:'jsx'}))}}]});return (await import(pathToFileURL(file).href)).default}
-const Ocean=await component('OceanSurface'),Portal=await component('AtticTerracePortal'),Clouds=await component('DriftingClouds'),Sea=await component('SeaWater')
+const Ocean=await component('OceanSurface'),Portal=await component('AtticTerracePortal'),Clouds=await component('DriftingClouds'),Sea=await component('SeaWater'),Cosmos=await component('AtticCosmos')
 test('ocean time advances, pauses while hidden and resumes without freezing',async()=>{
  const m=await mountBookcase(Ocean,{w:11.5,h:6.2,time:'afternoon',weather:'sunny',motion:1.65})
  try{let water;m.scene.traverse(o=>{if(o.material?.uniforms?.motion)water=o});assert.ok(water.geometry.attributes.position.count>1000);m.advance(1);const first=water.material.uniforms.clock.value;m.advance(2);assert.ok(water.material.uniforms.clock.value>first);water.parent.visible=false;const held=water.material.uniforms.clock.value;m.advance(3);assert.equal(water.material.uniforms.clock.value,held);water.parent.visible=true;m.advance(4);assert.ok(water.material.uniforms.clock.value>held)}finally{await m.dispose()}
@@ -51,4 +51,10 @@ test('world sea waves use shared world coordinates and update surface normals',a
 test('attic far wall closes former horizontal gaps outside the glazed aperture',async()=>{
  const m=await mountBookcase(Portal,{})
  try{m.scene.updateMatrixWorld(true);const ray=new THREE.Raycaster();for(const [x,y] of [[3,2.5],[3,4.5],[0,1.8],[0,6]]){ray.set(new THREE.Vector3(x,y,-8),new THREE.Vector3(0,0,1));assert.ok(ray.intersectObjects(m.scene.children,true).some(h=>h.object.visible&&h.distance<2))}}finally{await m.dispose()}
+})
+
+
+test('attic rear wallpaper is attached below the clear window aperture',async()=>{
+ const wallpaper=new THREE.Texture(),m=await mountBookcase(Cosmos,{time:'afternoon',textures:{wallpaper}})
+ try{let panel;m.scene.traverse(o=>{if(o.isMesh&&o.material?.map===wallpaper&&o.position.z<-6)panel=o});assert.ok(panel);assert.ok(panel.position.z< -6.45);assert.ok(panel.position.y+panel.geometry.parameters.height/2<2.2)}finally{await m.dispose();wallpaper.dispose()}
 })

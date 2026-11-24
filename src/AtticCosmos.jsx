@@ -20,7 +20,7 @@ export default function AtticCosmos({time,textures}){
   <B p={suspension.position} s={suspension.size} c="#ac9161"/>
   {/* All additions sit on existing furniture or above walking headroom. */}
   <mesh position={[-4.035,2.63,-.4]} rotation={[0,Math.PI/2,0]}><planeGeometry args={[3.7,1.65]}/><meshStandardMaterial map={textures.wallpaper} color="#a7b79c" roughness={1}/></mesh>
-  <mesh position={[0,2.43,-6.205]}><planeGeometry args={[7.7,2.0]}/><meshStandardMaterial map={textures.wallpaper} roughness={1}/></mesh>
+  <mesh position={[0,1.10,-6.475]}><planeGeometry args={[7.7,2.0]}/><meshStandardMaterial map={textures.wallpaper} roughness={1}/></mesh>
 
   <group position={[-3.96,2.9,1.3]} rotation={[0,Math.PI/2,0]}>
    <B s={[1.15,.82,.06]} c="#a58b57"/><B p={[0,0,.04]} s={[1.02,.70,.02]} c="#e1d4b4"/>

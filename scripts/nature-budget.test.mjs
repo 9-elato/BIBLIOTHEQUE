@@ -1,3 +1,4 @@
+import {nextVegetationPoll} from '../src/vegetationSchedule.js'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {oceanSegments} from '../src/oceanGeometry.js'
@@ -11,4 +12,9 @@ test('bay mesh keeps sub-metre sampling with fewer vertices and a smaller mobile
 test('tree shaders share CPU gust without repeating envelope per vertex',()=>{
  const gust={value:windEnvelope(2,.24)},m=windMaterial('leaf',{clock:{value:2},strength:{value:.24},gust})
  try{const s={uniforms:{},vertexShader:'#include <project_vertex>\n#include <worldpos_vertex>'};m.onBeforeCompile(s);assert.equal(s.uniforms.plantGust,gust);assert.ok(s.vertexShader.includes('float gust=plantGust;'));assert.ok(!s.vertexShader.includes('sin(plantClock*.31)'))}finally{m.dispose()}
+})
+
+
+test('vegetation polling is distributed and catches up directly after a long pause',()=>{
+ const slots=new Set();for(let i=0;i<80;i++){const t=nextVegetationPoll(1,i*12,24);assert.ok(t>1&&t<=1.2);slots.add(Math.floor((t-1)*60));const resumed=nextVegetationPoll(800,i*12,24);assert.ok(resumed>800&&resumed<=800.2)}assert.ok(slots.size>=10)
 })
