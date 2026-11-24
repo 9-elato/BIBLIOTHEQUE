@@ -1,3 +1,4 @@
+import {meadowHeight} from './meadowLayout'
 import {createForestTreeAssets} from './forestTreeAssets.js'
 import useGraphicsQuality from './useGraphicsQuality'
 import React,{useMemo,useLayoutEffect,useRef,useEffect} from 'react'
@@ -7,7 +8,8 @@ import {windStrength,leafDensity,leafScale,easeLeafScale} from './vegetationWind
 
 export function estateTrees(){return Array.from({length:90},(_,i)=>{
  const east=i<42,bank=i>=64
- return [bank?8+(i*5.17)%33:east?30+(i*7.31)%34:-35+(i*5.17)%67,east||bank?-5.5:0,bank?19+(i*9.21)%26:east?-3+(i*11.67)%47:120+(i*7.13)%18]
+ const x=bank?8+(i*5.17)%33:east?30+(i*7.31)%34:-35+(i*5.17)%67,z=bank?19+(i*9.21)%26:east?-3+(i*11.67)%47:120+(i*7.13)%18
+ return [x,z>=34?meadowHeight(x,z):x<28.2&&z>6.7&&z<27.1?-5.5:0,z]
 })}
 function TreeCell({trees,seed,weather,quality}){
  const branches=useRef(),leaves=useRef(),root=useRef(),last=useRef(-1)

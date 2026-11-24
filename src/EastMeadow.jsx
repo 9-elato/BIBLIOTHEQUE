@@ -1,3 +1,4 @@
+import {northBankHeight} from './coastTerrainMath.js'
 import React,{useMemo} from 'react'
 import ForestTrees from './ForestTrees'
 import GrassField from './GrassField'
@@ -7,10 +8,10 @@ import {EAST_MEADOW,STUDY_EXIT} from './eastMeadowLayout'
 
 export function EastMeadow({studyOpen,end=43.1,weather}){
  const [left,baseRight,north,south]=EAST_MEADOW,right=Math.max(120,end+45)
- const trees=useMemo(()=>Array.from({length:20},(_,i)=>[10+i*1.58,0,-34.6+Math.sin(i*1.7)*1.4]),[])
+ const trees=useMemo(()=>Array.from({length:20},(_,i)=>{const x=10+i*1.58,z=-34.6+Math.sin(i*1.7)*1.4;return [x,northBankHeight(x,z),z]}),[])
  const exclude=useMemo(()=>((x,z)=>x>end-1&&x<end+12&&z>-16),[end])
  const halfDoor=STUDY_EXIT.width/2
- return <group><ForestTrees positions={trees} weather={weather}/><GrassField bounds={[8,right,-34,-6.1]} exclude={exclude} weather={weather}/><GrassField bounds={[end+12.4,right,-6.1,24]} weather={weather}/><StaticBatch revision={studyOpen}>
+ return <group><ForestTrees positions={trees} weather={weather}/><GrassField bounds={[8,right,-34,-6.1]} exclude={exclude} weather={weather}/><GrassField bounds={[end+12.4,right,-6.1,24]} weather={weather}/><StaticBatch revision={`${studyOpen}:${end}:${weather}`}>
   <B p={[(left+right)/2,-.18,(north+south)/2]} s={[right-left,.34,south-north]} c="#74a348"/>
   <B p={[25,-.3,-34]} s={[49,.5,9]} c="#618f40"/>
   <B p={[44,-.3,-21]} s={[9,.5,31]} c="#618f40"/>

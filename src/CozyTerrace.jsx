@@ -7,7 +7,7 @@ function Plant({x,z}){return <group position={[x,0,z]}><mesh position={[0,.25,0]
 export default function CozyTerrace({time}){
  const evening=time==='evening'
  return <group><StaticBatch revision={time}>
-  <B p={[-2.55,.035,8.6]} s={[2.65,.025,7.05]} c="#a79777"/>
+  <B p={[-2.55,.035,8.6]} s={[2.65,.025,3.95]} c="#a79777"/>
   <B p={[-2.9,.28,7.8]} s={[1.65,.5,1.65]} c="#69513a"/>
   <B p={[-3.6,.77,7.8]} s={[.25,.95,1.65]} c="#c5b79b"/>
   <B p={[-2.9,.77,7.08]} s={[1.65,.95,.25]} c="#c5b79b"/>

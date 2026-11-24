@@ -1,3 +1,4 @@
+import TerrainContinuity from './TerrainContinuity'
 import CoastTerrain from './CoastTerrain'
 import NaturalRocks from './NaturalRocks'
 import ForestTrees,{estateTrees} from './ForestTrees'
@@ -17,7 +18,7 @@ export default function EstateLandscape({time,weather}){
   for(let i=0;i<6;i++){o.position.set(130+i*8,-7,14+i*13);o.scale.set(20,16+(i%3)*6,25);o.rotation.set(0,i*.7,0);o.updateMatrix();hills.current.setMatrixAt(i,o.matrix)}
   for(const r of [hills]){r.current.instanceMatrix.needsUpdate=true;r.current.computeBoundingSphere()}
  },[weather,time])
- return <group><Meadow time={time} weather={weather}/>
+ return <group><TerrainContinuity time={time} weather={weather}/><Meadow time={time} weather={weather}/>
  <CoastTerrain weather={weather}/><ForestTrees positions={trees} weather={weather}/>
  <instancedMesh ref={hills} castShadow receiveShadow args={[null,null,6]}><sphereGeometry args={[1,16,10]}/><meshStandardMaterial color={m.far} roughness={1}/></instancedMesh>
  <NaturalRocks rocks={rocks}/>

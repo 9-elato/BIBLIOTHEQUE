@@ -8,6 +8,7 @@ export default function AtticTerracePortal(){
  useEffect(()=>()=>g.dispose(),[g])
  return <StaticBatch><group position={[0,0,6.5]}>
   <mesh geometry={g}><meshStandardMaterial color="#d8c8ad" roughness={.91} side={THREE.DoubleSide}/></mesh>
+  <mesh geometry={g} position={[0,0,-13.2]}><meshStandardMaterial color="#d8c8ad" roughness={.91} side={THREE.DoubleSide}/></mesh>
   {[-1,1].map(a=><group key={a}><Box p={[a*4.07,2.4,.1]} s={[.58,4.8,.22]} c="#d8c8ad"/><Box p={[a*3.8,2.4,.23]} s={[.14,4.8,.16]} c="#805d40"/></group>)}
   <Box p={[0,4.8,.23]} s={[7.72,.18,.20]} c="#805d40"/>
   <Box p={[0,.01,.08]} s={[7.6,.06,.44]} c="#a18a65"/>

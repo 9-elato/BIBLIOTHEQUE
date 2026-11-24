@@ -15,8 +15,8 @@ export const ATTIC_SCREEN=[2.2,6.4,-.4]
 export const ATTIC_SCREEN_SLOPE=(ATTIC_RIDGE-ATTIC_EAVE)/ATTIC_HALF_WIDTH
 export const ATTIC_SCREEN_TARGET=[atticX(-15.6+ATTIC_SCREEN[0]),10.6+ATTIC_SCREEN[1],ATTIC_SCREEN[2]]
 export function replaceAtticEndWall(name,z){
- return (/^WALL.*end/.test(name)&&z>6)||/^WINDOW · (rear|vertical mullion)/.test(name)||/^GABLE.*-6\.64$/.test(name)
+ return (/^WALL.*end/.test(name)&&z>6)||/^WINDOW · (rear|vertical mullion)/.test(name)||/^GABLE/.test(name)
 }
-export function atticArchitecture(name){return /^(ROOF|RAFTER|WALL|WINDOW|SKYLIGHT)/.test(name)}
+export function atticArchitecture(name){return /^(ROOF|RAFTER|WALL|WINDOW|SKYLIGHT|GABLE)/.test(name)}
 
 export const ATTIC_MOBILE=[0,6.7,3.8]

@@ -20,7 +20,7 @@ export default function AtticGLB({time,weather}){
  useEffect(()=>()=>disposeAtticModel(model),[model])
  const panel=(p,s,color='#dfd2bd')=><mesh position={p} castShadow receiveShadow><boxGeometry args={s}/><meshStandardMaterial color={color} roughness={.85}/></mesh>
  return <group><AtticDetails time={time}/><group position={ATTIC_ORIGIN}>
-  <AtticTerracePortal/><AtticTerraceCinema time={time} weather={weather}/><primitive object={model}/><AtticTextiles fabric={textures.fabric}/><mesh position={[-3.67,2.8,-3.7]} rotation={[0,Math.PI/2,0]}><planeGeometry args={[2.87,2.09]}/><meshStandardMaterial map={textures.chalk} roughness={1}/></mesh><group scale={[1,ATTIC_SHELL_SCALE,1]}><AtticSky time={time} weather={weather}/><PanoramicRoofFrame map={textures.roof}/></group><AtticCosmos time={time} textures={textures}/>
+  {panel([0,-.10,0],[8.72,.16,13.4],'#70553e')}<AtticTerracePortal/><AtticTerraceCinema time={time} weather={weather}/><primitive object={model}/><AtticTextiles fabric={textures.fabric}/><mesh position={[-3.67,2.8,-3.7]} rotation={[0,Math.PI/2,0]}><planeGeometry args={[2.87,2.09]}/><meshStandardMaterial map={textures.chalk} roughness={1}/></mesh><group scale={[1,ATTIC_SHELL_SCALE,1]}><AtticSky time={time} weather={weather}/><PanoramicRoofFrame map={textures.roof}/></group><AtticCosmos time={time} textures={textures}/>
   <group scale={[1,ATTIC_SHELL_SCALE,1]}>
   {panel([4.16,2.15,-.92],[.19,4.3,11.44])}
   {panel([4.16,2.15,6.56],[.19,4.3,.16])}

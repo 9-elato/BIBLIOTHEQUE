@@ -19,7 +19,7 @@ export default function FacadeModel({visible=true,time,weather}){
  const copy=useMemo(()=>{const c=scene.clone(true),materialsById=new Map();c.traverse(o=>{
   if(!o.isMesh)return
   o.castShadow=o.receiveShadow=true
-  const replace=m=>{if(/window glass/i.test(m.name))return glass.material;if(!materialsById.has(m.uuid)){const next=m.clone();if(/limestone|ivory|paving/i.test(m.name)){next.bumpMap=relief.stone;next.bumpScale=.045;next.roughness=mood.wet?.64:.88}else if(/walnut/i.test(m.name)){next.bumpMap=relief.wood;next.bumpScale=.018;next.roughness=.73}else if(/slate/i.test(m.name))next.roughness=mood.wet?.38:.78;materialsById.set(m.uuid,next)}return materialsById.get(m.uuid)}
+  const replace=m=>{if(/window glass/i.test(m.name))return glass.material;if(!materialsById.has(m.uuid)){const next=m.clone();next.side=THREE.DoubleSide;if(/limestone|ivory|paving/i.test(m.name)){next.bumpMap=relief.stone;next.bumpScale=.045;next.roughness=mood.wet?.64:.88}else if(/walnut/i.test(m.name)){next.bumpMap=relief.wood;next.bumpScale=.018;next.roughness=.73}else if(/slate/i.test(m.name))next.roughness=mood.wet?.38:.78;materialsById.set(m.uuid,next)}return materialsById.get(m.uuid)}
   const materials=Array.isArray(o.material)?o.material:[o.material]
   o.material=Array.isArray(o.material)?materials.map(replace):replace(o.material);if(materials.some(m=>/window glass/i.test(m.name))){o.castShadow=false;o.receiveShadow=false}
  });c.userData.ownedMaterials=[...materialsById.values()];return c},[scene,glass,relief])
