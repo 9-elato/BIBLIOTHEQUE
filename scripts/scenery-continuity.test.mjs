@@ -46,3 +46,9 @@ test('world sea waves use shared world coordinates and update surface normals',a
  assert.deepEqual(shader.uniforms.waveOrigin.value.toArray(),[-14.9,-29]);assert.ok(shader.vertexShader.includes('objectNormal=normalize'));assert.ok(shader.vertexShader.includes('transformed.z+=waveHeight'));m.advance(1);const t=shader.uniforms.waveClock.value;m.advance(2);assert.ok(shader.uniforms.waveClock.value>t)
  }finally{await m.dispose()}
 })
+
+
+test('attic far wall closes former horizontal gaps outside the glazed aperture',async()=>{
+ const m=await mountBookcase(Portal,{})
+ try{m.scene.updateMatrixWorld(true);const ray=new THREE.Raycaster();for(const [x,y] of [[3,2.5],[3,4.5],[0,1.8],[0,6]]){ray.set(new THREE.Vector3(x,y,-8),new THREE.Vector3(0,0,1));assert.ok(ray.intersectObjects(m.scene.children,true).some(h=>h.object.visible&&h.distance<2))}}finally{await m.dispose()}
+})

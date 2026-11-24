@@ -4,7 +4,7 @@ import useGraphicsQuality from './useGraphicsQuality'
 import React,{useMemo,useLayoutEffect,useRef,useEffect} from 'react'
 import {useFrame} from '@react-three/fiber'
 import * as THREE from 'three'
-import {windStrength,leafDensity,leafScale,easeLeafScale} from './vegetationWind'
+import {windStrength,windEnvelope,leafDensity,leafScale,easeLeafScale} from './vegetationWind'
 
 export function estateTrees(){return Array.from({length:90},(_,i)=>{
  const east=i<42,bank=i>=64
@@ -13,7 +13,7 @@ export function estateTrees(){return Array.from({length:90},(_,i)=>{
 })}
 function TreeCell({trees,seed,weather,quality}){
  const branches=useRef(),leaves=useRef(),root=useRef(),last=useRef(-1)
- const uniforms=useMemo(()=>({clock:{value:0},strength:{value:0},detail:{value:1}}),[])
+ const uniforms=useMemo(()=>({clock:{value:0},strength:{value:0},gust:{value:0},detail:{value:1}}),[])
  const assets=useMemo(()=>createForestTreeAssets(trees,seed,uniforms),[trees,seed,uniforms])
  const snow=weather==='snow'
  useLayoutEffect(()=>{
@@ -31,7 +31,7 @@ function TreeCell({trees,seed,weather,quality}){
   if(clock.elapsedTime-last.current>.25){last.current=clock.elapsedTime;root.current.localToWorld(world.copy(center));const d=camera.position.distanceTo(world);leaves.current.castShadow=d<quality.leafShadow;branches.current.castShadow=d<quality.branchShadow;root.current.visible=d<205;leaves.current.userData.target=Math.ceil(assets.l.length*leafDensity(d)*quality.density)}
   const target=leaves.current.userData.target??assets.l.length,delta=Math.ceil(dt*1000)
   leaves.current.count+=Math.sign(target-leaves.current.count)*Math.min(delta,Math.abs(target-leaves.current.count));uniforms.detail.value=easeLeafScale(uniforms.detail.value,leafScale(assets.l.length,leaves.current.count),dt)
-  if(root.current.visible){uniforms.clock.value=clock.elapsedTime;uniforms.strength.value=windStrength(weather)}
+  if(root.current.visible){uniforms.clock.value=clock.elapsedTime;uniforms.strength.value=windStrength(weather);uniforms.gust.value=windEnvelope(clock.elapsedTime,uniforms.strength.value)}
  })
  return <group ref={root} userData={{noBatch:true,noCameraCollision:true}}>
   <instancedMesh ref={branches} args={[assets.bg,assets.bm,assets.b.length]} customDepthMaterial={assets.bd} receiveShadow/>

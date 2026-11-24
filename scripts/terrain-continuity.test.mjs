@@ -12,9 +12,9 @@ test('continuous distant sea extends beyond camera range on all sides',()=>{
  const {position:[x,y,z],size:[w,d]}=SEABED_BACKING
  assert.ok(y<-7);for(const p of [[-180,-150],[170,-150],[-180,120],[170,120]])assert.ok(inside(...p,[x-w/2,x+w/2,z-d/2,z+d/2]))
 })
-test('both old gables and terrace window trim are replaced while front walls remain',()=>{
+test('both old gables and terrace window trim are replaced and front walls are replaced continuously',()=>{
  for(const name of ['GABLE · end triangular infill 6.64','GABLE · end triangular infill -6.64','WINDOW · rear stone sill','WINDOW · vertical mullion'])assert.ok(replaceAtticEndWall(name,0))
- assert.equal(replaceAtticEndWall('WALL · end low plinth',-6.64),false)
+ assert.equal(replaceAtticEndWall('WALL · end low plinth',-6.64),true)
 })
 
 

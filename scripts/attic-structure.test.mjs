@@ -19,7 +19,7 @@ test('actual GLB rear piers are replaced and every rafter follows the raised arc
  const rafters=gltf.nodes.filter(n=>n.name?.startsWith('RAFTER'))
  assert.ok(rafters.length>=8);assert.ok(rafters.every(n=>atticArchitecture(n.name)))
  assert.equal(atticArchitecture('DAYBED carved frame'),false)
- assert.equal(replaceAtticEndWall('WALL end low plinth',-6.64),false)
+ assert.equal(replaceAtticEndWall('WALL end low plinth',-6.64),true)
 })
 
 test('moving planets stay outside the projected cinema frame footprint',()=>{

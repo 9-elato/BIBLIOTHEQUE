@@ -12,8 +12,8 @@ export function seeded(seed){return ()=>{seed=(Math.imul(seed,1664525)+101390422
 export function windMaterial(kind,uniforms,depth=false){
  const m=depth?new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking,side:THREE.DoubleSide}):new THREE.MeshStandardMaterial({roughness:1,side:THREE.DoubleSide,color:kind==='branch'?'#66513d':'#ffffff'})
  m.onBeforeCompile=s=>{
-  s.uniforms.plantClock=uniforms.clock;s.uniforms.plantWind=uniforms.strength;s.uniforms.leafSize=uniforms.detail||{value:1};s.uniforms.plantEye=uniforms.eye||{value:new THREE.Vector3()}
-  s.vertexShader=`uniform float plantClock,plantWind,leafSize;uniform vec3 plantEye;${kind==='grass'?'attribute float plantRank;':'attribute vec4 plantRoot;'}\n`+s.vertexShader
+  s.uniforms.plantGust=uniforms.gust||{value:0};s.uniforms.plantClock=uniforms.clock;s.uniforms.plantWind=uniforms.strength;s.uniforms.leafSize=uniforms.detail||{value:1};s.uniforms.plantEye=uniforms.eye||{value:new THREE.Vector3()}
+  s.vertexShader=`uniform float plantClock,plantWind,leafSize,plantGust;uniform vec3 plantEye;${kind==='grass'?'attribute float plantRank;':'attribute vec4 plantRoot;'}\n`+s.vertexShader
   const root=kind==='grass'?'vec4(instanceMatrix[3].xyz,1.)':'plantRoot'
   s.vertexShader=s.vertexShader.replace('#include <project_vertex>',`
    vec4 mvPosition=vec4(transformed${kind==='leaf'?'*leafSize':''},1.);
@@ -24,7 +24,7 @@ export function windMaterial(kind,uniforms,depth=false){
     mvPosition=instanceMatrix*mvPosition;
     vec4 root=${root};
     float height=max(0.,mvPosition.y-root.y),phase=root.x*.31+root.z*.23;
-    float gust=plantWind*(.72+.18*sin(plantClock*.31)+.1*sin(plantClock*.73));
+    float gust=${uniforms.gust?'plantGust':'plantWind*(.72+.18*sin(plantClock*.31)+.1*sin(plantClock*.73))'};
     float wave=sin(plantClock*1.4+mvPosition.x*.24+mvPosition.z*.18);
     ${kind==='grass'?`
      float bend=height*height*gust*(.65+.35*wave);
@@ -42,6 +42,6 @@ export function windMaterial(kind,uniforms,depth=false){
    gl_Position=projectionMatrix*mvPosition;`)
   s.vertexShader=s.vertexShader.replace('#include <worldpos_vertex>','vec4 worldPosition=modelMatrix*plantPosition;')
  }
- m.customProgramCacheKey=()=>`vegetation-${kind}-${depth}-v1`
+ m.customProgramCacheKey=()=>`vegetation-${kind}-${depth}-${Boolean(uniforms.gust)}-v2`
  return m
 }
