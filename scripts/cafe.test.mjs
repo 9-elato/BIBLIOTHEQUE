@@ -57,3 +57,13 @@ test('invited guests can open the entrance pamphlet without blocking the entranc
  const seated=interactionAt({...guest,seated:{phase:'seated'}},{world})
  assert.equal(seated.type,'stand')
 })
+
+import {cafeIdentity,CAFE_IDENTITY,DEFAULT_CAFE} from '../src/cafeData.js'
+test('ghost collective concept preserves custom content and migrates goods once',()=>{
+ const result=cafeIdentity({...DEFAULT_CAFE,menu:'Custom tea',startTime:'19:30'})
+ assert.equal(result.title,'유령단');assert.equal(result.menu,'Custom tea');assert.equal(result.startTime,'19:30')
+ assert.ok(result.goods.includes('눈사람 실내화'));assert.equal(CAFE_IDENTITY.open,'10:00');assert.equal(CAFE_IDENTITY.close,'20:00')
+ assert.equal(cafeIdentity(result),result)
+ const edited={...result,title:'My cafe',goods:'책갈피'}
+ assert.equal(cafeIdentity(edited),edited)
+})

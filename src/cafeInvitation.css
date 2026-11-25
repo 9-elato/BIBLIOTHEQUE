@@ -10,3 +10,5 @@
 .cafe-invitation .invitation-note{font-size:12px;color:#827663}
 .invitation-menu{list-style:none;padding:0}.invitation-menu li{padding:7px 0;border-bottom:1px dashed #d9c9ac}
 .cafe-invitation ol{padding-left:22px}.cafe-invitation ol li{margin:9px 0}
+
+.cafe-guide-tabs{display:flex;gap:8px;flex-wrap:wrap}.cafe-guide-tabs button{font-size:14px;padding:9px 12px}.cafe-guide-tabs button[aria-pressed="true"]{background:#345248;color:#fff5df}

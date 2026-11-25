@@ -34,7 +34,7 @@ test('both garden benches are reachable from the path and allow walking after st
 })
 function finish(state){let result;for(let i=0;i<240;i++){result=advanceSeating(state,1/60);state=result.seating;if(!state||state.phase==='seated')return result}throw Error('transition did not finish')}
 test('all 43 seat and bath approaches are reachable and select the correct seat',()=>{
- assert.equal(SEATS.length,43)
+ assert.equal(SEATS.length,44)
  for(const s of SEATS){assert.equal(walkHeight(s.entry.x,s.entry.z,s.level,world),s.level,s.id);assert.equal(nearbySeat(origin(s),world)?.id,s.id)}
 })
 test('every seat smoothly reaches its cushion and returns to a collision-free origin',()=>{

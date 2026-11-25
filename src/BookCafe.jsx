@@ -1,10 +1,11 @@
+import {cafeIdentity,CAFE_IDENTITY} from './cafeData'
 import {withCafePoster} from './cafePoster'
 import StaticBatch from './StaticBatch'
 import React,{useMemo,useEffect} from 'react'
 import * as THREE from 'three'
 import {Box as B} from './GroundFloor'
 import {BookCoverMesh} from './BookCover'
-import {CAFE_SEATS,CAFE_SEAT_TURNS} from './cafeLayout'
+import {CAFE_SEATS,CAFE_SEAT_TURNS,CAFE_NOOKS} from './cafeLayout'
 function Sign({text,position,size=[2,1],rotation=[0,0,0],dark=false}){
  const texture=useMemo(()=>{const c=document.createElement('canvas');c.width=1024;c.height=Math.round(1024*size[1]/size[0]);const x=c.getContext('2d'),h=c.height;
  x.fillStyle=dark?'#203a35':'#f2eadb';x.fillRect(0,0,1024,h);x.strokeStyle='#b59860';x.lineWidth=3;x.strokeRect(18,18,988,h-36);
@@ -15,7 +16,7 @@ function Sign({text,position,size=[2,1],rotation=[0,0,0],dark=false}){
  return <mesh userData={{noCameraCollision:true}} position={position} rotation={rotation}><planeGeometry args={size}/><meshBasicMaterial map={texture} side={THREE.DoubleSide}/></mesh>
 }
 export default function BookCafe({config,books,onOpen,time}){
- config=withCafePoster(config)
+ config=withCafePoster(cafeIdentity(config))
  const chosen=config.bookIds.map(id=>books.find(b=>b.id===id)).filter(Boolean).slice(0,8)
  const click=e=>{e.stopPropagation();onOpen()}
  return <group>
@@ -34,12 +35,12 @@ export default function BookCafe({config,books,onOpen,time}){
  <B p={[-16,5.7,22.25]} s={[.25,2.6,2.5]} c="#d5c4a3"/>
  <B p={[-23,7.1,23]} s={[14.6,.25,16.6]} c="#594431"/>
  </StaticBatch>
- <Sign text={config.title} position={[-15.8,4.6,22.25]} rotation={[0,Math.PI/2,0]} size={[3,1]}/>
+ <Sign text={config.title+'\n'+CAFE_IDENTITY.concept+'\n책 여는 시간 10:00 · 책 닫는 시간 20:00'} position={[-15.8,5.35,22.25]} rotation={[0,Math.PI/2,0]} size={[3.1,1.7]} dark/>
  <group onClick={click}>
  <group userData={{noCameraCollision:true}}>
  <B p={[-18.2,1.46,20.05]} s={[.65,.08,.7]} c="#f4ead5"/>
  <B p={[-18.2,1.53,20.05]} s={[.59,.04,.65]} c="#fff6e5"/>
- <Sign text={'INVITATION\n책방지기의 초대장\n미니맵 · 메뉴 · 이용 안내'} position={[-18.12,2.01,20.18]} rotation={[0,Math.PI/2,0]} size={[1.2,1.05]}/>
+ <Sign text={'INVITATION\n유령단의 초대장\n미니맵 · 이용 안내'} position={[-18.12,2.01,20.18]} rotation={[0,Math.PI/2,0]} size={[1.2,1.05]}/>
  <B p={[-18.2,1.75,20.18]} s={[.08,.65,.7]} c="#ac8a5d"/>
  </group>
  <B p={[-17.9,.65,18.25]} s={[2.5,1.3,4.3]} c="#543f30"/>
@@ -56,6 +57,10 @@ export default function BookCafe({config,books,onOpen,time}){
  {[0,1,2].map(i=><B key={i} p={[-24+i*.32,1.46,15.9]} s={[.25,.08,.36]} c={['#e1c793','#c39596','#a6bca4'][i]}/>)}
  <mesh position={[-22.4,1.75,15.85]} scale={[.23,.33,.21]}><sphereGeometry args={[1,12,8]}/><meshStandardMaterial color="#f5ecd9"/></mesh>
  {[-.08,.08].map(x=><mesh key={x} position={[-22.4+x,1.82,16.04]}><sphereGeometry args={[.027,8,6]}/><meshStandardMaterial color="#272121"/></mesh>)}
+ {/* Snowman slippers, melted magnet and reading ghost on the goods shelf. */}
+ {[-.18,.18].map(dx=><group key={dx} position={[-23.2+dx,1.51,15.8]}><mesh scale={[.13,.07,.24]}><sphereGeometry args={[1,12,8]}/><meshStandardMaterial color="#f1eadc"/></mesh><mesh position={[0,.08,-.05]}><sphereGeometry args={[.10,12,8]}/><meshStandardMaterial color="#eee5d4"/></mesh>{[-.035,.035].map(x=><mesh key={x} position={[x,.10,.04]}><sphereGeometry args={[.015,6,4]}/><meshBasicMaterial color="#303d39"/></mesh>)}</group>)}
+ <mesh position={[-22.75,1.45,16.1]} scale={[.21,.025,.14]}><sphereGeometry args={[1,16,8]}/><meshStandardMaterial color="#e4dccb"/></mesh>
+ <B p={[-22.4,1.65,16.09]} s={[.3,.18,.04]} c="#527366"/>
  {[-.13,.13].map(x=><mesh key={x} position={[-21.3+x,1.57,16]} rotation={[0,0,.15]}><torusGeometry args={[.12,.018,6,14]}/><meshStandardMaterial color="#8e6738" metalness={.65} roughness={.35}/></mesh>)}
  <B p={[-21.3,1.57,16]} s={[.08,.02,.025]} c="#8e6738"/>
  <Sign text={config.eventTitle+'\n'+config.eventNote} position={[-29.8,3,22]} rotation={[0,Math.PI/2,0]} size={[2.8,1.6]}/>
@@ -71,8 +76,13 @@ export default function BookCafe({config,books,onOpen,time}){
  <Sign text={'상영표 · 클릭해서 열기\n'+config.filmTitle} position={[-26,2.4,24.45]} size={[6.8,2.5]} dark/>
  </group>
  <StaticBatch revision={time}>
- {CAFE_SEATS.map(([x,z],i)=><group key={i} position={[x,0,z]} rotation={[0,CAFE_SEAT_TURNS[i]-Math.PI,0]}><B p={[0,.46,0]} s={[1.2,.34,.96]} c={i<2||i>4?'#42624e':'#824b4b'}/><B p={[0,.95,.42]} s={[1.2,.8,.15]} c={i<2||i>4?'#42624e':'#824b4b'}/>{[-.45,.45].map(a=><B key={a} p={[a,.2,0]} s={[.1,.4,.75]} c="#483528"/>)}</group>)}
- <B p={[-24,.70,20]} s={[1,.12,1]} c="#ae855b"/><B p={[-24,.33,20]} s={[.18,.66,.18]} c="#594332"/>
+ {CAFE_SEATS.map(([x,z],i)=><group key={i} position={[x,0,z]} rotation={[0,CAFE_SEAT_TURNS[i]-Math.PI,0]}><B p={[0,i===7?.15:.46,0]} s={[1.2,i===7?.2:.34,.96]} c={i<2||i>4?'#42624e':'#824b4b'}/><B p={[0,i===7?.38:.95,.42]} s={[1.2,i===7?.3:.8,.15]} c={i<2||i>4?'#42624e':'#824b4b'}/>{(i===7?[]:[-.45,.45]).map(a=><B key={a} p={[a,.2,0]} s={[.1,.4,.75]} c="#483528"/>)}</group>)}
+ {CAFE_NOOKS.map(item=><B key={item.id} p={item.p} s={item.s} c={item.c}/>)}
+ {[-25.48].map(x=>[18.65,21.35].map(z=><B key={z} p={[x,.95,z]} s={[.16,.85,1.85]} c="#42624e"/>))}
+ <B p={[-21.4,.68,17.565]} s={[.96,.78,.035]} c="#252c29"/>
+ {[0,1,2].map(i=><mesh key={i} position={[-21.65+i*.25,.53,17.6]} scale={[.10,.21+(i%2)*.1,.05]}><sphereGeometry args={[1,8,6]}/><meshStandardMaterial color="#f2ba6e" emissive="#e9a74a" emissiveIntensity={1.2}/></mesh>)}
+ {[[ -25.4,17.85],[-25.4,22.15],[-29.25,18],[-21,17.2]].map(([x,z],i)=><group key={i}><B p={[x,1.25,z]} s={[.035,1.25,.035]} c="#b2986b"/><mesh position={[x,1.92,z]}><coneGeometry args={[.25,.32,12,1,true]}/><meshStandardMaterial color="#f1dfb9" emissive="#e5b566" emissiveIntensity={.4} side={THREE.DoubleSide}/></mesh></group>)}
+
  {[-27,-19].map(x=><group key={x}><B p={[x,5.7,20]} s={[.035,2.6,.035]} c="#806c49"/><mesh position={[x,4.4,20]}><sphereGeometry args={[.3,10,8]}/><meshStandardMaterial color="#fff0cb" emissive="#ffd18b" emissiveIntensity={time==='evening'?1:.4}/></mesh><pointLight position={[x,4,20]} color="#ffd7a0" intensity={5} distance={12}/></group>)}
  </StaticBatch>
  </group>

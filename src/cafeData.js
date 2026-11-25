@@ -6,3 +6,10 @@ export function screeningDates(from=new Date(),count=6){
  for(let i=0;i<730&&result.length<count;i++){const y=cursor.getUTCFullYear(),m=cursor.getUTCMonth()+1,d=cursor.getUTCDate();if(isScreeningDate(y,m,d))result.push(`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`);cursor.setUTCDate(d+1)}return result
 }
 export function validCafeTime(value){return value===''||/^(18|19|20|21|22|23):[0-5][0-9]$/.test(value)}
+export const CAFE_IDENTITY={name:'유령단',concept:'눈사람 유령이 남긴 흔적',open:'10:00',close:'20:00'}
+const NEW_GOODS=['눈사람 실내화','녹은 눈사람 모양 냉장고 마그넷','독서하는 유령 소형 조각상']
+export function cafeIdentity(config){
+ if(config.conceptVersion===1)return config
+ const goods=(config.goods||'').split('\n').filter(Boolean)
+ return {...config,conceptVersion:1,title:config.title==='책방지기의 북카페'?'유령단':config.title,goods:[...goods,...NEW_GOODS.filter(g=>!goods.includes(g))].join('\n')}
+}
