@@ -31,7 +31,7 @@ export default function EstateLandscape({time,weather}){
  <B p={[16.7,-5.7,-.2]} s={[19.1,.7,14.1]} c="#747969"/>
  <B p={[7.0,-2.7,2]} s={[.5,5,9]} c="#82816c"/>
  </StaticBatch>
- <SeaWater position={[-14.9,-7,-29]} size={[16,25]} time={time} weather={weather}/>
+ <SeaWater position={[-15.9,-7,-25.6]} size={[18.2,33]} time={time} weather={weather}/>
  <SeaWater position={[0,-7,-88]} size={[200,105]} time={time} weather={weather}/>
  <SeaWater position={[-83,-7,-12]} size={[90,88]} time={time} weather={weather}/>
  <mesh position={[25,-5.38,17]} rotation={[-Math.PI/2,0,0]} scale={[1.5,1,1]}><circleGeometry args={[6,48]}/><meshPhysicalMaterial color={night?'#284a43':'#527f71'} metalness={.45} roughness={.18} clearcoat={1}/></mesh>

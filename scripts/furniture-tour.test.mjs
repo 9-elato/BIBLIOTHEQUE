@@ -10,7 +10,7 @@ for(const gateReady of [true,false])test(`automated furniture tour completes all
   advanceFurnitureTour(t,s,world,1/60)
   if(s.seated){const r=advanceSeating(s.seated,1/60,world);s.seated=r.seating;s.x=r.pose.x;s.z=r.pose.z}
  }
- assert.equal(t.running,false);assert.equal(t.results.length,41)
+ assert.equal(t.running,false);assert.equal(t.results.length,43)
  assert.equal(t.results.filter(r=>r.result.startsWith('실패')).length,0,JSON.stringify(t.results))
  assert.equal(t.results.filter(r=>r.result.startsWith('건너뜀')).length,gateReady?0:3)
 })

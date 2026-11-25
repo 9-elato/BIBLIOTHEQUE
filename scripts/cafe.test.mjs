@@ -27,3 +27,23 @@ test('cafe overhanging counter and cinema screen block the avatar while the door
  let p={x:-20.8,z:25.5,level:0,yaw:0}
  for(const [x,z] of [[-20.8,22.25],[-11,22.25]]){p=movePlayer(p,x-p.x,z-p.z,world);assert.ok(Math.hypot(p.x-x,p.z-z)<.03)}
 })
+
+import {withCafePoster,posterSource,importPoster} from '../src/cafePoster.js'
+test('poster defaults preserve bookkeeper choices and reject unsafe image sources',async()=>{
+ const config={filmTitle:'다음 상영작 준비 중',filmPoster:'',startTime:'21:00'}
+ const shown=withCafePoster(config)
+ assert.equal(shown.filmTitle,'Call Me by Your Name')
+ assert.ok(shown.filmPoster.endsWith('/posters/call-me-by-your-name.webp'))
+ assert.equal(config.filmPoster,'');assert.equal(shown.startTime,'21:00')
+ const custom={...config,filmTitle:'Chosen film'};assert.equal(withCafePoster(custom),custom)
+ assert.equal(posterSource('javascript:alert(1)'),'')
+ assert.equal(posterSource('data:image/svg+xml;base64,AAAA'),'')
+ assert.equal(posterSource('data:image/jpeg;base64,AAAA'),'data:image/jpeg;base64,AAAA')
+ await assert.rejects(importPoster({type:'image/svg+xml',size:100}))
+ await assert.rejects(importPoster({type:'image/jpeg',size:11*1024*1024}))
+})
+test('cinema partition blocks both wings but retains the dedicated doorway',()=>{
+ assert.equal(walkHeight(-18,24.2,0,world),null)
+ assert.equal(walkHeight(-26,24.2,0,world),null)
+ assert.equal(walkHeight(-20.8,24.2,0,world),0)
+})

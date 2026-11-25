@@ -1,7 +1,7 @@
 import {READING_SOFA_SEATS} from './readingLoungeLayout.js'
 import {WING_FURNITURE} from './stacksLayout.js'
 import {SPRING_BATH} from './basementLayout.js'
-import {CAFE_SEATS} from './cafeLayout.js'
+import {CAFE_SEATS,CAFE_SEAT_TURNS} from './cafeLayout.js'
 import {GARDEN_SEATING,GARDEN_LEVEL} from './greenhouseLayout.js'
 import {atticX} from './atticLayout.js'
 import {READING_CHAIRS,CHAIR_HEIGHT,STUDY_CHAIR} from './roomFurniture.js'
@@ -35,7 +35,7 @@ export const SEATS=[
   ...GARDEN_BENCHES.map(([x,z],i)=>seat(`garden-${i}`,i===0?'서쪽 정원 벤치':'동쪽 정원 벤치',x,z,Math.PI,0,.71,0,.08,1.25)),
  ...READING_SOFA_SEATS.map(s=>seat(s.id,s.label,s.x,s.z,s.turn,7.2,.72,0,0,1.05)),
  SPRING_BATH,
- ...CAFE_SEATS.map(([x,z],i)=>seat(`cafe-seat-${i}`,i<2?'북카페 독서 의자':'미니 극장 의자',x,z,Math.PI,0,.63,0,.1,1.2)),
+ ...CAFE_SEATS.map(([x,z],i)=>seat(`cafe-seat-${i}`,i<2?'북카페 창가 좌석':i<5?'미니 극장 의자':'북카페 2인 좌석',x,z,CAFE_SEAT_TURNS[i],0,.63,0,.1,i<5?1.2:.95)),
 ]
 const bed=SEATS.find(s=>s.id==='attic-daybed')
 bed.anchor.x=atticX(bed.anchor.x);bed.entry.x=atticX(bed.entry.x)

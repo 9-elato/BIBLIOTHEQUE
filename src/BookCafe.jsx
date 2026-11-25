@@ -1,21 +1,32 @@
+import {withCafePoster} from './cafePoster'
 import StaticBatch from './StaticBatch'
 import React,{useMemo,useEffect} from 'react'
 import * as THREE from 'three'
 import {Box as B} from './GroundFloor'
 import {BookCoverMesh} from './BookCover'
-import {CAFE_SEATS} from './cafeLayout'
+import {CAFE_SEATS,CAFE_SEAT_TURNS} from './cafeLayout'
 function Sign({text,position,size=[2,1],rotation=[0,0,0],dark=false}){
- const texture=useMemo(()=>{const c=document.createElement('canvas');c.width=768;c.height=512;const x=c.getContext('2d');x.fillStyle=dark?'#193d33':'#eee2c6';x.fillRect(0,0,768,512);x.fillStyle=dark?'#f8ecd2':'#493721';x.textAlign='center';const lines=text.split('\n');x.font=`${Math.min(58,420/Math.max(1,lines.length))}px sans-serif`;lines.forEach((line,i)=>x.fillText(line,384,65+i*400/Math.max(1,lines.length),710));const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t},[text,dark]);useEffect(()=>()=>texture.dispose(),[texture])
+ const texture=useMemo(()=>{const c=document.createElement('canvas');c.width=1024;c.height=Math.round(1024*size[1]/size[0]);const x=c.getContext('2d'),h=c.height;
+ x.fillStyle=dark?'#203a35':'#f2eadb';x.fillRect(0,0,1024,h);x.strokeStyle='#b59860';x.lineWidth=3;x.strokeRect(18,18,988,h-36);
+ // Melting ghost snowman: cream puddle, slumping body and two quiet eyes.
+ const cy=Math.min(78,h*.18);x.fillStyle=dark?'#f4ead5':'#d3c4a5';x.beginPath();x.ellipse(512,cy+24,62,13,0,0,Math.PI*2);x.fill();x.beginPath();x.ellipse(505,cy,35,37,-.15,0,Math.PI*2);x.fill();x.beginPath();x.arc(512,cy-30,24,0,Math.PI*2);x.fill();x.fillStyle='#263b36';[502,520].forEach(px=>{x.beginPath();x.ellipse(px,cy-30,3,5,0,0,Math.PI*2);x.fill()});
+ const lines=text.split('\n'),start=cy+70,step=Math.min(62,(h-start-24)/Math.max(1,lines.length));x.textAlign='center';x.textBaseline='middle';x.fillStyle=dark?'#f4ead5':'#243d36';lines.forEach((line,i)=>{x.font=`${i===0?'600':'400'} ${Math.min(i===0?44:32,step*.72)}px Georgia, serif`;x.fillText(line,512,start+(i+.5)*step,930)});
+ const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t},[text,dark,size[0],size[1]]);useEffect(()=>()=>texture.dispose(),[texture])
  return <mesh userData={{noCameraCollision:true}} position={position} rotation={rotation}><planeGeometry args={size}/><meshBasicMaterial map={texture} side={THREE.DoubleSide}/></mesh>
 }
 export default function BookCafe({config,books,onOpen,time}){
+ config=withCafePoster(config)
  const chosen=config.bookIds.map(id=>books.find(b=>b.id===id)).filter(Boolean).slice(0,8)
  const click=e=>{e.stopPropagation();onOpen()}
  return <group>
  <StaticBatch>
  <B p={[-22.3,-.12,23]} s={[15.4,.24,16.5]} c="#9a7955"/>
  <B p={[-14,0,22.25]} s={[4,.08,2.5]} c="#bca887"/>
- <B p={[-30,3.5,23]} s={[.28,7,16]} c="#c3b897"/>
+ <B p={[-30,3.5,27.5]} s={[.28,7,7]} c="#d9d2c3"/>
+ <B p={[-30,.45,19.5]} s={[.28,.9,9]} c="#d9d2c3"/><B p={[-30,6.25,19.5]} s={[.28,1.5,9]} c="#d9d2c3"/>
+ {[15.15,17.9,20.8,23.85].map(z=><B key={z} p={[-30,3.2,z]} s={[.22,4.6,.09]} c="#343c36"/>)}
+ <mesh position={[-30,3.2,19.5]} rotation={[0,Math.PI/2,0]}><planeGeometry args={[8.7,4.6]}/><meshStandardMaterial color="#b7cfca" transparent opacity={.07} depthWrite={false} side={THREE.DoubleSide}/></mesh>
+ <B p={[-29.38,.91,20.35]} s={[.65,.12,6.3]} c="#b8a98f"/>
  <B p={[-23,3.5,15]} s={[14,7,.25]} c="#dbceb3"/>
  <B p={[-23,3.5,31]} s={[14,7,.25]} c="#34463c"/>
  <B p={[-16,3.5,18]} s={[.25,7,6]} c="#d5c4a3"/>
@@ -45,14 +56,17 @@ export default function BookCafe({config,books,onOpen,time}){
  <BookCoverMesh url={config.eventPoster} position={[-29.78,1.8,22]} rotation={[0,Math.PI/2,0]} size={[1.2,1.6]}/>
  <Sign text={'MINI CINEMA\n'+config.filmTitle+'\n3의 배수 날짜 · 목요일\n'+(config.startTime?config.startTime+' KST':'시작 시각 미정')} position={[-26,3,23.98]} rotation={[0,Math.PI,0]} size={[3,1.8]}/>
  <BookCoverMesh url={config.filmPoster} position={[-23,2.1,23.97]} rotation={[0,Math.PI,0]} size={[1,1.5]}/>
- <B p={[-26,1.8,24.15]} s={[8,3.6,.3]} c="#624935"/>
+ <B p={[-26,3.5,24.15]} s={[8,7,.3]} c="#624935"/>
+ <B p={[-17.8,3.5,24.15]} s={[3.6,7,.3]} c="#d9d2c3"/>
+ <B p={[-20.8,5.8,24.15]} s={[2.4,2.4,.3]} c="#d9d2c3"/>
+ {[-21.95,-19.65].map(x=><B key={x} p={[x,2.3,24.15]} s={[.12,4.6,.42]} c="#b59860"/>)}
  <B p={[-26,3.75,24.25]} s={[7.4,.18,.45]} c="#624935"/>
  <B p={[-26,2.4,24.38]} s={[7.2,2.8,.1]} c="#111b1b"/>
  <Sign text={'상영표 · 클릭해서 열기\n'+config.filmTitle} position={[-26,2.4,24.45]} size={[6.8,2.5]} dark/>
  </group>
  <StaticBatch revision={time}>
- {CAFE_SEATS.map(([x,z],i)=><group key={i}><B p={[x,.46,z]} s={[1.2,.34,.96]} c={i<2?'#42624e':'#824b4b'}/><B p={[x,.95,z+.42]} s={[1.2,.8,.15]} c={i<2?'#42624e':'#824b4b'}/>{[-.45,.45].map(a=><B key={a} p={[x+a,.2,z]} s={[.1,.4,.75]} c="#483528"/>)}</group>)}
- <B p={[-26,.55,20.55]} s={[1.4,.15,1.1]} c="#ae855b"/><B p={[-26,.25,20.55]} s={[.15,.5,.15]} c="#594332"/>
+ {CAFE_SEATS.map(([x,z],i)=><group key={i} position={[x,0,z]} rotation={[0,CAFE_SEAT_TURNS[i]-Math.PI,0]}><B p={[0,.46,0]} s={[1.2,.34,.96]} c={i<2||i>4?'#42624e':'#824b4b'}/><B p={[0,.95,.42]} s={[1.2,.8,.15]} c={i<2||i>4?'#42624e':'#824b4b'}/>{[-.45,.45].map(a=><B key={a} p={[a,.2,0]} s={[.1,.4,.75]} c="#483528"/>)}</group>)}
+ <B p={[-24,.70,20]} s={[1,.12,1]} c="#ae855b"/><B p={[-24,.33,20]} s={[.18,.66,.18]} c="#594332"/>
  {[-27,-19].map(x=><group key={x}><B p={[x,5.7,20]} s={[.035,2.6,.035]} c="#806c49"/><mesh position={[x,4.4,20]}><sphereGeometry args={[.3,10,8]}/><meshStandardMaterial color="#fff0cb" emissive="#ffd18b" emissiveIntensity={time==='evening'?1:.4}/></mesh><pointLight position={[x,4,20]} color="#ffd7a0" intensity={5} distance={12}/></group>)}
  </StaticBatch>
  </group>
