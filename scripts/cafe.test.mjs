@@ -47,3 +47,13 @@ test('cinema partition blocks both wings but retains the dedicated doorway',()=>
  assert.equal(walkHeight(-26,24.2,0,world),null)
  assert.equal(walkHeight(-20.8,24.2,0,world),0)
 })
+
+import {interactionAt} from '../src/interactions.js'
+test('invited guests can open the entrance pamphlet without blocking the entrance',()=>{
+ const guest={x:-18.2,z:22.25,level:0,yaw:0}
+ assert.equal(walkHeight(guest.x,guest.z,0,world),0)
+ const action=interactionAt(guest,{world,entranceOpen:true,gateReady:true})
+ assert.equal(action.type,'cafe');assert.equal(action.label,'책방지기의 초대장 펼치기')
+ const seated=interactionAt({...guest,seated:{phase:'seated'}},{world})
+ assert.equal(seated.type,'stand')
+})

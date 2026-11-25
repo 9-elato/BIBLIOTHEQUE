@@ -1,0 +1,12 @@
+.cafe-invitation{background:#faf3e4;color:#3d493c;border:1px solid #bca17b;border-radius:14px;padding:clamp(16px,4vw,32px);margin:12px 0 28px;line-height:1.85;box-shadow:0 5px 18px #503a1b0d}
+.cafe-invitation .invitation-kicker{font-size:11px;letter-spacing:.15em;color:#827055;margin:0;text-align:center}
+.cafe-invitation .invitation-seal{display:block;font-size:34px;text-align:center;color:#9c7951}
+.cafe-invitation h2{font-size:clamp(21px,5vw,28px);text-align:center;line-height:1.45}
+.cafe-invitation h3{font-size:18px;margin-top:26px}
+.cafe-invitation p,.cafe-invitation li{font-size:15px;overflow-wrap:anywhere}
+.cafe-invitation .invitation-signature{text-align:right;color:#826443}
+.invitation-map{display:block;width:100%;max-width:440px;height:auto;margin:auto}
+.invitation-map text{text-anchor:middle;fill:#3c4435;font-family:inherit;font-size:16px;font-weight:600}
+.cafe-invitation .invitation-note{font-size:12px;color:#827663}
+.invitation-menu{list-style:none;padding:0}.invitation-menu li{padding:7px 0;border-bottom:1px dashed #d9c9ac}
+.cafe-invitation ol{padding-left:22px}.cafe-invitation ol li{margin:9px 0}

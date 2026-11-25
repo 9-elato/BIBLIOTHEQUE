@@ -36,6 +36,12 @@ export default function BookCafe({config,books,onOpen,time}){
  </StaticBatch>
  <Sign text={config.title} position={[-15.8,4.6,22.25]} rotation={[0,Math.PI/2,0]} size={[3,1]}/>
  <group onClick={click}>
+ <group userData={{noCameraCollision:true}}>
+ <B p={[-18.2,1.46,20.05]} s={[.65,.08,.7]} c="#f4ead5"/>
+ <B p={[-18.2,1.53,20.05]} s={[.59,.04,.65]} c="#fff6e5"/>
+ <Sign text={'INVITATION\n책방지기의 초대장\n미니맵 · 메뉴 · 이용 안내'} position={[-18.12,2.01,20.18]} rotation={[0,Math.PI/2,0]} size={[1.2,1.05]}/>
+ <B p={[-18.2,1.75,20.18]} s={[.08,.65,.7]} c="#ac8a5d"/>
+ </group>
  <B p={[-17.9,.65,18.25]} s={[2.5,1.3,4.3]} c="#543f30"/>
  <B p={[-17.9,1.34,18.25]} s={[2.7,.12,4.5]} c="#ba9d6f"/>
  <B p={[-18.86,3.1,18.3]} s={[.10,2.9,3.7]} c="#584630"/>{[16.8,19.8].map(z=><B key={z} p={[-18.86,5.75,z]} s={[.035,2.5,.035]} c="#806c49"/>)}

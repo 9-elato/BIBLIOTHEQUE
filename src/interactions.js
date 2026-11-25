@@ -19,7 +19,7 @@ export function interactionAt(s, {entranceOpen, gateReady, gateOpening=false, bo
   const inCafe=s.level===0&&s.x>-30&&s.x<-16&&s.z>15&&s.z<31
   const prepared=prepareSeat?prepareNearbySitting(s,world):null
   const cafeSeat=inCafe?(prepareSeat?prepared?.seat:nearbySeat(s,world)):null
-  if(inCafe&&!cafeSeat)return {type:'cafe',label:'북카페 큐레이션 · 메뉴 · 상영표 보기'}
+  if(inCafe&&!cafeSeat)return {type:'cafe',label:near(-18.2,20.18,3)?'책방지기의 초대장 펼치기':'북카페 초대장 · 큐레이션 · 상영표 보기'}
   if(s.level===0&&world?.verandaDoor&&near(-10.2,-6.7,2))return {type:'verandaDoor',label:world.verandaDoor.open?'바다 마루 문 닫기':'바다 마루 문 열기'}
   const rest=meadowRest(s)
   if(rest&&Math.abs(s.level-rest.level)<.15)return {type:'seat',seat:rest,label:'잔디에 누워 하늘 보기'}
