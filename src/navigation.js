@@ -1,3 +1,4 @@
+import {READING_LOUNGE_SOLIDS} from './readingLoungeLayout.js'
 import {GALLERY_RAIL_SOLIDS} from './upperArchitecture.js'
 import {CAFE_SOLIDS} from './cafeLayout.js'
 import {MEADOW_STAIRS} from './eastMeadowLayout.js'
@@ -67,9 +68,8 @@ export const FURNITURE=[
   {floor:0,rect:[2.52,3.28,13.1,14],id:'planter-right'},
   {floor:0,rect:[-2.9,-2.3,13.55,15.95],id:'porch-left'},
   {floor:0,rect:[2.3,2.9,13.55,15.95],id:'porch-right'},
-  {floor:GALLERY_HEIGHT,rect:[8.9,11.6,-.64,.64],id:'reading-table'},
+  ...READING_LOUNGE_SOLIDS.map(s=>({...s,floor:GALLERY_HEIGHT})),
   ...READING_CHAIRS.map(s=>({floor:s.level,rect:[s.x-(s.level===ATTIC_HEIGHT?.80:.64),s.x+(s.level===ATTIC_HEIGHT?.80:.64),s.z-(s.level===ATTIC_HEIGHT?.65:.52),s.z+(s.level===ATTIC_HEIGHT?.65:.52)],id:s.id})),
-  {floor:GALLERY_HEIGHT,rect:[13.65,14.8,-4.3,4.3],id:'reading-shelves'},
   ...[-3.1,2.4].map(z=>({floor:GALLERY_HEIGHT,rect:[7.05,7.95,z-.92,z+.92],id:'gallery-shelf'})),
   ...TERRACE_FURNITURE.map(s=>({...s,rect:[...s.rect],floor:ATTIC_HEIGHT})),
   {floor:ATTIC_HEIGHT,rect:[-19.15,-16.05,-1.65,1.65],id:'daybed'},

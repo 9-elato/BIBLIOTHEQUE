@@ -5,7 +5,7 @@ import {GREENHOUSE_HEIGHT_SCALE,GREENHOUSE_DOOR_HEIGHT,GREENHOUSE_CEILING_LAMP_Y
 import {gardenRoofY} from '../src/greenhouseClimate.js'
 const world={end:45,gateReady:true,entranceOpen:true,glassDoor:{open:true,amount:1}}
 test('second-floor gallery connects stair landing, reading aisle and conservatory both ways',()=>{
- const route=[[-6.35,-5.7],[0,-5.7],[6.4,-5.7],[6.4,0],[8.3,0],[8.3,4],[12.5,4],[12.5,-4],[8.3,-4],[8.3,-4.55],[6.4,-4.55],[6.4,5.7],[-7.1,5.7]]
+ const route=[[-6.35,-5.7],[0,-5.7],[6.4,-5.7],[6.4,0],[8.3,0],[8.3,3.7],[13.75,3.7],[13.75,-3.7],[8.3,-3.7],[8.3,0],[6.4,0],[6.4,5.7],[-7.1,5.7]]
  for(const points of [route,[...route].reverse()]){
   let p={x:points[0][0],z:points[0][1],level}
   for(const [x,z] of points.slice(1)){p=movePlayer(p,x-p.x,z-p.z,world);assert.ok(Math.hypot(p.x-x,p.z-z)<.03,`gallery route blocked at ${x},${z}`)}

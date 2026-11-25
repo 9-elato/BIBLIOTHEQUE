@@ -87,7 +87,7 @@ test('large frame steps cannot tunnel through a wall or furniture',()=>{
   const p=movePlayer({x:0,z:4,level:0},0,-5,world)
   assert.ok(p.z>3.05)
   const q=movePlayer({x:8.2,z:0,level:GALLERY_HEIGHT},10,0,world)
-  assert.ok(q.x<8.9)
+  assert.ok(q.x<10)
 })
 test('attic doorway connects but closed wall sections do not',()=>{
   assert.equal(walkHeight(-11.5,5.65,ATTIC_HEIGHT,world),ATTIC_HEIGHT)

@@ -1,6 +1,6 @@
 import {GALLERY_RAILS,READING_CLEAR_HEIGHT as RH} from './upperArchitecture'
 import React from 'react'
-import {UpperDetails} from './RoomDetails'
+import ReadingLounge from './ReadingLounge'
 import {Text} from '@react-three/drei'
 
 import {GALLERY_HEIGHT,STAIRS,stairPoint} from './navigation'
@@ -57,19 +57,7 @@ function UpperReadingRoom({time}){const y=GALLERY_HEIGHT;return <group>
    <mesh position={[10.25,y+4.32,z]}><cylinderGeometry args={[.17,.33,.24,18,1,true]}/><meshStandardMaterial color="#a58a55" side={THREE.DoubleSide} roughness={.45} metalness={.45}/></mesh>
    <mesh position={[10.25,y+4.22,z]}><sphereGeometry args={[.085,12,8]}/><meshStandardMaterial color="#ffe9be" emissive="#ffd08d" emissiveIntensity={time==='evening'?1.1:.35}/></mesh>
   </group>)}
-  {/* Three collections with carved cap mouldings and grouped non-interactive books. */}
-  {[-3.05,0,3.05].map((z,j)=><group key={z} position={[14.25,y,z]}>
-    <B p={[0,1.2,0]} s={[.65,2.4,2.3]} c="#513528"/>
-    {[.42,1.03,1.66,2.26].map((h,k)=><group key={h}>
-      <B p={[-.39,h,0]} s={[.17,.11,2.38]} c="#ab7b50"/>
-      {Array.from({length:9},(_,i)=><B key={i} p={[-.49,h+.24,-.94+i*.23]} s={[.18,.42+((i+j+k)%3)*.07,.16]} c={['#8f6147','#596c5e','#9c7a62','#626c88'][i%4]}/>) }
-    </group>)}
-    <B p={[-.05,2.46,0]} s={[.82,.18,2.58]} c={trim}/>
-  </group>)}
-  {/* Comfortable seats, writing table, old prints and warm brass lamps. */}
-  <B p={[10.25,y+.75,0]} s={[2.7,.16,1.28]} c="#633f2f"/>
-  {[-1.06,1.06].flatMap(x=>[-.45,.45].map(z=><B key={`${x}/${z}`} p={[10.25+x,y+.36,z]} s={[.12,.7,.12]} c={oak}/>))}
-  <UpperDetails time={time}/>
+  <ReadingLounge/>
  </group>}
 export default function Mezzanine({time}){const y=GALLERY_HEIGHT;return <group>
   <UpperReadingRoom time={time}/>

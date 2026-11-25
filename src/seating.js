@@ -1,3 +1,4 @@
+import {READING_SOFA_SEATS} from './readingLoungeLayout.js'
 import {WING_FURNITURE} from './stacksLayout.js'
 import {SPRING_BATH} from './basementLayout.js'
 import {CAFE_SEATS} from './cafeLayout.js'
@@ -32,6 +33,7 @@ export const SEATS=[
   seat('attic-daybed','다락 데이베드',-17.55,-.4,Math.PI/2,10.6,.84,0,.87,1.95),
   seat('terrace-sofa','테라스 소파',-18.5,7.85,Math.PI/2,10.6,.76,0,.14,1.2),
   ...GARDEN_BENCHES.map(([x,z],i)=>seat(`garden-${i}`,i===0?'서쪽 정원 벤치':'동쪽 정원 벤치',x,z,Math.PI,0,.71,0,.08,1.25)),
+ ...READING_SOFA_SEATS.map(s=>seat(s.id,s.label,s.x,s.z,s.turn,7.2,.72,0,0,1.05)),
  SPRING_BATH,
  ...CAFE_SEATS.map(([x,z],i)=>seat(`cafe-seat-${i}`,i<2?'북카페 독서 의자':'미니 극장 의자',x,z,Math.PI,0,.63,0,.1,1.2)),
 ]

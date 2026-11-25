@@ -3,7 +3,7 @@ import {GENRES,genreOf} from './layout.js'
 export const TABLES=[
   {id:'central',name:'중앙 독서 테이블',x:0,z:1.75,y:1.12,level:0,slots:6,width:2.8,depth:1.4},
   {id:'lounge',name:'라운지 테이블',x:-13.4,z:.15,y:.45,level:0,slots:3,width:1.2,depth:0},
-  {id:'reading',name:'2층 열람실 책상',x:10.25,z:0,y:8.05,level:7.2,slots:6,width:1.9,depth:.7},
+  {id:'reading',name:'2층 열람실 소파 테이블',x:10.75,z:0,y:7.77,level:7.2,slots:6,width:1.2,depth:.6},
 ]
 export const placementKey=p=>p?.kind==='table'?`table:${p.tableId}:${p.slot}`:`shelf:${p?.genre}:${p?.slot}`
 export function validPlacement(p){
