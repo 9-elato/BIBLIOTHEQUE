@@ -1,4 +1,4 @@
-export const LITERARY_MENU=[
+export const SINGLE_LITERARY_MENU=[
  '눈사람자살사건 (바닐라 밀크쉐이크)',
  '콜미바이유어네임 (복숭아·배 주스)',
  '호밀밭의 파수꾼 (호지차 라테)',
@@ -9,4 +9,10 @@ export const LITERARY_MENU=[
  '초콜릿 (따뜻한 핫초콜릿)',
  '레몬 (레몬 케이크)',
 ].map(name=>name+' | 가격 준비 중').join('\n')
+export const SET_MENU=[
+ '마담 프루스트의 비밀정원 (얼그레이 티 + 버터 마들렌)',
+ '그랜드 부다페스트 호텔 (호지차 라테 + 레몬 케이크)',
+ '미드나잇 인 파리 (핫초콜릿 + 초콜릿 브라우니)',
+].map(name=>name+' | 가격 준비 중').join('\n')
+export const LITERARY_MENU=SINGLE_LITERARY_MENU+'\n'+SET_MENU
 export const LEGACY_CAFE_MENU='핸드드립 커피 · 5,000원\n카페라테 · 5,500원\n바닐라 라테 · 6,000원\n얼그레이 · 5,000원\n캐모마일 · 5,000원\n레몬에이드 · 6,000원\n핫초콜릿 · 6,000원\n버터 스콘 · 4,000원\n레몬 케이크 · 5,500원'

@@ -346,3 +346,10 @@
 - Built-in imagegen atlas saved at public/art/cafe-literary-menu.png.
 - Prompt: square equal3x3 watercolor/colored-pencil menu atlas on ivory paper, no text/borders. Row1 snowman vanilla milkshake, peach pear juice, hojicha latte. Row2 grape lime soda, brownie, Earl Grey. Row3 madeleines, hot chocolate, lemon cake. Centered full objects with generous margins and vintage ceramic/glass details.
 - 272 tests and production build passed. No Computer Use, runtime visual inspection or deployment.
+
+[2026-11-26] Pairing sets and modern menu cards
+- Added3 film pairing sets: Madame Proust tea/madeleines, Grand Budapest hojicha/lemon cake, Midnight in Paris hot chocolate/brownie.12 total menus.
+- Both components shown on each set card; recipe and price remain editable. Earlier default9-item menu migrates; custom menus preserved.
+- Modern cream/black typography and wood shelf palette; simpler art, whitespace and category captions.
+- Built-in imagegen saved public/art/cafe-modern-menu.png. Prompt: equal3x3 text-free modern editorial product illustration atlas, cream background, black/cream ceramic vessels, soft shadows, no watercolor/paper texture. Nine items: snowman vanilla milkshake, peach pear juice, hojicha latte, grape lime soda, brownie, Earl Grey, madeleines, hot chocolate, lemon cake.
+- 273 tests and production build passed. No Computer Use/runtime visual inspection/deployment.
