@@ -53,7 +53,7 @@ export default function BookCafe({config,books,onOpen,time}){
  <B p={[-23,7.1,23]} s={[14.6,.25,16.6]} c="#594431"/>
  </StaticBatch>
  <CafeShopfront/>
- <CafeGoodsDetails/>
+ <group onClick={e=>{e.stopPropagation();onOpen('cafe-books')}}><CafeGoodsDetails/></group>
  <B p={[-22.65,.015,16.65]} s={[4.4,.025,1.9]} c="#b8a68c"/>
  <B p={[-25,1.1,15.88]} s={[.12,2.2,1]} c="#40382f"/>
  <CafeCinema config={config}/>
@@ -100,7 +100,7 @@ export default function BookCafe({config,books,onOpen,time}){
  {chosen.map((b,i)=><group key={b.id} position={[-29.1+(i%4)*1.05,1.8+Math.floor(i/4)*.85,15.85]}><B p={[0,0,0]} s={[.55,.7,.12]} c={b.color||'#39574d'}/><BookCoverMesh url={b.cover} position={[0,0,.07]} size={[.53,.68]}/></group>)}
  <B p={[-22.65,1.36,15.85]} s={[4.3,.12,.9]} c="#947149"/>
  <B p={[-22.65,.65,15.85]} s={[4.3,1.3,.9]} c="#68523a"/>
- <Sign text={'GOODS ZONE · 유령단의 작은 흔적\n책갈피 · 에코백 · 문구\n클릭하여 굿즈 목록 펼치기'} position={[-22.6,3.48,16.31]} size={[3.7,1.1]}/>
+ <Sign action="cafe-books" text={'GOODS ZONE · 유령단의 작은 흔적\n책갈피 · 에코백 · 문구\n클릭하여 굿즈 목록 펼치기'} position={[-22.6,3.48,16.31]} size={[3.7,1.1]}/>
  {[0,1,2].map(i=><B key={i} p={[-24+i*.32,1.46,15.9]} s={[.25,.08,.36]} c={['#e1c793','#c39596','#a6bca4'][i]}/>)}
  <mesh position={[-22.4,1.75,15.85]} scale={[.23,.33,.21]}><sphereGeometry args={[1,12,8]}/><meshStandardMaterial color="#f5ecd9"/></mesh>
  {[-.08,.08].map(x=><mesh key={x} position={[-22.4+x,1.82,16.04]}><sphereGeometry args={[.027,8,6]}/><meshStandardMaterial color="#272121"/></mesh>)}

@@ -1,4 +1,4 @@
-export const MENU_ART_PATH='art/cafe-ink-menu.png'
+export const MENU_ART_PATH='art/cafe-minimal-menu.svg'
 export function menuPalette(name){
  if(name.includes('부다페스트'))return {ink:'#35312d',accent:'#d6bac3'}
  if(name.includes('미드나잇'))return {ink:'#31343a',accent:'#cbbb92'}
