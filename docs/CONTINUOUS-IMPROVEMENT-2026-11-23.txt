@@ -338,3 +338,11 @@
 - Shop window displays selected books, next-film poster, WANTED reading-club notice and10/31 Halloween ghost-collective birthday party announcement.
 - Goods zone marked by a dedicated rug and low partition. Sofa returns shortened to maintain1.85 clear gap; two parallel avatar paths verified.
 - 270 tests and production build passed. No Computer Use, visual runtime inspection or public deployment.
+
+[2026-11-26] Literary and film menu
+- Nine work-title menus with separate recipe captions. Prices left undecided for bookkeeper.
+- Old default menu migrates to literary menu; independently edited menus preserved.
+- Parenthesized recipe parser retains peach/pear middle dot and supports editable prices.
+- Built-in imagegen atlas saved at public/art/cafe-literary-menu.png.
+- Prompt: square equal3x3 watercolor/colored-pencil menu atlas on ivory paper, no text/borders. Row1 snowman vanilla milkshake, peach pear juice, hojicha latte. Row2 grape lime soda, brownie, Earl Grey. Row3 madeleines, hot chocolate, lemon cake. Centered full objects with generous margins and vintage ceramic/glass details.
+- 272 tests and production build passed. No Computer Use, runtime visual inspection or deployment.
