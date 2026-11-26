@@ -1,3 +1,5 @@
+import CafeSoftSeat,{SoftPad} from './CafeSoftSeat'
+import CafeDoorBell from './CafeDoorBell'
 import CafeLoungeChair,{CafeSideTable} from './CafeLoungeChair'
 import {CafeSignContext} from './cafeSignContext'
 import {cafeDisplays} from './cafeDisplays'
@@ -5,7 +7,7 @@ import CafeGoodsDetails from './CafeGoodsDetails'
 import CafeCinema from './CafeCinema'
 import CafeMenuBoard from './CafeMenuBoard'
 import CafeShopfront from './CafeShopfront'
-import {cafeIdentity,CAFE_IDENTITY} from './cafeData'
+import {cafeIdentity} from './cafeData'
 import {withCafePoster} from './cafePoster'
 import StaticBatch from './StaticBatch'
 import React,{useMemo,useEffect,useContext} from 'react'
@@ -17,16 +19,22 @@ export function Sign({text,position,size=[2,1],rotation=[0,0,0],dark=false,fasci
  const openSign=useContext(CafeSignContext)
  const texture=useMemo(()=>{const c=document.createElement('canvas');c.width=1024;c.height=Math.round(1024*size[1]/size[0]);const x=c.getContext('2d'),h=c.height;
  x.fillStyle=dark?'#222323':'#f2eadb';x.fillRect(0,0,1024,h);x.strokeStyle='#b59860';x.lineWidth=3;x.strokeRect(18,18,988,h-36);
- if(compact){const lines=text.split('\n');x.fillStyle=dark?'#f4ead5':'#292724';x.textAlign='center';x.textBaseline='middle';const step=(h-50)/lines.length;x.font=`${Math.min(72,step*.55)}px Georgia, serif`;lines.forEach((line,i)=>x.fillText(line,512,25+step*(i+.5),930))}
+ if(text.startsWith('WANTED')){
+ x.strokeStyle='#292724';x.lineWidth=2;x.strokeRect(38,38,948,h-76);x.textAlign='center';x.fillStyle='#292724';x.font='bold 115px Georgia,serif';x.fillText('WANTED',512,185,880);
+ x.font='24px Georgia,serif';x.fillText('READERS • GHOST COLLECTIVE',512,235);x.beginPath();x.moveTo(150,275);x.lineTo(874,275);x.stroke();
+ x.beginPath();x.moveTo(385,680);x.lineTo(385,445);x.bezierCurveTo(385,295,639,295,639,445);x.lineTo(639,680);x.lineTo(590,645);x.lineTo(542,680);x.lineTo(495,645);x.lineTo(445,680);x.closePath();x.stroke();
+ [472,552].forEach(px=>{x.beginPath();x.ellipse(px,445,10,18,0,0,Math.PI*2);x.fill()});x.strokeRect(414,535,196,95);x.beginPath();x.moveTo(512,535);x.lineTo(512,630);x.stroke();
+ text.split('\n').slice(1).forEach((line,i)=>{x.font=`${i===0?44:32}px Georgia,serif`;x.fillText(line,512,800+i*85,880)});x.font='25px Georgia,serif';x.fillText('REWARD: A GOOD STORY',512,h-100)
+ }else if(compact){const lines=text.split('\n');x.fillStyle=dark?'#f4ead5':'#292724';x.textAlign='center';x.textBaseline='middle';const step=(h-50)/lines.length;x.font=`${Math.min(72,step*.55)}px Georgia, serif`;lines.forEach((line,i)=>x.fillText(line,512,25+step*(i+.5),930))}
  else if(fascia){
- x.fillStyle='#ceb483';x.textAlign='center';x.textBaseline='middle';x.font='500 58px Georgia, serif';x.fillText(text.split('\n')[0],512,h*.43,940);x.font='22px Georgia, serif';x.fillText('BOOKS & COFFEE  ·  눈사람 유령이 남긴 흔적',512,h*.78,930);
+ x.fillStyle='#f4ead5';x.textAlign='center';x.textBaseline='middle';x.font='500 58px Georgia, serif';x.fillText(text.split('\n')[0],512,h*.43,840);x.font='18px Georgia, serif';x.fillText('BOOKS & COFFEE  ·  GHOST COLLECTIVE',512,h*.78,800);[74,950].forEach(px=>{x.beginPath();x.moveTo(px,h*.3);x.lineTo(px+10,h*.45);x.lineTo(px,h*.6);x.lineTo(px-10,h*.45);x.closePath();x.stroke()});
  }else{
  // Melting ghost snowman: cream puddle, slumping body and two quiet eyes.
  const cy=Math.min(78,h*.18);x.fillStyle=dark?'#f4ead5':'#d3c4a5';x.beginPath();x.ellipse(512,cy+24,62,13,0,0,Math.PI*2);x.fill();x.beginPath();x.ellipse(505,cy,35,37,-.15,0,Math.PI*2);x.fill();x.beginPath();x.arc(512,cy-30,24,0,Math.PI*2);x.fill();x.fillStyle='#263b36';[502,520].forEach(px=>{x.beginPath();x.ellipse(px,cy-30,3,5,0,0,Math.PI*2);x.fill()});
  const lines=text.split('\n'),start=cy+70,step=Math.min(62,(h-start-24)/Math.max(1,lines.length));x.textAlign='center';x.textBaseline='middle';x.fillStyle=dark?'#f4ead5':'#243d36';lines.forEach((line,i)=>{x.font=`${i===0?'600':'400'} ${Math.min(i===0?44:32,step*.72)}px Georgia, serif`;x.fillText(line,512,start+(i+.5)*step,930)});
  }
  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t},[text,dark,fascia,compact,size[0],size[1]]);useEffect(()=>()=>texture.dispose(),[texture])
- return <mesh onClick={e=>{e.stopPropagation();openSign?.(action||{type:'cafe-sign',text})}} userData={{noCameraCollision:true}} position={position} rotation={rotation}><planeGeometry args={size}/><meshBasicMaterial map={texture} side={THREE.DoubleSide}/></mesh>
+ return <mesh onClick={e=>{e.stopPropagation();openSign?.(action||{type:'cafe-sign',text,signArtwork:texture.image.toDataURL('image/png')})}} userData={{noCameraCollision:true}} position={position} rotation={rotation}><planeGeometry args={size}/><meshBasicMaterial map={texture} side={THREE.DoubleSide}/></mesh>
 }
 export default function BookCafe({config,books,onOpen,time}){
  config=withCafePoster(cafeIdentity(config))
@@ -48,11 +56,11 @@ export default function BookCafe({config,books,onOpen,time}){
  <B p={[-25,3.5,15]} s={[18,7,.25]} c="#dbceb3"/>
  <B p={[-23,3.5,31]} s={[14,7,.25]} c="#e8decc"/>
 
- <B p={[-16,3.5,27.3]} s={[.25,7,7.4]} c="#d5c4a3"/>
+
  <B p={[-16,5.7,22.25]} s={[.25,2.6,2.5]} c="#d5c4a3"/>
  <B p={[-23,7.1,23]} s={[14.6,.25,16.6]} c="#594431"/>
  </StaticBatch>
- <CafeShopfront/>
+ <CafeShopfront/><CafeDoorBell/>
  <group onClick={e=>{e.stopPropagation();onOpen('cafe-books')}}><CafeGoodsDetails/></group>
  <B p={[-22.65,.015,16.65]} s={[4.4,.025,1.9]} c="#b8a68c"/>
  <B p={[-25,1.1,15.88]} s={[.12,2.2,1]} c="#40382f"/>
@@ -66,9 +74,10 @@ export default function BookCafe({config,books,onOpen,time}){
  <group onClick={e=>{e.stopPropagation();onOpen({type:'cafe-sign',text:config.filmTitle,image:config.filmPoster})}}><BookCoverMesh url={config.filmPoster} position={[-16.15,2.7,17.45]} rotation={[0,Math.PI/2,0]} size={[1.1,1.62]}/></group>
  </group>
  <Sign text={'WANTED\n함께 읽을 유령을 찾습니다\n유령단 독서모임\n책 한 권 · 다른 생각들\n모임 일정은 책방지기에게'} position={[-16.14,2.7,18.75]} rotation={[0,Math.PI/2,0]} size={[1.1,1.65]} compact/>
+ <group onClick={e=>{e.stopPropagation();onOpen({type:'cafe-sign',text:config.eventTitle,image:config.eventPoster})}}><B p={[-16.2,2.7,26.6]} s={[.07,1.72,1.38]} c="#222323"/><BookCoverMesh url={config.eventPoster} position={[-16.15,2.7,26.6]} rotation={[0,Math.PI/2,0]} size={[1.3,1.62]}/></group>
  <Sign text={'10.31 HALLOWEEN\n유령단의 생일\n오늘은 우리가 주인공\n할로윈 당일 책방 파티\n책과 이야기를 들고 오세요'} position={[-16.14,2.7,20.05]} rotation={[0,Math.PI/2,0]} size={[1.1,1.65]} dark compact/>
 
- <Sign text={config.title+'\n'+CAFE_IDENTITY.concept+'\n책 여는 시간 10:00 · 책 닫는 시간 20:00'} position={[-15.53,5.75,23]} rotation={[0,Math.PI/2,0]} size={[10,1.27]} dark fascia/>
+ <Sign text={config.title+'\n책 여는 시간 10:00 · 책 닫는 시간 20:00'} position={[-15.53,5.75,23]} rotation={[0,Math.PI/2,0]} size={[10,1.27]} dark fascia/>
  <group onClick={e=>{e.stopPropagation();onOpen('cafe-mail')}}>
  <B p={[-17.8,1.6,23.85]} s={[.85,.9,.25]} c="#292b29"/>
  <B p={[-17.8,1.85,23.715]} s={[.58,.055,.02]} c="#1d3029"/>
@@ -123,8 +132,8 @@ export default function BookCafe({config,books,onOpen,time}){
  <Sign text={'상영표 · 클릭해서 열기\n'+config.filmTitle} position={[-26,2.4,24.45]} size={[6.8,2.5]} dark/>
  </group>
  <StaticBatch revision={time}>
- {CAFE_SEATS.map(([x,z],i)=><group key={i} position={[x,0,z]} rotation={[0,CAFE_SEAT_TURNS[i]-Math.PI,0]}>{i<2?<CafeLoungeChair/>:<><B p={[0,i===7?.15:.46,0]} s={[1.2,i===7?.2:.34,.96]} c={i<2||i>4?'#d6c7b0':'#4f4038'}/><B p={[0,i===7?.38:.95,.42]} s={[1.2,i===7?.3:.8,.15]} c={i<2||i>4?'#d6c7b0':'#4f4038'}/>{(i===7?[]:[-.45,.45]).map(a=><B key={a} p={[a,.2,0]} s={[.1,.4,.75]} c="#483528"/>)}</>}</group>)}
- {CAFE_NOOKS.map(item=>item.id.includes('table')?<CafeSideTable key={item.id} p={item.p} s={item.s}/>:<B key={item.id} p={item.p} s={item.s} c={item.c}/>)}
+ {CAFE_SEATS.map(([x,z],i)=><group key={i} position={[x,0,z]} rotation={[0,CAFE_SEAT_TURNS[i]-Math.PI,0]}>{i<2?<CafeLoungeChair/>:<CafeSoftSeat floor={i===7} dark={i>=2&&i<=4}/>}</group>)}
+ {CAFE_NOOKS.map(item=>item.id.includes('table')?<CafeSideTable key={item.id} p={item.p} s={item.s}/>:item.id.includes('return')?<SoftPad key={item.id} p={item.p} s={item.s} c={item.c}/>:<B key={item.id} p={item.p} s={item.s} c={item.c}/>)}
  {[-25.48].map(x=>[18.45,21.55].map(z=><B key={z} p={[x,.95,z]} s={[.16,.85,1.25]} c="#d6c7b0"/>))}
  <B p={[-21.4,.68,17.565]} s={[.96,.78,.035]} c="#252c29"/>
  {[0,1,2].map(i=><mesh key={i} position={[-21.65+i*.25,.53,17.6]} scale={[.10,.21+(i%2)*.1,.05]}><sphereGeometry args={[1,8,6]}/><meshStandardMaterial color="#f2ba6e" emissive="#e9a74a" emissiveIntensity={1.2}/></mesh>)}

@@ -1,5 +1,5 @@
 let account=''
-export const RECORD_KEYS=['mll-book-cafe','mll-library-attendance-v1','cafe-membership-v1','mll-future-letters-v1','mll-reading-seconds-v1','mll-world-note','mll-character','mll-study-lamp','mll-welcome-open','mll-book-placements']
+export const RECORD_KEYS=['mll-content-imports','mll-book-cafe','mll-library-attendance-v1','cafe-membership-v1','mll-future-letters-v1','mll-reading-seconds-v1','mll-world-note','mll-character','mll-study-lamp','mll-welcome-open','mll-book-placements']
 const canonical=k=>k.startsWith('mll-book-placements-v1:')?'mll-book-placements':k
 const physical=k=>account?`library-account:${account}:${canonical(k)}`:k
 export function setRecordAccount(id){account=id||''}

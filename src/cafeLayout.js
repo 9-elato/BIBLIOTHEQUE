@@ -13,6 +13,8 @@ export const CAFE_NOOKS=[
 ]
 export const CAFE_DISPLAY_Z=[17.5,19.4,21.3,23.2]
 export const CAFE_SOLIDS=[
+ ...[17.2,28.1].map(z=>({id:`cafe-terrace-bench-${z}`,rect:[-15.31,-14.54,z-1.25,z+1.25]})),
+ ...[25.1,29.2].map(z=>({id:`cafe-window-books-${z}`,rect:[-17.05,-16.35,z-.6,z+.6]})),
  {id:'goods-zone-divider',rect:[-25.06,-24.94,15.38,16.38]},
  ...CAFE_DISPLAY_Z.map(z=>({id:`cafe-genre-${z}`,rect:[-29.75,-28.25,z-.35,z+.35]})),
  {id:'cafe-wing-divider',rect:[-34,-30,24,24.47]},
@@ -32,7 +34,7 @@ export function inCafe(x,z){return x>-34&&x<-16&&z>15&&z<31&&(x>-30||z<24.3)}
 export function cafeWalk(x,z){
  if(x<=-34||x>=-12.75||z<=14.7||z>=31.3)return null
  // Keep the full avatar inside the garden path and clear of both doorway jambs.
- if(x>-16.4)return z>21+.23&&z<23.5-.23
+ if(x>-16.4){if(z<15.35||z>30.65)return false;if(x< -15.5&&!(z>21+.23&&z<23.5-.23))return false;return !CAFE_SOLIDS.some(({rect:[l,r,b,f]})=>x>l-.23&&x<r+.23&&z>b-.23&&z<f+.23)}
  if(x<-33.65||z<15.35||z>30.65||(x<-29.65&&z>23.77))return false
  return !CAFE_SOLIDS.some(({rect:[l,r,b,f]})=>x>l-.23&&x<r+.23&&z>b-.23&&z<f+.23)
 }

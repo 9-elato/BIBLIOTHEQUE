@@ -5,26 +5,13 @@ import StaticBatch from './StaticBatch'
 
 const ink='#222323',wood='#614832',gold='#bca070'
 export const SHOP_WINDOW={x:-16,z:18,width:5.5,bottom:.85,top:4.85}
-function Flowers({z}){
- return <group position={[-15.55,0,z]}>
-  <B p={[0,.32,0]} s={[.65,.64,1.7]} c="#a88a61"/>
-  {[.16,.34,.52].map(y=><B key={y} p={[.335,y,0]} s={[.025,.025,1.66]} c="#725e45"/>)}
-  {[-.53,0,.53].map((a,i)=><group key={a} position={[0,.65,a]}>
-   <mesh position={[0,.13,0]}><cylinderGeometry args={[.20,.14,.26,10]}/><meshStandardMaterial color="#817454"/></mesh>
-   {[0,1,2,3,4].map(n=><group key={n} position={[Math.sin(n*2.4)*.16,.29+n*.04,Math.cos(n*2.4)*.16]}>
-    <B p={[0,.07,0]} s={[.025,.22,.025]} c="#53664a"/>
-    <mesh position={[0,.2,0]} scale={[1,.65,1]}><sphereGeometry args={[.12,7,5]}/><meshStandardMaterial color={['#e5dfca','#b7a7bb','#dac584'][i]}/></mesh>
-   </group>)}
-  </group>)}
- </group>
-}
 export default function CafeShopfront(){
  return <StaticBatch>
   {/* The glazed bay replaces the solid east wall; the cinema keeps its opaque shell. */}
   <B p={[-16,.425,18]} s={[.25,.85,6]} c={ink}/>
   <B p={[-16,5.925,18]} s={[.25,2.15,6]} c={ink}/>
   <mesh position={[SHOP_WINDOW.x,2.85,18]} rotation={[0,Math.PI/2,0]}>
-   <planeGeometry args={[5.5,4]}/><meshStandardMaterial color="#d0dcd5" transparent opacity={.08} roughness={.2} depthWrite={false} side={THREE.DoubleSide}/>
+   <planeGeometry args={[5.5,4]}/><meshStandardMaterial color="#d0dcd5" transparent opacity={.04} roughness={.2} depthWrite={false} side={THREE.DoubleSide}/>
   </mesh>
   {[15.15,18,20.7,23.8,30.85].map(z=><group key={z}>
    <B p={[-15.83,2.7,z]} s={[.35,5.4,.24]} c={ink}/>
@@ -50,7 +37,12 @@ export default function CafeShopfront(){
    <mesh position={[-15.2,3.05,z]}><boxGeometry args={[.045,.34,.21]}/><meshStandardMaterial color="#ffe5b1" emissive="#ffc774" emissiveIntensity={.8}/></mesh>
    <mesh position={[-15.38,3.4,z]}><coneGeometry args={[.29,.22,4]}/><meshStandardMaterial color={ink}/></mesh>
   </group>)}
-  <Flowers z={16.6}/><Flowers z={19.2}/><Flowers z={26.2}/>
+  <B p={[-14.4,-.04,23]} s={[3.2,.16,16]} c="#a28a6b"/>
+  {[17.2,28.1].map(z=><group key={z}><B p={[-14.9,.48,z]} s={[.72,.16,2.5]} c={wood}/><B p={[-15.2,.91,z]} s={[.12,.72,2.5]} c={wood}/>{[-.9,.9].map(d=><B key={d} p={[-14.9,.2,z+d]} s={[.6,.4,.10]} c={ink}/>)}</group>)}
+  <B p={[-16,.425,27.4]} s={[.25,.85,6.9]} c={ink}/><B p={[-16,5.925,27.4]} s={[.25,2.15,6.9]} c={ink}/>
+  <mesh position={[-16,2.85,27.4]} rotation={[0,Math.PI/2,0]}><planeGeometry args={[6.6,4]}/><meshStandardMaterial color="#d0dcd5" transparent opacity={.04} roughness={.2} depthWrite={false} side={THREE.DoubleSide}/></mesh>
+  {[.85,4.85].map(y=><B key={y} p={[-15.82,y,27.4]} s={[.37,.14,6.8]} c={ink}/>)}
+  {[25.1,29.2].map(z=><group key={z}><B p={[-16.7,.85,z]} s={[.7,.1,1.2]} c={wood}/>{[0,1,2,3,4].map(i=><group key={i} rotation={[0,i*.09,0]} position={[-16.7,.94+i*.12,z]}><B p={[0,0,0]} s={[.49,.10,.67]} c={['#e5dac5','#363b37','#9d7b5b'][i%3]}/><B p={[.25,0,0]} s={[.012,.07,.61]} c="#e9e1d2"/></group>)}</group>)}
   {/* Upper book-lined wall, above existing curated shelves and goods. */}
   {[-27.5,-22.65].map((x,k)=><group key={x}>
    <B p={[x,4.85,15.17]} s={[4.15,2.65,.12]} c="#3b3127"/>

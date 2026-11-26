@@ -1,7 +1,7 @@
 import {normalizeCoverUrl} from './coverUrl.js'
 export const STAR_RATINGS=Array.from({length:9},(_,i)=>1+i*.5)
 export function validRating(value){return value===0||STAR_RATINGS.includes(value)}
-export function spineSource(value=''){return /^data:image\/jpeg;base64,[A-Za-z0-9+/]+={0,2}$/.test(value)?value:''}
+export function spineSource(value=''){if(value==='bundled:walser-spine.png')return new URL(`${import.meta.env?.BASE_URL||'/'}book-assets/walser-spine.png`,globalThis.location?.href||'http://localhost/').href;return /^data:image\/jpeg;base64,[A-Za-z0-9+/]+={0,2}$/.test(value)?value:''}
 export function shelfImage(book){return spineSource(book?.spine)||normalizeCoverUrl(book?.cover)}
 export function validateBook(book){
  if(!book.title?.trim())return '책 제목을 입력하세요.'

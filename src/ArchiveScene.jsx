@@ -1,3 +1,4 @@
+import {findClickPathAsync,enteringCafe} from './clickNavigation'
 import BookCafe from './BookCafe'
 import VegetationSun from './VegetationSun'
 import {useEnvironmentAudio} from './environmentAudio'
@@ -55,7 +56,7 @@ import {startSitting,startStanding,advanceSeating} from './seating'
 const MOVE=['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight']
 const AtticGLB=lazy(()=>import('./AtticGLB'))
 function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,glassDoor,studyDoor,onMusic,ladders,onExperience,onCloseSecret,mode,blocked,joy,books,onZone,teleport,character,heldBook,layout,entranceOpen,gateReady,gateOpening,onKey,onInteraction,onToggleEntrance,onOpenNotes,onGenre,onTravel,onRead,canPlace,onPlaceNearby,onSeatStatus}) {
-  const {gl,scene}=useThree()
+  const {gl,scene,camera}=useThree()
   const ray=useMemo(()=>new THREE.Raycaster(),[])
   const rayDirection=useMemo(()=>new THREE.Vector3(),[])
   const eye=useMemo(()=>new THREE.Vector3(),[])
@@ -71,6 +72,7 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
   const lastHint=useRef('')
   const hintScheduler=useMemo(()=>createHintScheduler(),[])
   const state=useRef({x:0,z:23,level:0,yaw:0,bodyYaw:0,pitch:0,keys:new Set(),pointer:null,lx:0,ly:0,seated:false})
+  const autoWalk=useRef(null),tap=useRef(null),destination=useRef()
   const touch=useRef(new Map())
   const zoom=useRef(1)
   const tour=useRef(null)
@@ -98,7 +100,7 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
       const s=state.current
       Object.assign(s,{x,z,level,yaw,bodyYaw:-yaw,pitch:0})
       cameraYaw.current=yaw
-      s.keys.clear();s.seated=null;if(s.ladder)s.ladder.item.occupied=false;s.ladder=null;pose.current={amount:0}
+      autoWalk.current=null;s.keys.clear();s.seated=null;if(s.ladder)s.ladder.item.occupied=false;s.ladder=null;pose.current={amount:0}
     }
   },[teleport])
   useEffect(()=>{
@@ -113,7 +115,7 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
       if(ui.blocked||ui.mode==='overview'||tour.current?.running)return
       const trace=profiling?startInteractionTrace({now:()=>performance.now(),requestFrame:callback=>requestAnimationFrame(callback),visible:()=>document.visibilityState==='visible',publish:detail=>window.dispatchEvent(new CustomEvent('library-interaction-result',{detail}))},{x:s.x,z:s.z,level:s.level}):null
       try{
-      const action=interactionAt(s,ui,true)
+      autoWalk.current=null;const action=interactionAt(s,ui,true)
       trace?.resolved(action?.type)
       hintScheduler.invalidate()
       if(!action)return
@@ -149,7 +151,7 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
     const keyDown=e=>{
       const ui=status.current
       if(ui.blocked||ui.mode==='overview'||e.target?.matches?.('input,textarea,select,[contenteditable]'))return
-      if(MOVE.includes(e.code)||e.code==='ShiftLeft'||e.code==='ShiftRight'){e.preventDefault();s.keys.add(e.code)}
+      if(MOVE.includes(e.code)||e.code==='ShiftLeft'||e.code==='ShiftRight'){e.preventDefault();autoWalk.current=null;s.keys.add(e.code)}
       if(e.code==='KeyV'&&!e.repeat&&['meadow-rest','terrace-sofa'].includes(s.seated?.seat.id))s.skyGaze=!s.skyGaze
       if(e.code==='KeyE'&&!e.repeat){e.preventDefault();interact()}
       if(e.code==='KeyF'&&!e.repeat&&!tour.current?.running){
@@ -161,7 +163,7 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
       }
     }
     const keyUp=e=>s.keys.delete(e.code)
-    const reset=()=>{s.keys.clear();s.pointer=null;touch.current.clear()}
+    const reset=()=>{autoWalk.current=null;tap.current=null;s.keys.clear();s.pointer=null;touch.current.clear()}
     const canZoom=()=>!status.current.blocked&&status.current.mode!=='overview'
     const applyZoom=factor=>{zoom.current=THREE.MathUtils.clamp(zoom.current*factor,.8,2.6)}
     const touchDistance=()=>{
@@ -170,13 +172,15 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
     }
     const down=e=>{
       if(e.button!==0||status.current.blocked||status.current.mode==='overview')return
+      tap.current={x:e.clientX,y:e.clientY,moved:false};
       if(e.pointerType==='touch'){
         touch.current.set(e.pointerId,e)
-        if(touch.current.size>1){s.pointer=null;return}
+        if(touch.current.size>1){tap.current=null;s.pointer=null;return}
       }
       Object.assign(s,{pointer:e.pointerId,lx:e.clientX,ly:e.clientY})
     }
     const move=e=>{
+      if(tap.current&&Math.hypot(e.clientX-tap.current.x,e.clientY-tap.current.y)>8)tap.current.moved=true;
       if(touch.current.has(e.pointerId)){
         const before=touchDistance()
         touch.current.set(e.pointerId,e)
@@ -191,7 +195,17 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
       s.pitch=THREE.MathUtils.clamp(s.pitch-(e.clientY-s.ly)*.004,-.83,.83)
       s.lx=e.clientX;s.ly=e.clientY
     }
-    const up=e=>{touch.current.delete(e.pointerId);if(s.pointer===e.pointerId)s.pointer=null}
+    const up=e=>{
+      const hitTap=tap.current,valid=s.pointer===e.pointerId;tap.current=null;touch.current.delete(e.pointerId);if(valid)s.pointer=null
+      if(!valid||!hitTap||hitTap.moved||e.target!==canvas||e.type==='pointercancel'||status.current.blocked||s.seated||s.ladder||tour.current?.running)return
+      const rect=canvas.getBoundingClientRect();ray.setFromCamera(new THREE.Vector2((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1),camera)
+      const hits=ray.intersectObjects(scene.children,true),hit=hits.find(h=>{let o=h.object;while(o){if(!o.visible||o.userData.player)return false;o=o.parent}return true})
+      if(!hit?.face)return
+      const normal=hit.face.normal.clone().transformDirection(hit.object.matrixWorld);if(normal.y<.7)return
+      const level=walkHeight(hit.point.x,hit.point.z,s.level,status.current.world)
+      if(level===null||Math.abs(hit.point.y-level*WORLD_HEIGHT_SCALE)>.18)return
+      const request={planning:true};autoWalk.current=request;findClickPathAsync({x:s.x,z:s.z,level:s.level},{x:hit.point.x,z:hit.point.z,level},status.current.world,()=>autoWalk.current===request).then(path=>{if(autoWalk.current===request)autoWalk.current=path})
+    }
     const wheel=e=>{
       if(!e.ctrlKey||!canZoom())return
       e.preventDefault()
@@ -229,9 +243,9 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
       canvas.removeEventListener('gesturechange',gestureChange)
       window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up);window.removeEventListener('pointercancel',up)
     }
-  },[gl])
+  },[gl,camera,scene])
   useEffect(()=>{
-    if(blocked){state.current.keys.clear();state.current.pointer=null;touch.current.clear()}
+    if(blocked){autoWalk.current=null;state.current.keys.clear();state.current.pointer=null;touch.current.clear()}
   },[blocked])
   useFrame(({camera},dt)=>{
     const s=state.current
@@ -259,6 +273,11 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
       Object.assign(s,movePlayer(s,direction.x*step,direction.z*step,world))
       s.bodyYaw=facingForMovement(s.bodyYaw,s.x-beforeX,s.z-beforeZ,dt)
     }
+    if(front||side||blocked||s.seated||s.ladder||!active)autoWalk.current=null
+    if(autoWalk.current?.length){const goal=autoWalk.current[0],d=Math.hypot(goal.x-s.x,goal.z-s.z);if(d<.08)autoWalk.current.shift();else{const step=Math.min(d,3.6*Math.min(dt,.05)),before={x:s.x,z:s.z,level:s.level};Object.assign(s,movePlayer(s,(goal.x-s.x)/d*step,(goal.z-s.z)/d*step,world));if(Math.hypot(s.x-before.x,s.z-before.z)<step*.5)autoWalk.current=null;else{moving.current=true;s.bodyYaw=facingForMovement(s.bodyYaw,s.x-before.x,s.z-before.z,dt)}}}
+    if(s.lastCafePoint&&enteringCafe(s.lastCafePoint,s))window.dispatchEvent(new Event('cafe-door-bell'))
+    s.lastCafePoint={x:s.x,z:s.z,level:s.level}
+    if(destination.current){const points=autoWalk.current;destination.current.visible=Boolean(points?.length);if(points?.length){const goal=points[points.length-1];destination.current.position.set(goal.x,goal.level*WORLD_HEIGHT_SCALE+.025,goal.z)}}
     const action=hintScheduler.next(dt,active&&!blocked,()=>interactionAt(s,status.current))
     const hint=active&&!blocked?(action?.label||''):''
     const hintKey=hint+'|'+(action?.type||'')
@@ -325,10 +344,10 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
     if(Math.abs(camera.fov-desiredFov)>.05){camera.fov=THREE.MathUtils.damp(camera.fov,desiredFov,7,dt);camera.updateProjectionMatrix()}
     camera.lookAt(look)
   })
-  return <group ref={avatar} userData={{player:true}} visible={mode==='third'}>
+  return <><mesh ref={destination} visible={false} rotation={[-Math.PI/2,0,0]} userData={{noCameraCollision:true}}><ringGeometry args={[.18,.24,32]}/><meshBasicMaterial color="#f4dfad" transparent opacity={.85} depthWrite={false}/></mesh><group ref={avatar} userData={{player:true}} visible={mode==='third'}>
     {blanket&&<LoungeBlanket lap pose={pose}/>}
     <Suspense fallback={null}><AvatarModels character={character} moving={moving} pose={pose} book={books.find(b=>b.id===heldBook) || null}/></Suspense>
-  </group>
+  </group></>
 }
 function Overhead({end}) {
   const {size}=useThree()
