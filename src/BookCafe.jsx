@@ -1,3 +1,4 @@
+import CafeShopfront from './CafeShopfront'
 import {cafeIdentity,CAFE_IDENTITY} from './cafeData'
 import {withCafePoster} from './cafePoster'
 import StaticBatch from './StaticBatch'
@@ -6,13 +7,17 @@ import * as THREE from 'three'
 import {Box as B} from './GroundFloor'
 import {BookCoverMesh} from './BookCover'
 import {CAFE_SEATS,CAFE_SEAT_TURNS,CAFE_NOOKS} from './cafeLayout'
-function Sign({text,position,size=[2,1],rotation=[0,0,0],dark=false}){
+function Sign({text,position,size=[2,1],rotation=[0,0,0],dark=false,fascia=false}){
  const texture=useMemo(()=>{const c=document.createElement('canvas');c.width=1024;c.height=Math.round(1024*size[1]/size[0]);const x=c.getContext('2d'),h=c.height;
  x.fillStyle=dark?'#203a35':'#f2eadb';x.fillRect(0,0,1024,h);x.strokeStyle='#b59860';x.lineWidth=3;x.strokeRect(18,18,988,h-36);
+ if(fascia){
+ x.fillStyle='#ceb483';x.textAlign='center';x.textBaseline='middle';x.font='500 58px Georgia, serif';x.fillText(text.split('\n')[0],512,h*.43,940);x.font='22px Georgia, serif';x.fillText('BOOKS & COFFEE  ·  눈사람 유령이 남긴 흔적',512,h*.78,930);
+ }else{
  // Melting ghost snowman: cream puddle, slumping body and two quiet eyes.
  const cy=Math.min(78,h*.18);x.fillStyle=dark?'#f4ead5':'#d3c4a5';x.beginPath();x.ellipse(512,cy+24,62,13,0,0,Math.PI*2);x.fill();x.beginPath();x.ellipse(505,cy,35,37,-.15,0,Math.PI*2);x.fill();x.beginPath();x.arc(512,cy-30,24,0,Math.PI*2);x.fill();x.fillStyle='#263b36';[502,520].forEach(px=>{x.beginPath();x.ellipse(px,cy-30,3,5,0,0,Math.PI*2);x.fill()});
  const lines=text.split('\n'),start=cy+70,step=Math.min(62,(h-start-24)/Math.max(1,lines.length));x.textAlign='center';x.textBaseline='middle';x.fillStyle=dark?'#f4ead5':'#243d36';lines.forEach((line,i)=>{x.font=`${i===0?'600':'400'} ${Math.min(i===0?44:32,step*.72)}px Georgia, serif`;x.fillText(line,512,start+(i+.5)*step,930)});
- const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t},[text,dark,size[0],size[1]]);useEffect(()=>()=>texture.dispose(),[texture])
+ }
+ const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t},[text,dark,fascia,size[0],size[1]]);useEffect(()=>()=>texture.dispose(),[texture])
  return <mesh userData={{noCameraCollision:true}} position={position} rotation={rotation}><planeGeometry args={size}/><meshBasicMaterial map={texture} side={THREE.DoubleSide}/></mesh>
 }
 export default function BookCafe({config,books,onOpen,time}){
@@ -30,13 +35,15 @@ export default function BookCafe({config,books,onOpen,time}){
  <B p={[-29.38,.91,20.35]} s={[.65,.12,6.3]} c="#b8a98f"/>
  <B p={[-23,3.5,15]} s={[14,7,.25]} c="#dbceb3"/>
  <B p={[-23,3.5,31]} s={[14,7,.25]} c="#34463c"/>
- <B p={[-16,3.5,18]} s={[.25,7,6]} c="#d5c4a3"/>
+
  <B p={[-16,3.5,27.3]} s={[.25,7,7.4]} c="#d5c4a3"/>
  <B p={[-16,5.7,22.25]} s={[.25,2.6,2.5]} c="#d5c4a3"/>
  <B p={[-23,7.1,23]} s={[14.6,.25,16.6]} c="#594431"/>
  </StaticBatch>
- <Sign text={config.title+'\n'+CAFE_IDENTITY.concept+'\n책 여는 시간 10:00 · 책 닫는 시간 20:00'} position={[-15.8,5.35,22.25]} rotation={[0,Math.PI/2,0]} size={[3.1,1.7]} dark/>
+ <CafeShopfront/>
+ <Sign text={config.title+'\n'+CAFE_IDENTITY.concept+'\n책 여는 시간 10:00 · 책 닫는 시간 20:00'} position={[-15.53,5.75,23]} rotation={[0,Math.PI/2,0]} size={[10,1.27]} dark fascia/>
  <group onClick={click}>
+ <Sign text={'유령단\n책 여는 시간 10:00\n책 닫는 시간 20:00'} position={[-15.79,1.8,24.2]} rotation={[0,Math.PI/2,0]} size={[1,1.4]} dark/>
  <group userData={{noCameraCollision:true}}>
  <B p={[-18.2,1.46,20.05]} s={[.65,.08,.7]} c="#f4ead5"/>
  <B p={[-18.2,1.53,20.05]} s={[.59,.04,.65]} c="#fff6e5"/>
