@@ -79,3 +79,19 @@ test('cinema snack console blocks its cabinet but preserves the viewing aisle',(
  assert.equal(walkHeight(-26,30.2,0,world),null)
  assert.equal(walkHeight(-26,29.3,0,world),0)
 })
+
+test('slow mailbox opens from its approach without capturing seated interactions',()=>{
+ const player={x:-17.8,z:22.9,level:0,yaw:0}
+ assert.equal(walkHeight(player.x,player.z,0,world),0)
+ assert.equal(interactionAt(player,{world}).type,'cafeMail')
+ assert.equal(interactionAt({...player,seated:{phase:'seated'}},{world}).type,'stand')
+ assert.equal(walkHeight(-17.8,23.85,0,world),null)
+})
+test('new stationery migrates previous cafe settings once',()=>{
+ const old={...DEFAULT_CAFE,conceptVersion:1,goods:'수제 컵'}
+ const updated=cafeIdentity(old)
+ assert.ok(updated.goods.includes('수제 컵'))
+ assert.ok(updated.goods.includes('티백 모양 책갈피'))
+ assert.equal(updated.conceptVersion,2)
+ assert.equal(cafeIdentity(updated),updated)
+})

@@ -20,3 +20,5 @@
 .menu-custom{display:grid;place-items:center;color:#80715c;font-size:12px}
 .illustrated-menu p{font-size:13px;margin:8px 0}
 @media(max-width:600px){.illustrated-menu{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.cafe-invitation form label{display:block;margin:14px 0}.cafe-invitation form input,.cafe-invitation form textarea{display:block;width:100%;box-sizing:border-box;margin-top:6px;padding:10px;font:inherit}

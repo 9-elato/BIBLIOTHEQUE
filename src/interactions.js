@@ -15,6 +15,7 @@ export function interactionAt(s, {entranceOpen, gateReady, gateOpening=false, bo
     if(s.seated.transitionBlocked)return {type:'wait',label:'이동 공간이 막혀 잠시 멈췄습니다 · 공간이 비면 이어집니다'}
     return s.seated.phase&&s.seated.phase!=='seated'?null:{type:'stand',label:s.seated.exitBlocked?'하차 공간이 막혀 있습니다 · 공간을 비운 뒤 다시 시도':s.seated.seat?.bathing?'온천에서 천천히 나오기':heldBook?'책을 들고 일어나기':'일어나기'}
   }
+  if(s.level===0&&near(-17.8,23.6,1.35))return {type:'cafeMail',label:'1년 뒤의 나에게 편지 보내기'}
   // Resolve cafe seating once: the reachability query includes floor collision checks.
   const inCafe=s.level===0&&s.x>-30&&s.x<-16&&s.z>15&&s.z<31
   const prepared=prepareSeat?prepareNearbySitting(s,world):null

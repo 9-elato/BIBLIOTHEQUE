@@ -135,6 +135,7 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
       else if(action.type==='ladder')boardLadder(s,action.ladder,(x,z)=>walkHeight(x,z,0,ui.world)===0,(a,b)=>{const p=movePlayer(a,b.x-a.x,b.z-a.z,ui.world);return Math.hypot(p.x-b.x,p.z-b.z)<.01})
       else if(action.type==='ladderExit'){s.ladder.phase='descending';s.ladder.blocked=false}
       else if(action.type==='telescope'||action.type==='board')ui.onExperience(action.type)
+      else if(action.type==='cafeMail')ui.onExperience('cafe-mail')
       else if(action.type==='cafe')ui.onExperience('cafe')
       else if(action.type==='minigame')ui.onExperience(action.game)
       else if(action.type==='blanket')ui.onBlanket()
@@ -374,7 +375,7 @@ function ArchiveScene({cafeConfig,blanket,onBlanket,onMusic,onExperience,books=[
     <ambientLight color={light.evening?'#b9c5d4':'#f4f0e2'} intensity={light.ambient}/>
     <hemisphereLight args={[light.sky,'#665b48',light.hemisphere]}/>
     <VegetationSun light={light}/>
-    <group scale={[1,WORLD_HEIGHT_SCALE,1]}><BookCafe config={cafeConfig} books={books} onOpen={()=>onExperience('cafe')} time={time}/><EstateLandscape time={time} weather={weather}/><EastMeadow studyOpen={gateReady} end={layout.end} weather={weather}/><Basement time={time} weather={weather} visible={outside||map||['중앙 홀','서가','지하 계단','지하 숲 라운지','숲 온천'].includes(localZone)}/>
+    <group scale={[1,WORLD_HEIGHT_SCALE,1]}><BookCafe config={cafeConfig} books={books} onOpen={(kind='cafe')=>onExperience(kind)} time={time}/><EstateLandscape time={time} weather={weather}/><EastMeadow studyOpen={gateReady} end={layout.end} weather={weather}/><Basement time={time} weather={weather} visible={outside||map||['중앙 홀','서가','지하 계단','지하 숲 라운지','숲 온천'].includes(localZone)}/>
     {!map&&<><WorldAdditions entranceDoor={entranceDoor} playerPosition={playerPosition} weather={weather} time={decorTime} entranceOpen={entranceOpen} onEntranceToggle={setEntranceOpen} season={season}/><Suspense fallback={null}><FacadeModel visible={outside} time={time} weather={weather}/></Suspense></>}
     {(showInterior||interiorLoaded)&&<group visible={showInterior}>
     <SeaVeranda playerPosition={playerPosition} door={verandaDoor} time={time} weather={weather} onExperience={onExperience}/><GroundFloor event={season} sceneTime={time} heldBook={heldBook} map={map} layout={layout} weather={weather} time={decorTime} open={open} onKey={unlock} onReady={()=>setGateReady(true)} onGenre={onGenre} onPick={onPick} onNote={onOpenNotes}/>

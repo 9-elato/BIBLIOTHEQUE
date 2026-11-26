@@ -1,3 +1,4 @@
+import CafeGoodsDetails from './CafeGoodsDetails'
 import CafeCinema from './CafeCinema'
 import CafeMenuBoard from './CafeMenuBoard'
 import CafeShopfront from './CafeShopfront'
@@ -43,8 +44,14 @@ export default function BookCafe({config,books,onOpen,time}){
  <B p={[-23,7.1,23]} s={[14.6,.25,16.6]} c="#594431"/>
  </StaticBatch>
  <CafeShopfront/>
+ <CafeGoodsDetails/>
  <CafeCinema config={config}/>
  <Sign text={config.title+'\n'+CAFE_IDENTITY.concept+'\n책 여는 시간 10:00 · 책 닫는 시간 20:00'} position={[-15.53,5.75,23]} rotation={[0,Math.PI/2,0]} size={[10,1.27]} dark fascia/>
+ <group onClick={e=>{e.stopPropagation();onOpen('cafe-mail')}}>
+ <B p={[-17.8,1.6,23.85]} s={[.85,.9,.25]} c="#42675a"/>
+ <B p={[-17.8,1.85,23.715]} s={[.58,.055,.02]} c="#1d3029"/>
+ <Sign text={'느린 우편함\n1년 뒤의 나에게'} position={[-17.8,1.48,23.71]} rotation={[0,Math.PI,0]} size={[.72,.45]}/>
+ </group>
  <group onClick={click}>
  <Sign text={'유령단\n책 여는 시간 10:00\n책 닫는 시간 20:00'} position={[-15.79,1.8,24.2]} rotation={[0,Math.PI/2,0]} size={[1,1.4]} dark/>
  <group userData={{noCameraCollision:true}}>
@@ -63,7 +70,7 @@ export default function BookCafe({config,books,onOpen,time}){
  {chosen.map((b,i)=><group key={b.id} position={[-29.1+(i%4)*1.05,1.8+Math.floor(i/4)*.85,15.85]}><B p={[0,0,0]} s={[.55,.7,.12]} c={b.color||'#39574d'}/><BookCoverMesh url={b.cover} position={[0,0,.07]} size={[.53,.68]}/></group>)}
  <B p={[-22.65,1.36,15.85]} s={[4.3,.12,.9]} c="#947149"/>
  <B p={[-22.65,.65,15.85]} s={[4.3,1.3,.9]} c="#68523a"/>
- <Sign text={'GOODS\n'+config.goods} position={[-22.6,3,15.3]} size={[3.7,1.4]}/>
+ <Sign text={'유령단의 작은 흔적\n책갈피 · 에코백 · 문구\n클릭하여 굿즈 목록 펼치기'} position={[-22.6,3.48,16.31]} size={[3.7,1.1]}/>
  {[0,1,2].map(i=><B key={i} p={[-24+i*.32,1.46,15.9]} s={[.25,.08,.36]} c={['#e1c793','#c39596','#a6bca4'][i]}/>)}
  <mesh position={[-22.4,1.75,15.85]} scale={[.23,.33,.21]}><sphereGeometry args={[1,12,8]}/><meshStandardMaterial color="#f5ecd9"/></mesh>
  {[-.08,.08].map(x=><mesh key={x} position={[-22.4+x,1.82,16.04]}><sphereGeometry args={[.027,8,6]}/><meshStandardMaterial color="#272121"/></mesh>)}

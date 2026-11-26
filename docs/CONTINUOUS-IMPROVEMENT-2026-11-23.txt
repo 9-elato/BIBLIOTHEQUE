@@ -315,3 +315,11 @@
 - 생성 지시: 3x3 equal-cell square sheet, warm ivory paper, no text/borders, delicate realistic watercolor/colored-pencil vintage ceramic/glass illustrations. Row1 black drip coffee, heart-foam cafe latte, vanilla latte; row2 Earl Grey, chamomile, lemonade; row3 hot chocolate, scone, lemon cake. Centered objects and blank margins.
 - 새 실시간 광원 및 매프레임 연산 없음. 포스터 리소스 풀 및 정적 배칭 재사용.
 - 테스트262개 및 빌드 통과. Computer Use/실제 화면검수/공개배포 없음.
+
+[2026-11-26] 굿즈 문구 소품 및 1년 뒤 편지 우편함
+- 티백/투명 과일 책갈피, 영화유령단 에코백, 북커버/노트/달력/Q&A 다이어리 목록과 설명 추가.
+- 2단 선반에 티백실/태그, 과일단면, 천가방 손잡이·유령, 문구 소품 배치. 기존굿즈 유지, 설정버전2 변환.
+- 입구 안쪽 벽 부착 느린우편함, 클릭/E로 전용 탭 열기. 충돌과 접근 경로 반영.
+- 브라우저 로컬 편지 작성·봉인·개봉일 이후 열람·본문포함 백업 다운로드. 클라우드/이메일발송 아님을 UI에 표시.
+- 한국 날짜 기준 다음해 같은날, 2월29일은 다음해2월28일. 손상데이터 덮어쓰기 방지 및 저장실패 표시.
+- 테스트267개 및 최종 빌드 통과. Computer Use/실제 화면검수/공개배포 없음.

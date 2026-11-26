@@ -12,6 +12,7 @@ export const CAFE_NOOKS=[
  {id:'floor-table',p:[-20.3,.24,19.5],s:[.55,.48,.7],c:'#947354'},
 ]
 export const CAFE_SOLIDS=[
+ {id:'cafe-mailbox',rect:[-18.225,-17.375,23.725,23.975]},
  {id:'cinema-snack-console',rect:[-28.65,-23.35,29.97,30.73]},
  ...[20.7,23.8].map(z=>({id:`cafe-folded-door-${z}`,rect:[-17.075,-16.025,z-.05,z+.05]})),
  ...CAFE_NOOKS.map(({id,p:[x,y,z],s:[w,h,d]})=>({id,rect:[x-w/2,x+w/2,z-d/2,z+d/2]})),
