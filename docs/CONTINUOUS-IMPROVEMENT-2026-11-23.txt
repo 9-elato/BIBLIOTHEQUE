@@ -353,3 +353,9 @@
 - Modern cream/black typography and wood shelf palette; simpler art, whitespace and category captions.
 - Built-in imagegen saved public/art/cafe-modern-menu.png. Prompt: equal3x3 text-free modern editorial product illustration atlas, cream background, black/cream ceramic vessels, soft shadows, no watercolor/paper texture. Nine items: snowman vanilla milkshake, peach pear juice, hojicha latte, grape lime soda, brownie, Earl Grey, madeleines, hot chocolate, lemon cake.
 - 273 tests and production build passed. No Computer Use/runtime visual inspection/deployment.
+
+[2026-11-26] Classic hand-drawn menu art
+- Replaced product-render menu art with sparse ink-outline/soft watercolor sketch atlas. Asset: public/art/cafe-classic-sketch-menu.png.
+- Budapest pairing: blush pink vessels and card accent. Midnight in Paris: blue vessels, yellow star/napkin and yellow card accent. Same palette in3D and enlarged HTML cards.
+- Built-in imagegen prompt: equal3x3 atlas, no text/borders, ivory background, sparse irregular brown pen outlines and pale watercolor, no3D/photorealism. Nine existing dishes; pink hojicha cup/lemon-cake plate, blue brownie plate/yellow napkin, blue cocoa mug/yellow star. Classic notebook spot illustrations.
+- Cafe/menu targeted tests and production build passed. No Computer Use/runtime visual inspection/deployment.
