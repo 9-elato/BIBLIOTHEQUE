@@ -17,7 +17,7 @@ test('garden connects to cafe and cinema via clear door and aisle',()=>{
   p=movePlayer(p,x-p.x,z-p.z,world);assert.ok(Math.hypot(p.x-x,p.z-z)<.03,JSON.stringify(p))
  }
  assert.equal(zoneAt(p.x,p.z,45),'북카페 미니 극장')
- assert.equal(walkHeight(-30,20,0,world),null);assert.equal(walkHeight(-18,18,0,world),null)
+ assert.equal(walkHeight(-34,20,0,world),null);assert.equal(walkHeight(-18,18,0,world),null)
 })
 
 test('cafe overhanging counter and cinema screen block the avatar while the doorway stays open',()=>{
@@ -94,4 +94,18 @@ test('new stationery migrates previous cafe settings once',()=>{
  assert.ok(updated.goods.includes('티백 모양 책갈피'))
  assert.equal(updated.conceptVersion,2)
  assert.equal(cafeIdentity(updated),updated)
+})
+
+import {cafeDisplays} from '../src/cafeDisplays.js'
+test('expanded cafe wing is walkable but displays and outer wall remain solid',()=>{
+ assert.equal(walkHeight(-30.7,20,0,world),0)
+ assert.equal(walkHeight(-29,19.4,0,world),null)
+ assert.equal(walkHeight(-34,20,0,world),null)
+ assert.equal(walkHeight(-32,26,0,world),null)
+})
+test('genre displays retain selected books when categories exceed four',()=>{
+ const books=Array.from({length:6},(_,i)=>({id:String(i),category:'분야'+i}))
+ const groups=cafeDisplays(books)
+ assert.equal(groups.length,4);assert.equal(groups.flatMap(g=>g.books).length,6)
+ assert.equal(cafeDisplays([]).length,4)
 })

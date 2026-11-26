@@ -1,3 +1,4 @@
+import {inCafe as isCafe} from './cafeLayout.js'
 import {meadowRest} from './meadowLayout.js'
 import {canToggleStudyDoor} from './studyLayout.js'
 import {GAME_SPOTS} from './miniGames.js'
@@ -17,7 +18,7 @@ export function interactionAt(s, {entranceOpen, gateReady, gateOpening=false, bo
   }
   if(s.level===0&&near(-17.8,23.6,1.35))return {type:'cafeMail',label:'1년 뒤의 나에게 편지 보내기'}
   // Resolve cafe seating once: the reachability query includes floor collision checks.
-  const inCafe=s.level===0&&s.x>-30&&s.x<-16&&s.z>15&&s.z<31
+  const inCafe=s.level===0&&isCafe(s.x,s.z)
   const prepared=prepareSeat?prepareNearbySitting(s,world):null
   const cafeSeat=inCafe?(prepareSeat?prepared?.seat:nearbySeat(s,world)):null
   if(inCafe&&!cafeSeat)return {type:'cafe',label:near(-18.2,20.18,3)?'책방지기의 초대장 펼치기':'북카페 초대장 · 큐레이션 · 상영표 보기'}

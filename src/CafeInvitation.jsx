@@ -15,14 +15,14 @@ export default function CafeInvitation({config}){
   <h3>초대받은 공간 둘러보기</h3>
   <svg className="invitation-map" viewBox="0 0 440 420" role="img" aria-labelledby="cafe-map-title cafe-map-desc">
    <title id="cafe-map-title">북카페 미니맵</title>
-   <desc id="cafe-map-desc">오른쪽 입구로 들어오면 초대장과 메뉴 카운터가 있습니다. 왼쪽은 창가 좌석, 중앙은 프라이빗한 ㄱ자 소파, 위쪽은 큐레이션과 굿즈, 아래쪽 별도 공간은 미니 극장입니다.</desc>
+   <desc id="cafe-map-desc">오른쪽 입구로 들어오면 초대장과 메뉴 카운터가 있습니다. 왼쪽 확장 공간은 분야별 진열대와 창가 좌석, 중앙은 프라이빗한 ㄱ자 소파, 위쪽은 큐레이션과 굿즈, 아래쪽 별도 공간은 미니 극장입니다.</desc>
    <rect x="12" y="12" width="390" height="390" rx="18" fill="#f4e8cf" stroke="#816443" strokeWidth="3"/>
    <rect x="30" y="30" width="166" height="54" rx="9" fill="#d6dfc4"/>
    <rect x="209" y="30" width="175" height="54" rx="9" fill="#e7cfb3"/>
-   <text x="113" y="62">선별 도서</text><text x="296" y="62">굿즈</text>
+   <text x="113" y="62">큐레이션 책장</text><text x="296" y="62">굿즈</text>
    <path d="M25 102V245" stroke="#86b8bd" strokeWidth="8"/>
    <rect x="43" y="110" width="91" height="126" rx="15" fill="#b9cbb1"/>
-   <text x="88" y="166">창가</text><text x="88" y="192">1인 좌석</text>
+   <text x="88" y="166">창가</text><text x="88" y="192">1인 좌석</text><text x="104" y="262">분야별 진열대</text>
    <path d="M169 134V153H215M169 196V177H215" fill="none" stroke="#537568" strokeWidth="13" strokeLinejoin="round"/>
 
 

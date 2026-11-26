@@ -3,7 +3,7 @@ import * as THREE from 'three'
 import {Box as B} from './GroundFloor'
 import StaticBatch from './StaticBatch'
 
-const ink='#202f30',wood='#614832',gold='#bca070'
+const ink='#222323',wood='#614832',gold='#bca070'
 export const SHOP_WINDOW={x:-16,z:18,width:5.5,bottom:.85,top:4.85}
 function Flowers({z}){
  return <group position={[-15.55,0,z]}>

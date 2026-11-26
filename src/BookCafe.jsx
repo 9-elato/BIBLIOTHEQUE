@@ -1,3 +1,4 @@
+import {cafeDisplays} from './cafeDisplays'
 import CafeGoodsDetails from './CafeGoodsDetails'
 import CafeCinema from './CafeCinema'
 import CafeMenuBoard from './CafeMenuBoard'
@@ -9,10 +10,10 @@ import React,{useMemo,useEffect} from 'react'
 import * as THREE from 'three'
 import {Box as B} from './GroundFloor'
 import {BookCoverMesh} from './BookCover'
-import {CAFE_SEATS,CAFE_SEAT_TURNS,CAFE_NOOKS} from './cafeLayout'
-function Sign({text,position,size=[2,1],rotation=[0,0,0],dark=false,fascia=false}){
+import {CAFE_SEATS,CAFE_SEAT_TURNS,CAFE_NOOKS,CAFE_DISPLAY_Z} from './cafeLayout'
+export function Sign({text,position,size=[2,1],rotation=[0,0,0],dark=false,fascia=false}){
  const texture=useMemo(()=>{const c=document.createElement('canvas');c.width=1024;c.height=Math.round(1024*size[1]/size[0]);const x=c.getContext('2d'),h=c.height;
- x.fillStyle=dark?'#203a35':'#f2eadb';x.fillRect(0,0,1024,h);x.strokeStyle='#b59860';x.lineWidth=3;x.strokeRect(18,18,988,h-36);
+ x.fillStyle=dark?'#222323':'#f2eadb';x.fillRect(0,0,1024,h);x.strokeStyle='#b59860';x.lineWidth=3;x.strokeRect(18,18,988,h-36);
  if(fascia){
  x.fillStyle='#ceb483';x.textAlign='center';x.textBaseline='middle';x.font='500 58px Georgia, serif';x.fillText(text.split('\n')[0],512,h*.43,940);x.font='22px Georgia, serif';x.fillText('BOOKS & COFFEE  ·  눈사람 유령이 남긴 흔적',512,h*.78,930);
  }else{
@@ -26,18 +27,22 @@ function Sign({text,position,size=[2,1],rotation=[0,0,0],dark=false,fascia=false
 export default function BookCafe({config,books,onOpen,time}){
  config=withCafePoster(cafeIdentity(config))
  const chosen=config.bookIds.map(id=>books.find(b=>b.id===id)).filter(Boolean).slice(0,8)
+ const displays=cafeDisplays(config.bookIds.map(id=>books.find(b=>b.id===id)).filter(Boolean))
  const click=e=>{e.stopPropagation();onOpen()}
  return <group>
  <StaticBatch>
+ <B p={[-32,-.12,19.5]} s={[4,.24,9] } c="#9a7955"/>
+ <B p={[-32,7.1,19.5]} s={[4,.25,9.3]} c="#594431"/>
+ <B p={[-32,3.5,24.15]} s={[4,7,.3]} c="#eadfcd"/>
  <B p={[-22.3,-.12,23]} s={[15.4,.24,16.5]} c="#9a7955"/>
  <B p={[-14,0,22.25]} s={[4,.08,2.5]} c="#bca887"/>
  <B p={[-30,3.5,27.5]} s={[.28,7,7]} c="#d9d2c3"/>
- <B p={[-30,.45,19.5]} s={[.28,.9,9]} c="#d9d2c3"/><B p={[-30,6.25,19.5]} s={[.28,1.5,9]} c="#d9d2c3"/>
- {[15.15,17.9,20.8,23.85].map(z=><B key={z} p={[-30,3.2,z]} s={[.22,4.6,.09]} c="#343c36"/>)}
- <mesh position={[-30,3.2,19.5]} rotation={[0,Math.PI/2,0]}><planeGeometry args={[8.7,4.6]}/><meshStandardMaterial color="#b7cfca" transparent opacity={.07} depthWrite={false} side={THREE.DoubleSide}/></mesh>
- <B p={[-29.38,.91,20.35]} s={[.65,.12,6.3]} c="#b8a98f"/>
- <B p={[-23,3.5,15]} s={[14,7,.25]} c="#dbceb3"/>
- <B p={[-23,3.5,31]} s={[14,7,.25]} c="#34463c"/>
+ <B p={[-34,.45,19.5]} s={[.28,.9,9]} c="#d9d2c3"/><B p={[-34,6.25,19.5]} s={[.28,1.5,9]} c="#d9d2c3"/>
+ {[15.15,17.9,20.8,23.85].map(z=><B key={z} p={[-34,3.2,z]} s={[.22,4.6,.09]} c="#242525"/>)}
+ <mesh position={[-34,3.2,19.5]} rotation={[0,Math.PI/2,0]}><planeGeometry args={[8.7,4.6]}/><meshStandardMaterial color="#b7cfca" transparent opacity={.07} depthWrite={false} side={THREE.DoubleSide}/></mesh>
+ <B p={[-33.38,.91,20.35]} s={[.65,.12,6.3]} c="#b8a98f"/>
+ <B p={[-25,3.5,15]} s={[18,7,.25]} c="#dbceb3"/>
+ <B p={[-23,3.5,31]} s={[14,7,.25]} c="#e8decc"/>
 
  <B p={[-16,3.5,27.3]} s={[.25,7,7.4]} c="#d5c4a3"/>
  <B p={[-16,5.7,22.25]} s={[.25,2.6,2.5]} c="#d5c4a3"/>
@@ -48,11 +53,19 @@ export default function BookCafe({config,books,onOpen,time}){
  <CafeCinema config={config}/>
  <Sign text={config.title+'\n'+CAFE_IDENTITY.concept+'\n책 여는 시간 10:00 · 책 닫는 시간 20:00'} position={[-15.53,5.75,23]} rotation={[0,Math.PI/2,0]} size={[10,1.27]} dark fascia/>
  <group onClick={e=>{e.stopPropagation();onOpen('cafe-mail')}}>
- <B p={[-17.8,1.6,23.85]} s={[.85,.9,.25]} c="#42675a"/>
+ <B p={[-17.8,1.6,23.85]} s={[.85,.9,.25]} c="#292b29"/>
  <B p={[-17.8,1.85,23.715]} s={[.58,.055,.02]} c="#1d3029"/>
  <Sign text={'느린 우편함\n1년 뒤의 나에게'} position={[-17.8,1.48,23.71]} rotation={[0,Math.PI,0]} size={[.72,.45]}/>
  </group>
  <group onClick={click}>
+ {CAFE_DISPLAY_Z.map((z,i)=><group key={z}>
+ <B p={[-29,.55,z]} s={[1.5,1.1,.7]} c="#71543b"/>
+ <B p={[-29,1.15,z]} s={[1.6,.1,.8]} c="#c9b695"/>
+ <B p={[-29,1.9,z+.3]} s={[1.5,.13,.13]} c="#292a28"/>
+ <Sign text={displays[i]?.name||'다음 큐레이션'} position={[-29,1.47,z+.365]} size={[1.4,.5]}/>
+ {(displays[i]?.books||[]).slice(0,3).map((b,j)=><group key={b.id} position={[-29.5+j*.5,1.52,z]}><B p={[0,0,0]} s={[.38,.60,.10]} c={b.color||'#544738'}/><BookCoverMesh url={b.cover} position={[0,0,-.06]} rotation={[0,Math.PI,0]} size={[.36,.58]}/></group>)}
+ </group>)}
+
  <Sign text={'유령단\n책 여는 시간 10:00\n책 닫는 시간 20:00'} position={[-15.79,1.8,24.2]} rotation={[0,Math.PI/2,0]} size={[1,1.4]} dark/>
  <group userData={{noCameraCollision:true}}>
  <B p={[-18.2,1.46,20.05]} s={[.65,.08,.7]} c="#f4ead5"/>
@@ -80,8 +93,8 @@ export default function BookCafe({config,books,onOpen,time}){
  <B p={[-22.4,1.65,16.09]} s={[.3,.18,.04]} c="#527366"/>
  {[-.13,.13].map(x=><mesh key={x} position={[-21.3+x,1.57,16]} rotation={[0,0,.15]}><torusGeometry args={[.12,.018,6,14]}/><meshStandardMaterial color="#8e6738" metalness={.65} roughness={.35}/></mesh>)}
  <B p={[-21.3,1.57,16]} s={[.08,.02,.025]} c="#8e6738"/>
- <Sign text={config.eventTitle+'\n'+config.eventNote} position={[-29.8,3,22]} rotation={[0,Math.PI/2,0]} size={[2.8,1.6]}/>
- <BookCoverMesh url={config.eventPoster} position={[-29.78,1.8,22]} rotation={[0,Math.PI/2,0]} size={[1.2,1.6]}/>
+ <Sign text={config.eventTitle+'\n'+config.eventNote} position={[-33.8,3,22]} rotation={[0,Math.PI/2,0]} size={[2.8,1.6]}/>
+ <BookCoverMesh url={config.eventPoster} position={[-33.78,1.8,22]} rotation={[0,Math.PI/2,0]} size={[1.2,1.6]}/>
  <Sign text={'MINI CINEMA\n'+config.filmTitle+'\n3의 배수 날짜 · 목요일\n'+(config.startTime?config.startTime+' KST':'시작 시각 미정')} position={[-26,3,23.98]} rotation={[0,Math.PI,0]} size={[3,1.8]}/>
  <BookCoverMesh url={config.filmPoster} position={[-23,2.1,23.97]} rotation={[0,Math.PI,0]} size={[1,1.5]}/>
  <B p={[-26,3.5,24.15]} s={[8,7,.3]} c="#624935"/>
@@ -93,12 +106,12 @@ export default function BookCafe({config,books,onOpen,time}){
  <Sign text={'상영표 · 클릭해서 열기\n'+config.filmTitle} position={[-26,2.4,24.45]} size={[6.8,2.5]} dark/>
  </group>
  <StaticBatch revision={time}>
- {CAFE_SEATS.map(([x,z],i)=><group key={i} position={[x,0,z]} rotation={[0,CAFE_SEAT_TURNS[i]-Math.PI,0]}><B p={[0,i===7?.15:.46,0]} s={[1.2,i===7?.2:.34,.96]} c={i<2||i>4?'#42624e':'#4f4038'}/><B p={[0,i===7?.38:.95,.42]} s={[1.2,i===7?.3:.8,.15]} c={i<2||i>4?'#42624e':'#4f4038'}/>{(i===7?[]:[-.45,.45]).map(a=><B key={a} p={[a,.2,0]} s={[.1,.4,.75]} c="#483528"/>)}</group>)}
+ {CAFE_SEATS.map(([x,z],i)=><group key={i} position={[x,0,z]} rotation={[0,CAFE_SEAT_TURNS[i]-Math.PI,0]}><B p={[0,i===7?.15:.46,0]} s={[1.2,i===7?.2:.34,.96]} c={i<2||i>4?'#d6c7b0':'#4f4038'}/><B p={[0,i===7?.38:.95,.42]} s={[1.2,i===7?.3:.8,.15]} c={i<2||i>4?'#d6c7b0':'#4f4038'}/>{(i===7?[]:[-.45,.45]).map(a=><B key={a} p={[a,.2,0]} s={[.1,.4,.75]} c="#483528"/>)}</group>)}
  {CAFE_NOOKS.map(item=><B key={item.id} p={item.p} s={item.s} c={item.c}/>)}
- {[-25.48].map(x=>[18.65,21.35].map(z=><B key={z} p={[x,.95,z]} s={[.16,.85,1.85]} c="#42624e"/>))}
+ {[-25.48].map(x=>[18.65,21.35].map(z=><B key={z} p={[x,.95,z]} s={[.16,.85,1.85]} c="#d6c7b0"/>))}
  <B p={[-21.4,.68,17.565]} s={[.96,.78,.035]} c="#252c29"/>
  {[0,1,2].map(i=><mesh key={i} position={[-21.65+i*.25,.53,17.6]} scale={[.10,.21+(i%2)*.1,.05]}><sphereGeometry args={[1,8,6]}/><meshStandardMaterial color="#f2ba6e" emissive="#e9a74a" emissiveIntensity={1.2}/></mesh>)}
- {[[ -25.4,17.85],[-25.4,22.15],[-29.25,18],[-21,17.2]].map(([x,z],i)=><group key={i}><B p={[x,1.25,z]} s={[.035,1.25,.035]} c="#b2986b"/><mesh position={[x,1.92,z]}><coneGeometry args={[.25,.32,12,1,true]}/><meshStandardMaterial color="#f1dfb9" emissive="#e5b566" emissiveIntensity={.4} side={THREE.DoubleSide}/></mesh></group>)}
+ {[[ -25.4,17.85],[-25.4,22.15],[-33.25,18],[-21,17.2]].map(([x,z],i)=><group key={i}><B p={[x,1.25,z]} s={[.035,1.25,.035]} c="#b2986b"/><mesh position={[x,1.92,z]}><coneGeometry args={[.25,.32,12,1,true]}/><meshStandardMaterial color="#f1dfb9" emissive="#e5b566" emissiveIntensity={.4} side={THREE.DoubleSide}/></mesh></group>)}
 
  {[-27,-19].map(x=><group key={x}><B p={[x,5.7,20]} s={[.035,2.6,.035]} c="#806c49"/><mesh position={[x,4.4,20]}><sphereGeometry args={[.3,10,8]}/><meshStandardMaterial color="#fff0cb" emissive="#ffd18b" emissiveIntensity={time==='evening'?1:.4}/></mesh><pointLight position={[x,4,20]} color="#ffd7a0" intensity={5} distance={12}/></group>)}
  </StaticBatch>
