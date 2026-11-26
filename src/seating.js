@@ -35,7 +35,7 @@ export const SEATS=[
   ...GARDEN_BENCHES.map(([x,z],i)=>seat(`garden-${i}`,i===0?'서쪽 정원 벤치':'동쪽 정원 벤치',x,z,Math.PI,0,.71,0,.08,1.25)),
  ...READING_SOFA_SEATS.map(s=>seat(s.id,s.label,s.x,s.z,s.turn,7.2,.72,0,0,1.05)),
  SPRING_BATH,
- ...CAFE_SEATS.map(([x,z],i)=>seat(`cafe-seat-${i}`,i<2?'북카페 창가 좌석':i<5?'미니 극장 의자':i===7?'북카페 벽난로 좌식':'북카페 프라이빗 소파',x,z,CAFE_SEAT_TURNS[i],0,i===7?.25:.63,0,.1,i===7?.75:i<5?1.2:.95)),
+ ...CAFE_SEATS.map(([x,z],i)=>seat(`cafe-seat-${i}`,i<2?'북카페 창가 1인 소파':i<5?'미니 극장 의자':i===7?'북카페 벽난로 좌식':'북카페 프라이빗 소파',x,z,CAFE_SEAT_TURNS[i],0,i===7?.25:.63,0,.1,i===7?.75:i<5?1.2:.95)),
 ]
 const bed=SEATS.find(s=>s.id==='attic-daybed')
 bed.anchor.x=atticX(bed.anchor.x);bed.entry.x=atticX(bed.entry.x)

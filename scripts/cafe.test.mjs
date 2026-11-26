@@ -116,3 +116,11 @@ test('two avatars can pass side by side between the cafe sofa returns',()=>{
  for(let i=0;i<43;i++){const next=movePlayer(p,.1,0,world);assert.ok(next.x>p.x+.09);p=next}
  }
 })
+
+test('cafe entry and browsing prompts only offer the invitation',()=>{
+ for(const [x,z] of [[-18.2,22.25],[-26.5,20],[-30.7,18]]){
+ const action=interactionAt({x,z,level:0,yaw:0},{world})
+ assert.equal(action.type,'cafe')
+ assert.equal(action.label,'책방지기의 초대장 펼치기')
+ }
+})

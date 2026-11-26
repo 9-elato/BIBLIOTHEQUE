@@ -22,7 +22,7 @@ export default function CafeInvitation({config}){
    <text x="113" y="62">큐레이션 책장</text><text x="296" y="62">굿즈</text>
    <path d="M25 102V245" stroke="#86b8bd" strokeWidth="8"/>
    <rect x="43" y="110" width="91" height="126" rx="15" fill="#b9cbb1"/>
-   <text x="88" y="166">창가</text><text x="88" y="192">1인 좌석</text><text x="104" y="262">분야별 진열대</text>
+   <text x="88" y="166">창가</text><text x="88" y="192">1인 소파</text><text x="104" y="262">분야별 진열대</text>
    <path d="M169 134V153H215M169 196V177H215" fill="none" stroke="#537568" strokeWidth="13" strokeLinejoin="round"/>
 
 
@@ -44,7 +44,7 @@ export default function CafeInvitation({config}){
    <li>선별 도서 진열대에서 책방지기의 큐레이션을 살펴보세요.</li>
    <li>빈 좌석 가까이에서 E 키 또는 화면의 상호작용 버튼으로 앉고 일어날 수 있습니다.</li>
    <li>메뉴와 굿즈는 책방지기가 고른 소개 목록입니다. 실제 주문·결제 기능은 없습니다.</li>
-   <li>안쪽 미니 극장은 별도 공간입니다. 아래 상영표에서 작품과 책방지기가 정한 시각을 확인하세요.</li>
+   <li>안쪽 미니 극장은 별도 공간입니다. 극장 입구 상영표에서 작품과 책방지기가 정한 시각을 확인하세요.</li>
   </ol>
   <p className="invitation-note">초대장은 입구 카운터에서 언제든 다시 펼칠 수 있습니다.</p>
  </section>

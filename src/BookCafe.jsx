@@ -1,3 +1,4 @@
+import CafeLoungeChair,{CafeSideTable} from './CafeLoungeChair'
 import {CafeSignContext} from './cafeSignContext'
 import {cafeDisplays} from './cafeDisplays'
 import CafeGoodsDetails from './CafeGoodsDetails'
@@ -122,8 +123,8 @@ export default function BookCafe({config,books,onOpen,time}){
  <Sign text={'상영표 · 클릭해서 열기\n'+config.filmTitle} position={[-26,2.4,24.45]} size={[6.8,2.5]} dark/>
  </group>
  <StaticBatch revision={time}>
- {CAFE_SEATS.map(([x,z],i)=><group key={i} position={[x,0,z]} rotation={[0,CAFE_SEAT_TURNS[i]-Math.PI,0]}><B p={[0,i===7?.15:.46,0]} s={[1.2,i===7?.2:.34,.96]} c={i<2||i>4?'#d6c7b0':'#4f4038'}/><B p={[0,i===7?.38:.95,.42]} s={[1.2,i===7?.3:.8,.15]} c={i<2||i>4?'#d6c7b0':'#4f4038'}/>{(i===7?[]:[-.45,.45]).map(a=><B key={a} p={[a,.2,0]} s={[.1,.4,.75]} c="#483528"/>)}</group>)}
- {CAFE_NOOKS.map(item=><B key={item.id} p={item.p} s={item.s} c={item.c}/>)}
+ {CAFE_SEATS.map(([x,z],i)=><group key={i} position={[x,0,z]} rotation={[0,CAFE_SEAT_TURNS[i]-Math.PI,0]}>{i<2?<CafeLoungeChair/>:<><B p={[0,i===7?.15:.46,0]} s={[1.2,i===7?.2:.34,.96]} c={i<2||i>4?'#d6c7b0':'#4f4038'}/><B p={[0,i===7?.38:.95,.42]} s={[1.2,i===7?.3:.8,.15]} c={i<2||i>4?'#d6c7b0':'#4f4038'}/>{(i===7?[]:[-.45,.45]).map(a=><B key={a} p={[a,.2,0]} s={[.1,.4,.75]} c="#483528"/>)}</>}</group>)}
+ {CAFE_NOOKS.map(item=>item.id.includes('table')?<CafeSideTable key={item.id} p={item.p} s={item.s}/>:<B key={item.id} p={item.p} s={item.s} c={item.c}/>)}
  {[-25.48].map(x=>[18.45,21.55].map(z=><B key={z} p={[x,.95,z]} s={[.16,.85,1.25]} c="#d6c7b0"/>))}
  <B p={[-21.4,.68,17.565]} s={[.96,.78,.035]} c="#252c29"/>
  {[0,1,2].map(i=><mesh key={i} position={[-21.65+i*.25,.53,17.6]} scale={[.10,.21+(i%2)*.1,.05]}><sphereGeometry args={[1,8,6]}/><meshStandardMaterial color="#f2ba6e" emissive="#e9a74a" emissiveIntensity={1.2}/></mesh>)}
