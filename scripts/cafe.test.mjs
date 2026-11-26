@@ -67,3 +67,15 @@ test('ghost collective concept preserves custom content and migrates goods once'
  const edited={...result,title:'My cafe',goods:'책갈피'}
  assert.equal(cafeIdentity(edited),edited)
 })
+
+import {menuItems} from '../src/cafeMenu.js'
+test('illustrated menu preserves edited prices and uses neutral artwork for custom dishes',()=>{
+ assert.deepEqual(menuItems('카페라테 · 5,500원\n\n새 메뉴 | 7,000원'),[{name:'카페라테',price:'5,500원',art:1},{name:'새 메뉴',price:'7,000원',art:-1}])
+ assert.equal(menuItems('레몬 케이크 · 5,500원')[0].art,8)
+ assert.equal(menuItems('바닐라 라테 · 6,000원')[0].art,2)
+ assert.equal(menuItems('').length,0)
+})
+test('cinema snack console blocks its cabinet but preserves the viewing aisle',()=>{
+ assert.equal(walkHeight(-26,30.2,0,world),null)
+ assert.equal(walkHeight(-26,29.3,0,world),0)
+})

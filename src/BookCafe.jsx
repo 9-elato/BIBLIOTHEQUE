@@ -1,3 +1,5 @@
+import CafeCinema from './CafeCinema'
+import CafeMenuBoard from './CafeMenuBoard'
 import CafeShopfront from './CafeShopfront'
 import {cafeIdentity,CAFE_IDENTITY} from './cafeData'
 import {withCafePoster} from './cafePoster'
@@ -41,6 +43,7 @@ export default function BookCafe({config,books,onOpen,time}){
  <B p={[-23,7.1,23]} s={[14.6,.25,16.6]} c="#594431"/>
  </StaticBatch>
  <CafeShopfront/>
+ <CafeCinema config={config}/>
  <Sign text={config.title+'\n'+CAFE_IDENTITY.concept+'\n책 여는 시간 10:00 · 책 닫는 시간 20:00'} position={[-15.53,5.75,23]} rotation={[0,Math.PI/2,0]} size={[10,1.27]} dark fascia/>
  <group onClick={click}>
  <Sign text={'유령단\n책 여는 시간 10:00\n책 닫는 시간 20:00'} position={[-15.79,1.8,24.2]} rotation={[0,Math.PI/2,0]} size={[1,1.4]} dark/>
@@ -53,7 +56,7 @@ export default function BookCafe({config,books,onOpen,time}){
  <B p={[-17.9,.65,18.25]} s={[2.5,1.3,4.3]} c="#543f30"/>
  <B p={[-17.9,1.34,18.25]} s={[2.7,.12,4.5]} c="#ba9d6f"/>
  <B p={[-18.86,3.1,18.3]} s={[.10,2.9,3.7]} c="#584630"/>{[16.8,19.8].map(z=><B key={z} p={[-18.86,5.75,z]} s={[.035,2.5,.035]} c="#806c49"/>)}
- <Sign text={'MENU\n'+config.menu} position={[-18.9,3.1,18.3]} rotation={[0,-Math.PI/2,0]} size={[3.6,2.8]} dark/>
+<CafeMenuBoard menu={config.menu}/>
  <Sign text={config.curationTitle+'\n'+(chosen.length?'선별 도서 · 클릭해서 소개 보기':'책방지기의 선정을 기다립니다')} position={[-27.5,3,15.3]} size={[4,1.3]}/>
  {[1.41,2.26].map(y=><B key={y} p={[-27.5,y,15.85]} s={[4.1,.08,.9]} c="#947149"/>)}
  <B p={[-27.5,.65,15.85]} s={[4.1,1.3,.9]} c="#68523a"/>
@@ -83,7 +86,7 @@ export default function BookCafe({config,books,onOpen,time}){
  <Sign text={'상영표 · 클릭해서 열기\n'+config.filmTitle} position={[-26,2.4,24.45]} size={[6.8,2.5]} dark/>
  </group>
  <StaticBatch revision={time}>
- {CAFE_SEATS.map(([x,z],i)=><group key={i} position={[x,0,z]} rotation={[0,CAFE_SEAT_TURNS[i]-Math.PI,0]}><B p={[0,i===7?.15:.46,0]} s={[1.2,i===7?.2:.34,.96]} c={i<2||i>4?'#42624e':'#824b4b'}/><B p={[0,i===7?.38:.95,.42]} s={[1.2,i===7?.3:.8,.15]} c={i<2||i>4?'#42624e':'#824b4b'}/>{(i===7?[]:[-.45,.45]).map(a=><B key={a} p={[a,.2,0]} s={[.1,.4,.75]} c="#483528"/>)}</group>)}
+ {CAFE_SEATS.map(([x,z],i)=><group key={i} position={[x,0,z]} rotation={[0,CAFE_SEAT_TURNS[i]-Math.PI,0]}><B p={[0,i===7?.15:.46,0]} s={[1.2,i===7?.2:.34,.96]} c={i<2||i>4?'#42624e':'#4f4038'}/><B p={[0,i===7?.38:.95,.42]} s={[1.2,i===7?.3:.8,.15]} c={i<2||i>4?'#42624e':'#4f4038'}/>{(i===7?[]:[-.45,.45]).map(a=><B key={a} p={[a,.2,0]} s={[.1,.4,.75]} c="#483528"/>)}</group>)}
  {CAFE_NOOKS.map(item=><B key={item.id} p={item.p} s={item.s} c={item.c}/>)}
  {[-25.48].map(x=>[18.65,21.35].map(z=><B key={z} p={[x,.95,z]} s={[.16,.85,1.85]} c="#42624e"/>))}
  <B p={[-21.4,.68,17.565]} s={[.96,.78,.035]} c="#252c29"/>

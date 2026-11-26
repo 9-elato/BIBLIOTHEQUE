@@ -306,3 +306,12 @@
 - 진열대 위 목재 책장과 색이 다른 책, 바닥 이음선 및 벽 몰딩으로 실내 마감.
 - 새 장식은 StaticBatch 활용, 실시간 광원 추가 없음.
 - 테스트260개 및 빌드 통과. Computer Use/실제 화면검수/공개배포 없음.
+
+[2026-11-26] 별빛 미니극장과 수채화 메뉴 카드
+- 영화관: 별빛 천장100점, 따뜻한 발광 간접띠, 기존3좌석 쿠션/팔걸이, 스낵 진열장과 충돌 추가.
+- 2단3열 포스터 갤러리: 대표상영작+추가 업로드 최대5장. 빈 칸은 다음이야기 안내 카드.
+- 메뉴: 4열 개별 종이카드+3D선반. 모바일2열. 기존 설정 이름/가격 연결, 미분류 새메뉴 중립표시.
+- imagegen 내장 도구로 수채화 음료/디저트3x3 아틀라스 생성, public/art/cafe-watercolor-menu.png 복사.
+- 생성 지시: 3x3 equal-cell square sheet, warm ivory paper, no text/borders, delicate realistic watercolor/colored-pencil vintage ceramic/glass illustrations. Row1 black drip coffee, heart-foam cafe latte, vanilla latte; row2 Earl Grey, chamomile, lemonade; row3 hot chocolate, scone, lemon cake. Centered objects and blank margins.
+- 새 실시간 광원 및 매프레임 연산 없음. 포스터 리소스 풀 및 정적 배칭 재사용.
+- 테스트262개 및 빌드 통과. Computer Use/실제 화면검수/공개배포 없음.

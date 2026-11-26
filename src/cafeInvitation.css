@@ -12,3 +12,11 @@
 .cafe-invitation ol{padding-left:22px}.cafe-invitation ol li{margin:9px 0}
 
 .cafe-guide-tabs{display:flex;gap:8px;flex-wrap:wrap}.cafe-guide-tabs button{font-size:14px;padding:9px 12px}.cafe-guide-tabs button[aria-pressed="true"]{background:#345248;color:#fff5df}
+
+.illustrated-menu{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px 10px;padding:14px 0}
+.illustrated-menu article{min-width:0;background:#f7f1e5;border:1px solid #dfd4bd;border-bottom:5px solid #b2a48a;box-shadow:0 5px 9px #5b422514;text-align:center;padding:10px 5px}
+.illustrated-menu h4{font-family:Georgia,serif;font-size:14px;min-height:40px;margin:5px 0;color:#43372c}
+.menu-watercolor{width:100%;aspect-ratio:1;background-size:300% 300%;background-repeat:no-repeat}
+.menu-custom{display:grid;place-items:center;color:#80715c;font-size:12px}
+.illustrated-menu p{font-size:13px;margin:8px 0}
+@media(max-width:600px){.illustrated-menu{grid-template-columns:repeat(2,minmax(0,1fr))}}
