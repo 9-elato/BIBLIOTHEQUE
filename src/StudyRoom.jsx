@@ -1,3 +1,4 @@
+import {recordStorage} from './recordStorage'
 import CoastalStudy from './CoastalStudy'
 import StaticBatch from './StaticBatch'
 import {makeStudyFinish,disposeStudyFinishes} from './studyFinishes'
@@ -21,8 +22,9 @@ export default function StudyRoom(props){
 }
 function StudyInterior({open,prepare,door,time,weather,event,onNotes,onMusic}){
  const refs=useRef([]),clock=useRef(),disc=useRef(),season=studySeason(undefined,weather)
- const [lamp,setLamp]=useState(()=>localStorage.getItem('mll-study-lamp')!=='off')
- useEffect(()=>{const toggle=()=>setLamp(v=>{localStorage.setItem('mll-study-lamp',v?'off':'on');return !v});window.addEventListener('study-lamp-toggle',toggle);return()=>window.removeEventListener('study-lamp-toggle',toggle)},[])
+ const [lamp,setLamp]=useState(()=>recordStorage.getItem('mll-study-lamp')!=='off')
+ useEffect(()=>{const refresh=()=>setLamp(recordStorage.getItem('mll-study-lamp')!=='off');window.addEventListener('library-records-updated',refresh);return()=>window.removeEventListener('library-records-updated',refresh)},[])
+ useEffect(()=>{const toggle=()=>setLamp(v=>{recordStorage.setItem('mll-study-lamp',v?'off':'on');return !v});window.addEventListener('study-lamp-toggle',toggle);return()=>window.removeEventListener('study-lamp-toggle',toggle)},[])
  const finishes=useMemo(()=>Object.fromEntries(['walnut','leather','velvet','brass'].map(k=>[k,makeStudyFinish(k)])),[])
  useEffect(()=>()=>disposeStudyFinishes(finishes),[finishes])
  const textures=useMemo(()=>({wall:studyTexture('wall'),floor:studyTexture('floor')}),[])
@@ -70,7 +72,7 @@ function StudyInterior({open,prepare,door,time,weather,event,onNotes,onMusic}){
    <B finish={finishes.leather} p={[0,1.032,.06]} s={[1.6,.016,1.05]} c="#294f3e"/>
    <group userData={{noBatch:true}} onClick={activate(onNotes)}><B p={[-.12,1.06,.23]} s={[.55,.04,.38]} c="#e0d1ad"/><B p={[-.12,1.085,.23]} s={[.012,.005,.36]} c="#8c6c4c"/></group>
    <Quill p={[.62,1.035,-.03]}/><Folios tidy p={[1.13,1.035,-.08]}/>
-   <group userData={{noBatch:true}} position={[-.95,1.04,-.1]} onClick={activate(()=>{setLamp(v=>{localStorage.setItem('mll-study-lamp',v?'off':'on');return !v})})}>
+   <group userData={{noBatch:true}} position={[-.95,1.04,-.1]} onClick={activate(()=>{setLamp(v=>{recordStorage.setItem('mll-study-lamp',v?'off':'on');return !v})})}>
     <B finish={finishes.brass} p={[0,.025,0]} s={[.39,.05,.27]} c="#a2874f" metal={.6}/><B p={[0,.28,0]} s={[.035,.50,.035]} c="#b29454" metal={.7}/>
     <mesh position={[0,.55,0]} rotation={[0,0,Math.PI/2]}><cylinderGeometry args={[.16,.16,.50,24,1,true,0,Math.PI]}/><meshStandardMaterial side={THREE.DoubleSide} color="#29533b" emissive="#6caa73" emissiveIntensity={lamp?.22:0}/></mesh>
     {lamp&&<pointLight position={[0,.42,.12]} intensity={4.5} distance={3.5} color="#ffe0a9"/>}

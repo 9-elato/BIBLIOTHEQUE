@@ -18,3 +18,8 @@ test('membership tolerates unavailable storage and removes duplicate visit dates
  assert.deepEqual(readMembership({getItem(){throw Error('denied')}}),{visits:[]})
  assert.deepEqual(readMembership({getItem:()=>JSON.stringify({visits:['2026-11-26','2026-11-26',null,'bad']})}),{visits:['2026-11-26']})
 })
+test('welcome gift preference survives subsequent visits and reload',()=>{
+ const saved=stampVisit({visits:[],giftChoice:'bookmark'},new Date('2026-11-26T12:00:00Z'))
+ assert.equal(saved.giftChoice,'bookmark')
+ assert.equal(readMembership({getItem:()=>JSON.stringify(saved)}).giftChoice,'bookmark')
+})
