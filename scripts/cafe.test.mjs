@@ -109,3 +109,10 @@ test('genre displays retain selected books when categories exceed four',()=>{
  assert.equal(groups.length,4);assert.equal(groups.flatMap(g=>g.books).length,6)
  assert.equal(cafeDisplays([]).length,4)
 })
+
+test('two avatars can pass side by side between the cafe sofa returns',()=>{
+ for(const z of [19.7,20.3]){
+ let p={x:-27,z,level:0,yaw:0}
+ for(let i=0;i<43;i++){const next=movePlayer(p,.1,0,world);assert.ok(next.x>p.x+.09);p=next}
+ }
+})

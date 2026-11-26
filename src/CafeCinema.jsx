@@ -1,4 +1,5 @@
-import React,{useMemo,useEffect} from 'react'
+import {CafeSignContext} from './cafeSignContext'
+import React,{useMemo,useEffect,useContext} from 'react'
 import * as THREE from 'three'
 import StaticBatch from './StaticBatch'
 import {Box as B} from './GroundFloor'
@@ -9,6 +10,7 @@ function ComingSoon({position}){
  return <mesh position={position} rotation={[0,Math.PI/2,0]}><planeGeometry args={[1.15,1.65]}/><meshBasicMaterial map={texture}/></mesh>
 }
 export default function CafeCinema({config}){
+ const openSign=useContext(CafeSignContext)
  const stars=useMemo(()=>new Float32Array(Array.from({length:100},(_,i)=>[-29+((i*73)%127)/127*12,6.88,24.9+((i*37)%113)/113*5.3]).flat()),[])
  const posters=[config.filmPoster,...(Array.isArray(config.posterGallery)?config.posterGallery:[]),config.eventPoster].filter(Boolean).slice(0,6)
  return <group>
@@ -37,6 +39,6 @@ export default function CafeCinema({config}){
  </StaticBatch>
  <points frustumCulled={false}><bufferGeometry><bufferAttribute attach="attributes-position" args={[stars,3]}/></bufferGeometry><pointsMaterial color="#ffe1ab" size={.045} sizeAttenuation transparent opacity={.8} depthWrite={false}/></points>
  {Array.from({length:6-posters.length},(_,n)=>{const i=posters.length+n;return <ComingSoon key={i} position={[-29.68,1.8+Math.floor(i/3)*2.05,25.6+(i%3)*1.9]}/>})}
- {posters.map((url,i)=><BookCoverMesh key={i} url={url} position={[-29.68,1.8+Math.floor(i/3)*2.05,25.6+(i%3)*1.9]} rotation={[0,Math.PI/2,0]} size={[1.15,1.65]}/>)}
+ {posters.map((url,i)=><group key={i} onClick={e=>{e.stopPropagation();openSign?.({type:'cafe-sign',text:i===0?config.filmTitle:'POSTER GALLERY',image:url})}}><BookCoverMesh url={url} position={[-29.68,1.8+Math.floor(i/3)*2.05,25.6+(i%3)*1.9]} rotation={[0,Math.PI/2,0]} size={[1.15,1.65]}/></group>)}
  </group>
 }

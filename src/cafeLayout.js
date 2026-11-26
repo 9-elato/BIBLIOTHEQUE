@@ -2,8 +2,8 @@ export const CAFE_BOUNDS=[-34,-16,15,31]
 export const CAFE_SEATS=[[-32,20],[-32,23],[-28,27],[-25,27],[-22,27],[-24,18.2],[-24,21.8],[-21.4,19.4]]
 export const CAFE_SEAT_TURNS=[Math.PI/2,Math.PI/2,Math.PI,Math.PI,Math.PI,0,Math.PI,Math.PI]
 export const CAFE_NOOKS=[
- {id:'north-return',p:[-25.05,.46,18.65],s:[.9,.34,1.85],c:'#d6c7b0'},
- {id:'south-return',p:[-25.05,.46,21.35],s:[.9,.34,1.85],c:'#d6c7b0'},
+ {id:'north-return',p:[-25.05,.46,18.45],s:[.9,.34,1.25],c:'#d6c7b0'},
+ {id:'south-return',p:[-25.05,.46,21.55],s:[.9,.34,1.25],c:'#d6c7b0'},
  {id:'north-screen',p:[-24.5,.82,17.51],s:[2.9,1.64,.12],c:'#87735c'},
  {id:'south-screen',p:[-24.5,.82,22.49],s:[2.9,1.64,.12],c:'#87735c'},
  {id:'hearth',p:[-21.4,.65,17.2],s:[1.35,1.3,.7],c:'#6a6358'},
@@ -13,6 +13,7 @@ export const CAFE_NOOKS=[
 ]
 export const CAFE_DISPLAY_Z=[17.5,19.4,21.3,23.2]
 export const CAFE_SOLIDS=[
+ {id:'goods-zone-divider',rect:[-25.06,-24.94,15.38,16.38]},
  ...CAFE_DISPLAY_Z.map(z=>({id:`cafe-genre-${z}`,rect:[-29.75,-28.25,z-.35,z+.35]})),
  {id:'cafe-wing-divider',rect:[-34,-30,24,24.47]},
  {id:'cafe-mailbox',rect:[-18.225,-17.375,23.725,23.975]},

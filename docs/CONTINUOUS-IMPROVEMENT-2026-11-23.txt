@@ -331,3 +331,10 @@
 - 기존 독립 큐레이션 책장/굿즈 선반 유지. 확장공간에 분야별 진열대4개 추가.
 - 선택한 큐레이션 도서의 실제 category로 그룹화. 4개 초과 분야는 다양한분야로 묶으며 패널목록은 누락없이 표시.
 - 테스트269개 및 빌드 통과. Computer Use/실제 화면검수/공개배포 없음.
+
+[2026-11-26] Cafe readable signs, shop window notices and clear aisle
+- Hours plaque reduced from1x1.4 to0.78x0.43, compact typography. Signs open a large-text reader; posters open full-size images.
+- Menu board opens menu tab directly; keyboard/click expands individual cards. Mailbox and invitation retain their own actions.
+- Shop window displays selected books, next-film poster, WANTED reading-club notice and10/31 Halloween ghost-collective birthday party announcement.
+- Goods zone marked by a dedicated rug and low partition. Sofa returns shortened to maintain1.85 clear gap; two parallel avatar paths verified.
+- 270 tests and production build passed. No Computer Use, visual runtime inspection or public deployment.
