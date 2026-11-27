@@ -1,0 +1,14 @@
+.goods-collection{max-width:860px;margin:auto;color:#292824}
+.goods-collection .goods-detail{padding:clamp(12px,3vw,28px);background:#f5f0e6;border:1px solid #d6cab5}
+.goods-collection .goods-detail h3{font-size:clamp(19px,3vw,26px);outline-offset:4px}
+.goods-tools{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:14px 0}
+.goods-tools button{min-height:44px;min-width:44px;background:#fcf8ef;border:1px solid #b7a88d;border-radius:6px;color:#292824}
+.goods-tools output{min-width:48px;text-align:center;font-variant-numeric:tabular-nums}
+.goods-viewport{max-height:62dvh;overflow:auto;overscroll-behavior:contain;border:1px solid #ded3c1;background:#faf6ed;touch-action:pan-x pan-y}
+.goods-viewport>div{min-width:100%}
+.goods-collection .goods-detail .goods-viewport svg{max-width:none;width:100%;height:auto;margin:0}
+.goods-collection .goods-grid{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.goods-collection .goods-grid svg{height:auto;aspect-ratio:320/300}
+.goods-collection .goods-grid button:hover{border-color:#75674f;background:#efe7d8}
+.goods-collection button:focus-visible{outline:3px solid #8e7853;outline-offset:3px}
+.goods-note{font-size:12px;color:#766c5d}

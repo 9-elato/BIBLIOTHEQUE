@@ -1,6 +1,9 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {movePlayer,walkHeight,PLAYER_RADIUS} from '../src/navigation.js'
+import {movePlayer as moveWorld,walkHeight as heightWorld,PLAYER_RADIUS} from '../src/navigation.js'
+import {cafeX,cafeZ,cafeLocal} from '../src/cafeExpansion.js'
+const walkHeight=(x,z,y,w)=>heightWorld(cafeX(x),cafeZ(z),y,w)
+const movePlayer=(p,dx,dz,w)=>{const q=moveWorld({...p,x:cafeX(p.x),z:cafeZ(p.z)},dx*2.2,dz*2.2,w);const [x,z]=cafeLocal(q.x,q.z);return {...q,x,z}}
 const world={end:45,gateReady:true,entranceOpen:true}
 
 test('cafe entrance keeps the whole avatar clear of both door jambs',()=>{

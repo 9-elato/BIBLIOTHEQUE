@@ -70,7 +70,7 @@ export default function WorldMap({floor,onFloor,zone,onTravel,onClose,stackLayou
  const plan=floors(stackLayout.end)[floor]
  const [left,right,north,south]=plan.bounds
  const stops=[...new Map([...plan.rooms.filter(room=>room.id).map(({id,name})=>[id,name]),...plan.links])]
- const currentRoom=r=>zone===r.name||(r.id==='estate'&&zone==='저택 정원')||(r.name==='개인 작업실'&&zone==='개인 작업실')
+ const currentRoom=r=>(r.id==='cafe'&&zone.startsWith('BOOk'))||zone===r.name||(r.id==='estate'&&zone==='저택 정원')||(r.name==='개인 작업실'&&zone==='개인 작업실')
  const destination=room=>room.id||(room.name==='개인 작업실'?'corridor':null)
  return <section className="world-map floating detailed-map" aria-label="저택 층별 지도">
   <div className="world-map-head"><strong>저택 안내도</strong><button onClick={onClose} aria-label="지도 닫기">×</button></div>
@@ -102,7 +102,7 @@ export default function WorldMap({floor,onFloor,zone,onTravel,onClose,stackLayou
     {floor===1&&[FOUNTAIN,POND].map(({x,z,radius})=><circle className="plan-water" key={x} cx={x} cy={z} r={radius}/>)}
     {floor===3&&<Rect className="plan-water" rect={[SPRING_POOL.x-SPRING_POOL.rx,SPRING_POOL.x+SPRING_POOL.rx,SPRING_POOL.z-SPRING_POOL.rz,SPRING_POOL.z+SPRING_POOL.rz]} rx={.15}/>}
     <g style={{'--plan-arrow':`url(#${pattern}up)`}}>
-     {(plan.stairs||(floor===3?STAIRS.filter(s=>s.id==='basement'):floor===2?STAIRS.filter(s=>s.id==='attic'):floor===0?STAIRS.filter(s=>s.id!=='attic'):STAIRS.filter(s=>s.id!=='basement'))).map(stair=><StairTreads key={stair.id} stair={stair}/>)}
+     {(plan.stairs||(floor===3?STAIRS.filter(s=>s.id!=='cafe'&&s.id==='basement'):floor===2?STAIRS.filter(s=>s.id!=='cafe'&&s.id==='attic'):floor===0?STAIRS.filter(s=>s.id!=='cafe'&&s.id!=='attic'):STAIRS.filter(s=>s.id!=='cafe'&&s.id!=='basement'))).map(stair=><StairTreads key={stair.id} stair={stair}/>)}
     </g>
     {plan.rooms.map(r=>r.label&&<text key={r.name} x={r.label[0]} y={r.label[1]} textAnchor="middle" className={currentRoom(r)?'plan-label current':'plan-label'} style={{fontSize:floor===0?(r.name==='북쪽 복도'||r.name==='현관'?'2.15px':'2.55px'):floor===1?'.92px':'.63px'}}>{r.name==='북쪽 복도'?<><tspan x={r.label[0]}>북쪽</tspan><tspan x={r.label[0]} dy="2.6">복도</tspan></>:r.name}</text>)}
     <text x={right-(right-left)*.065} y={north+(south-north)*.085} className="plan-label" style={{fontSize:(right-left)*.028}}>↑ N</text>

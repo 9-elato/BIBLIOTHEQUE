@@ -1,8 +1,11 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {isScreeningDate,screeningDates,validCafeTime} from '../src/cafeData.js'
-import {movePlayer,walkHeight} from '../src/navigation.js'
+import {movePlayer as moveWorld,walkHeight as heightWorld} from '../src/navigation.js'
 import {zoneAt} from '../src/layout.js'
+import {cafeX,cafeZ,cafeLocal,cinemaCurtain} from '../src/cafeExpansion.js'
+const walkHeight=(x,z,y,w)=>heightWorld(cafeX(x),cafeZ(z),y,w)
+const movePlayer=(p,dx,dz,w)=>{const q=moveWorld({...p,x:cafeX(p.x),z:cafeZ(p.z)},dx*2.2,dz*2.2,w);const [x,z]=cafeLocal(q.x,q.z);return {...q,x,z}}
 const world={end:45,gateReady:true,entranceOpen:true}
 test('Thursday screening uses the whole date divisible by three',()=>{
  assert.ok(isScreeningDate(2026,11,12));assert.equal(isScreeningDate(2026,11,19),false);assert.equal(isScreeningDate(2026,11,15),false)
@@ -16,13 +19,13 @@ test('garden connects to cafe and cinema via clear door and aisle',()=>{
  for(const [x,z] of [[-18,22.25],[-20.8,22.25],[-20.8,25.5],[-25,25.5]]){
   p=movePlayer(p,x-p.x,z-p.z,world);assert.ok(Math.hypot(p.x-x,p.z-z)<.03,JSON.stringify(p))
  }
- assert.equal(zoneAt(p.x,p.z,45),'북카페 미니 극장')
+ assert.equal(zoneAt(cafeX(p.x),cafeZ(p.z),45),'북카페')
  assert.equal(walkHeight(-34,20,0,world),null);assert.equal(walkHeight(-18,18,0,world),null)
 })
 
 test('cafe overhanging counter and cinema screen block the avatar while the doorway stays open',()=>{
  assert.equal(walkHeight(-19.4,18,0,world),null)
- assert.equal(walkHeight(-26,24.62,0,world),null)
+ assert.equal(walkHeight(-26,24.62,0,world),0)
  assert.equal(walkHeight(-16,22.25,0,world),0)
  let p={x:-20.8,z:25.5,level:0,yaw:0}
  for(const [x,z] of [[-20.8,22.25],[-11,22.25]]){p=movePlayer(p,x-p.x,z-p.z,world);assert.ok(Math.hypot(p.x-x,p.z-z)<.03)}
@@ -43,12 +46,12 @@ test('poster defaults preserve bookkeeper choices and reject unsafe image source
  await assert.rejects(importPoster({type:'image/jpeg',size:11*1024*1024}))
 })
 test('cinema partition blocks both wings but retains the dedicated doorway',()=>{
- assert.equal(walkHeight(-18,24.2,0,world),null)
- assert.equal(walkHeight(-26,24.2,0,world),null)
- assert.equal(walkHeight(-20.8,24.2,0,world),0)
+ assert.equal(walkHeight(-18,38.85,0,world),null)
+ assert.equal(walkHeight(-26,38.85,0,world),null)
+ assert.equal(walkHeight(-23,38.85,0,world),null)
 })
 
-import {interactionAt} from '../src/interactions.js'
+import {interactionAt as interactionWorld} from '../src/interactions.js'
 test('invited guests can open the entrance pamphlet without blocking the entrance',()=>{
  const guest={x:-18.2,z:22.25,level:0,yaw:0}
  assert.equal(walkHeight(guest.x,guest.z,0,world),0)
@@ -57,6 +60,8 @@ test('invited guests can open the entrance pamphlet without blocking the entranc
  const seated=interactionAt({...guest,seated:{phase:'seated'}},{world})
  assert.equal(seated.type,'stand')
 })
+
+const interactionAt=(p,w)=>interactionWorld({...p,x:cafeX(p.x),z:cafeZ(p.z)},w)
 
 import {cafeIdentity,CAFE_IDENTITY,DEFAULT_CAFE} from '../src/cafeData.js'
 test('ghost collective concept preserves custom content and migrates goods once',()=>{
@@ -76,8 +81,8 @@ test('illustrated menu preserves edited prices and uses neutral artwork for cust
  assert.equal(menuItems('').length,0)
 })
 test('cinema snack console blocks its cabinet but preserves the viewing aisle',()=>{
- assert.equal(walkHeight(-26,30.2,0,world),null)
- assert.equal(walkHeight(-26,29.3,0,world),0)
+ assert.equal(walkHeight(-28,33.5,0,world),null)
+ assert.equal(walkHeight(-28,35,0,world),0)
 })
 
 test('slow mailbox opens from its approach without capturing seated interactions',()=>{
@@ -101,7 +106,7 @@ test('expanded cafe wing is walkable but displays and outer wall remain solid',(
  assert.equal(walkHeight(-30.7,20,0,world),0)
  assert.equal(walkHeight(-29,19.4,0,world),null)
  assert.equal(walkHeight(-34,20,0,world),null)
- assert.equal(walkHeight(-32,26,0,world),null)
+ assert.equal(walkHeight(-32,26,0,world),0)
 })
 test('genre displays retain selected books when categories exceed four',()=>{
  const books=Array.from({length:6},(_,i)=>({id:String(i),category:'분야'+i}))

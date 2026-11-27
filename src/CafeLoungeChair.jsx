@@ -1,5 +1,7 @@
 import React,{useMemo,useEffect} from 'react'
 import * as THREE from 'three'
+import {upholstery} from './cafeUpholstery'
+import {SoftPad} from './CafeSoftSeat'
 
 // A continuous horseshoe back encloses a deep oval seat, on a dark swivel plinth.
 export default function CafeLoungeChair(){
@@ -11,9 +13,9 @@ export default function CafeLoungeChair(){
  },[]);useEffect(()=>()=>back.dispose(),[back])
  return <group>
   <mesh position={[0,.17,0]}><cylinderGeometry args={[.38,.43,.30,24]}/><meshStandardMaterial color="#282725" roughness={.72}/></mesh>
-  <mesh position={[0,.45,0]} scale={[.64,.19,.52]}><sphereGeometry args={[1,24,16]}/><meshPhysicalMaterial color="#e0d4bf" roughness={.95} sheen={1} sheenColor="#f2e8d5"/></mesh>
-  <mesh geometry={back}><meshPhysicalMaterial color="#d5c7ae" roughness={.94} sheen={1} sheenColor="#f2e8d5"/></mesh>
-  <mesh position={[0,.93,.27]} scale={[.34,.24,.12]} rotation={[-.12,0,0]}><sphereGeometry args={[1,20,12]}/><meshStandardMaterial color="#eee5d3" roughness={1}/></mesh>
+  <SoftPad p={[0,.45,0]} s={[1.16,.38,.96]} c="#e8dfcf" seam/>
+  <mesh geometry={back}><primitive object={upholstery('#ded3c0')} attach="material" dispose={null}/></mesh>
+  <mesh position={[0,.93,.27]} scale={[.34,.24,.12]} rotation={[-.12,0,0]}><sphereGeometry args={[1,20,12]}/><primitive object={upholstery('#f1e9da')} attach="material" dispose={null}/></mesh>
  </group>
 }
 export function CafeSideTable({p,s}){

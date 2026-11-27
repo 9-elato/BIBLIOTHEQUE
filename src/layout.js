@@ -112,7 +112,7 @@ export function canWalk(x,z,{end,gateReady,entranceOpen,verandaDoor}) {
 }
 
 export function zoneAt(x,z,end) {
-  if(inCafe(x,z))return z>24.3?'북카페 미니 극장':'북카페'
+  if(inCafe(x,z))return '북카페'
   if(inEastMeadow(x,z,end)||(end&&x>end+12&&x<Math.max(120,end+45)&&z>-34&&z<4))return '동쪽 잔디 들판'
   if (z > 32) return '잔디 동산'
   if (z > 12.2) return '저택 정원'

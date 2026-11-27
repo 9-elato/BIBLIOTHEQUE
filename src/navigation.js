@@ -1,6 +1,7 @@
+import {CAFE_STAIR,cinemaCurtainBlocks,cinemaFloor,cinemaInside,privateInside,cinemaSolids} from './cafeExpansion.js'
 import {READING_LOUNGE_SOLIDS} from './readingLoungeLayout.js'
 import {GALLERY_RAIL_SOLIDS} from './upperArchitecture.js'
-import {CAFE_SOLIDS} from './cafeLayout.js'
+import {CAFE_SOLIDS,inCafe} from './cafeLayout.js'
 import {MEADOW_STAIRS} from './eastMeadowLayout.js'
 import {inMeadow,meadowHeight} from './meadowLayout.js'
 import {TERRACE_FURNITURE} from './terraceFurniture.js'
@@ -19,7 +20,7 @@ export const ATTIC_HEIGHT=10.6
 export const ATTIC_ORIGIN=[-15.6,ATTIC_HEIGHT,0]
 export const PLAYER_RADIUS=.23
 export const STAIRS=[
- BASEMENT_STAIR,MEADOW_STAIRS,
+ BASEMENT_STAIR,MEADOW_STAIRS,CAFE_STAIR,
   {id:'main',from:[-6.35,0,5.25],to:[-6.35,GALLERY_HEIGHT,-4.85],width:1.9,steps:36},
   {id:'attic',from:[-7.2,GALLERY_HEIGHT,5.65],to:[-11.45,ATTIC_HEIGHT,5.65],width:1.7,steps:18},
 ]
@@ -39,6 +40,7 @@ const upperRegions=[...GREENHOUSE_REGIONS,[-7.6,-5.3,-6.7,-4.85],[-7.6,-5.3,5.25
   [5.3,7.6,-6.7,6.7],[-7.6,7.6,-6.7,-4.45],[-7.6,7.6,4.9,6.7],[7.3,15,-4.85,4.85]]
 // Bounds match the actual furniture footprints. Each box has its floor's height.
 export const FURNITURE=[
+ ...cinemaSolids,
  ...GALLERY_RAIL_SOLIDS.map(s=>({...s,floor:GALLERY_HEIGHT})),
  ...CAFE_SOLIDS.map(s=>({...s,floor:0})),
  ...BASEMENT_SOLIDS.map(s=>({...s,floor:BASEMENT_HEIGHT})),
@@ -98,6 +100,7 @@ function supported(regions,x,z){
 }
 
 export function walkHeight(x,z,previousY,world){
+ if(Math.abs(previousY)<.18&&cinemaCurtainBlocks(x,z))return null
   if(Math.abs(previousY-GALLERY_HEIGHT)<.18&&(gardenWaterBlocks(x,z)||glassDoorBlocks(x,z,world.glassDoor)||(Math.abs(z+6.95)<.29&&Math.abs(x)>1.16)))return null
   if(Math.abs(previousY)<.18&&studyDoorBlocks(x,z,world.studyDoor))return null
   if(Math.abs(previousY)<.18&&world.entranceDoor&&entranceDoorBlocks(x,z,world.entranceDoor))return null
@@ -115,10 +118,10 @@ export function walkHeight(x,z,previousY,world){
     }
   }
   if(!onStair){
-    if(canWalk(x,z,world))candidates.push(inMeadow(x,z)?meadowHeight(x,z):0)
+    if(canWalk(x,z,world))candidates.push(!inCafe(x,z)&&!cinemaInside(x,z)&&inMeadow(x,z)?meadowHeight(x,z):0)
     if(supported(basementRegions,x,z))candidates.push(BASEMENT_HEIGHT)
     const {to,width}=MEADOW_STAIRS
-    if(supported(upperRegions,x,z)||(x>=to[0]-PLAYER_RADIUS&&x<=to[0]&&Math.abs(z-to[2])<=width/2-PLAYER_RADIUS))candidates.push(GALLERY_HEIGHT)
+    if(cinemaFloor(x,z)||supported(upperRegions,x,z)||(x>=to[0]-PLAYER_RADIUS&&x<=to[0]&&Math.abs(z-to[2])<=width/2-PLAYER_RADIUS))candidates.push(GALLERY_HEIGHT)
     // Doorway is open only at the top landing of the attic stair.
     if(supported(atticRegions,x,z)||inRect(x,z,atticLanding))candidates.push(ATTIC_HEIGHT)
   }
@@ -164,6 +167,8 @@ export function movePlayer(position,dx,dz,world,scratch){
   return next
 }
 export function floorName(x,z,y){
+ if(cinemaInside(x,z)&&Math.abs(y)<.18)return 'BOOk 안쪽 영화관'
+ if(privateInside(x,z)){if(Math.abs(y-7.2)<.18)return 'BOOk 2층 프라이빗 라운지';if(y>.18&&y<7.02)return 'BOOk 2층 계단';if(Math.abs(y)<.18)return 'BOOk 북카페'}
   if(x>8.4&&Math.abs(z-MEADOW_STAIRS.from[2])<1&&y>.12&&y<GALLERY_HEIGHT-.12)return '온실 계단'
   if(y<-.12&&y>BASEMENT_HEIGHT+.12)return '지하 계단'
   if(y<=BASEMENT_HEIGHT+.12)return x>17.8||z>6.5?'숲 온천':'지하 숲 라운지'

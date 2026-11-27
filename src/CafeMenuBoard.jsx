@@ -19,7 +19,7 @@ function Card({item,image,position,size}){
 export default function CafeMenuBoard({menu,onOpen}){
  const [image,setImage]=useState(null);useEffect(()=>{let live=true;const img=new Image();img.onload=()=>{if(live)setImage(img)};img.src=artUrl;return()=>{live=false;img.onload=null}},[])
  const items=menuItems(menu).slice(0,12),rows=Math.max(1,Math.ceil(items.length/4)),height=2.68/rows;
- return <group onClick={e=>{e.stopPropagation();onOpen('cafe-menu')}} position={[-18.93,4.5,18.3]} rotation={[0,-Math.PI/2,0]}>
+ return <group onClick={e=>{e.stopPropagation();onOpen('cafe-menu')}} position={[-18.93,3.45,18.3]} scale={[.42,.65,.42]} rotation={[0,-Math.PI/2,0]}>
  {items.map((item,i)=><Card key={i} item={item} image={image} position={[-1.35+(i%4)*.9,-height*(Math.floor(i/4)+.5),.015]} size={[.83,height-.12]}/>)}
  {Array.from({length:rows},(_,i)=><B key={i} p={[0,-height*(i+1),.06]} s={[3.7,.055,.18]} c="#b2a48a"/>)}
  </group>

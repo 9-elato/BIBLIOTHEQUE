@@ -7,3 +7,8 @@ export const CAFE_GOODS_DETAILS={
  '달력':'책상 위에 세우는 유령단 월간 달력.',
  '큐앤에이다이어리':'하루의 질문과 답을 나란히 기록하는 Q&A 다이어리.'
 }
+export function goodsKind(name=''){
+ for(const [pattern,kind] of [[/티백/,'tea'],[/과일/,'fruit'],[/에코백/,'bag'],[/실내화|슬리퍼/,'slippers'],[/마그넷/,'magnet'],[/키링/,'keyring'],[/조각상/,'statue'],[/인형/,'doll'],[/달력/,'calendar'],[/포스트잇/,'sticky'],[/책갈피/,'bookmark'],[/북커버/,'cover'],[/다이어리/,'diary']])if(pattern.test(name))return kind
+ return 'notebook'
+}
+export function goodsNames(value=''){return [...new Set(value.split('\n').map(v=>v.trim()).filter(Boolean))]}

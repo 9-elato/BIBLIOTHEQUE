@@ -1,3 +1,6 @@
+import {recordStorage} from './recordStorage.js'
+import {RESERVATION_KEY,hasRoomReservation} from './cafeReservations.js'
+import {cafeX,cafeZ,cinemaCurtain} from './cafeExpansion.js'
 import {inCafe as isCafe} from './cafeLayout.js'
 import {meadowRest} from './meadowLayout.js'
 import {canToggleStudyDoor} from './studyLayout.js'
@@ -16,7 +19,9 @@ export function interactionAt(s, {entranceOpen, gateReady, gateOpening=false, bo
     if(s.seated.transitionBlocked)return {type:'wait',label:'이동 공간이 막혀 잠시 멈췄습니다 · 공간이 비면 이어집니다'}
     return s.seated.phase&&s.seated.phase!=='seated'?null:{type:'stand',label:s.seated.exitBlocked?'하차 공간이 막혀 있습니다 · 공간을 비운 뒤 다시 시도':s.seated.seat?.bathing?'온천에서 천천히 나오기':heldBook?'책을 들고 일어나기':'일어나기'}
   }
-  if(s.level===0&&near(-17.8,23.6,1.35))return {type:'cafeMail',label:'1년 뒤의 나에게 편지 보내기'}
+  if(s.level===0&&near(cafeX(-17.8),cafeZ(23.6),2))return {type:'cafeMail',label:'1년 뒤의 나에게 편지 보내기'}
+  if(Math.abs(s.level)<.1&&near(cafeX(-28),cafeZ(35),3))return {type:'cinemaLobby',label:'슬리퍼·담요·관람 간식 준비'}
+  if(Math.abs(s.level)<.1&&!cinemaCurtain.open&&near(cafeX(-23),cafeZ(38.3),3))return {type:'cinemaCurtain',label:'영화관 커튼 열기'}
   // Resolve cafe seating once: the reachability query includes floor collision checks.
   const inCafe=s.level===0&&isCafe(s.x,s.z)
   const prepared=prepareSeat?prepareNearbySitting(s,world):null
@@ -26,6 +31,7 @@ export function interactionAt(s, {entranceOpen, gateReady, gateOpening=false, bo
   const rest=meadowRest(s)
   if(rest&&Math.abs(s.level-rest.level)<.15)return {type:'seat',seat:rest,label:'잔디에 누워 하늘 보기'}
   const seat=inCafe?cafeSeat:prepareSeat?prepared?.seat:nearbySeat(s,world)
+  if(seat?.id.startsWith('cafe-private-')){let reservations=[];try{reservations=JSON.parse(recordStorage.getItem(RESERVATION_KEY)||'[]')}catch{}if(!Array.isArray(reservations)||!hasRoomReservation(reservations,seat.id))return {type:'cafePrivate',roomId:seat.id,label:'1인실 예약 수첩 열기'}}
   if(seat)return {type:'seat',seat,sitting:prepared,label:seat.bathing?'따뜻한 숲 온천에서 반신욕하기':seat.label+(heldBook?'에 앉아 읽기':'에 앉기')}
   if(Math.abs(s.level-7.2)<.1&&world?.glassDoor&&near(0,-6.95,2.65))return {type:'glassDoor',label:!canToggleGlassDoor(world.glassDoor,s)?'유리문 회전 공간을 비워주세요':world.glassDoor.open?'온실 유리문 닫기':'온실 유리문 열기'}
   if(Math.abs(s.level-7.2)<.1&&near(0,-14,2.7))return {type:'gardenWater',label:'분수 물소리 켜고 끄기'}

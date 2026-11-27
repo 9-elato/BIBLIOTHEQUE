@@ -1,3 +1,5 @@
+import CinemaKit from './CinemaKit'
+import {cinemaCurtain} from './cafeExpansion'
 import {findClickPathAsync,enteringCafe} from './clickNavigation'
 import BookCafe from './BookCafe'
 import VegetationSun from './VegetationSun'
@@ -137,6 +139,9 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
       else if(action.type==='ladder')boardLadder(s,action.ladder,(x,z)=>walkHeight(x,z,0,ui.world)===0,(a,b)=>{const p=movePlayer(a,b.x-a.x,b.z-a.z,ui.world);return Math.hypot(p.x-b.x,p.z-b.z)<.01})
       else if(action.type==='ladderExit'){s.ladder.phase='descending';s.ladder.blocked=false}
       else if(action.type==='telescope'||action.type==='board')ui.onExperience(action.type)
+      else if(action.type==='cinemaCurtain')cinemaCurtain.open=true
+      else if(action.type==='cafePrivate')ui.onExperience({type:'cafe-sign',privateBooking:true,roomId:action.roomId})
+      else if(action.type==='cinemaLobby')ui.onExperience({type:'cafe-sign',cinemaLobby:true})
       else if(action.type==='cafeMail')ui.onExperience('cafe-mail')
       else if(action.type==='cafe')ui.onExperience('cafe')
       else if(action.type==='minigame')ui.onExperience(action.game)
@@ -303,7 +308,7 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
     Object.assign(playerPosition.current,{x:s.x,z:s.z,level:s.level})
     const seatText=s.seated?`${s.seated.seat.label} · ${s.seated.transitionBlocked?'이동 공간 대기 중':s.seated.phase==='floorExit'?'안전한 경로로 나오는 중':s.seated.phase==='entering'?'앉는 중':s.seated.phase==='leaving'?'일어나는 중':s.seated.seat.bathing?'따뜻한 물에서 반신욕 중':s.seated.seat.id==='meadow-rest'?'하늘 구경 중':s.seated.posture==='lying'?'누워 읽기':heldBook?'독서 중':'휴식 중'}`:''
     if(seatText!==lastSeatStatus.current){lastSeatStatus.current=seatText;onSeatStatus?.(seatText)}
-    const zone=s.ladder?'서가':s.z>32?'잔디 동산':floorName(s.x,s.z,s.level)||zoneAt(s.x,s.z,layout.end)
+    const zone=s.ladder?'서가':floorName(s.x,s.z,s.level)||(s.z>32?'잔디 동산':zoneAt(s.x,s.z,layout.end))
     if(zone!==currentZone.current){currentZone.current=zone;onZone(zone)}
     if(!active){avatar.current.visible=false;return}
     let follow=0
@@ -346,6 +351,7 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
   })
   return <><mesh ref={destination} visible={false} rotation={[-Math.PI/2,0,0]} userData={{noCameraCollision:true}}><ringGeometry args={[.18,.24,32]}/><meshBasicMaterial color="#f4dfad" transparent opacity={.85} depthWrite={false}/></mesh><group ref={avatar} userData={{player:true}} visible={mode==='third'}>
     {blanket&&<LoungeBlanket lap pose={pose}/>}
+    <CinemaKit player={state} pose={pose} character={character}/>
     <Suspense fallback={null}><AvatarModels character={character} moving={moving} pose={pose} book={books.find(b=>b.id===heldBook) || null}/></Suspense>
   </group></>
 }

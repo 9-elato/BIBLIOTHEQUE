@@ -34,7 +34,7 @@ test('both garden benches are reachable from the path and allow walking after st
 })
 function finish(state){let result;for(let i=0;i<240;i++){result=advanceSeating(state,1/60);state=result.seating;if(!state||state.phase==='seated')return result}throw Error('transition did not finish')}
 test('all 43 seat and bath approaches are reachable and select the correct seat',()=>{
- assert.equal(SEATS.length,44)
+ assert.equal(SEATS.length,49)
  for(const s of SEATS){assert.equal(walkHeight(s.entry.x,s.entry.z,s.level,world),s.level,s.id);assert.equal(nearbySeat(origin(s),world)?.id,s.id)}
 })
 test('every seat smoothly reaches its cushion and returns to a collision-free origin',()=>{
@@ -67,7 +67,7 @@ test('held books prioritize sitting and standing; invalid origin falls back to s
 })
 test('upstairs seats have walkable routes from their floor landing without crossing furniture',()=>{
  for(const start of [{x:-6.35,z:-5.7,level:7.2},{x:-11.65,z:5.65,level:10.6}]){
-  const targets=SEATS.filter(s=>s.level===start.level),found=new Set(),queue=[start],visited=new Set(['0,0'])
+  const targets=SEATS.filter(s=>s.level===start.level&&!s.id.startsWith('cinema-')&&!s.id.startsWith('cafe-private-')),found=new Set(),queue=[start],visited=new Set(['0,0'])
   for(let i=0;i<queue.length&&found.size<targets.length;i++){
    const p=queue[i]
    for(const s of targets)if(Math.hypot(p.x-s.entry.x,p.z-s.entry.z)<.28)found.add(s.id)

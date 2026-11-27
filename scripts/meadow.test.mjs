@@ -9,7 +9,7 @@ const world={end:45,gateReady:true,entranceOpen:true}
 test('meadow shares a continuous height with the garden and supports round trips over hills',()=>{
  assert.equal(meadowHeight(0,32),0)
  let p={x:0,z:30,level:0,yaw:0}
- for(const [x,z] of [[0,50],[35,80],[-35,100],[0,33],[0,30]]){
+ for(const [x,z] of [[0,50],[35,80],[-35,100],[0,100],[0,33],[0,30]]){
  p=movePlayer(p,x-p.x,z-p.z,world);assert.ok(Math.hypot(p.x-x,p.z-z)<.01,JSON.stringify(p));assert.ok(Math.abs(p.level-meadowHeight(x,z))<.001)
  }
  assert.equal(walkHeight(49,80,meadowHeight(49,80),world),null)
