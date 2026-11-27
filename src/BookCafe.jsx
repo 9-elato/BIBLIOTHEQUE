@@ -1,3 +1,5 @@
+import SnowmanSlipper from './SnowmanSlipper'
+import CafeFinish from './CafeFinish'
 import CafePrivateFloor from './CafePrivateFloor'
 import {CAFE_SCALE} from './cafeExpansion'
 import CafeCoffeeBar from './CafeCoffeeBar'
@@ -62,7 +64,7 @@ export default function BookCafe({config,books,onOpen,time}){
  <B p={[-16,5.7,22.25]} s={[.25,2.6,2.5]} c="#d5c4a3"/>
 
  </StaticBatch>
- <CafeShopfront/><CafeDoorBell/>
+ <CafeFinish/><CafeShopfront/><CafeDoorBell/>
  <Sign text={'2F PRIVATE\n예약 전용 · 1인 공간\n← 계단으로 올라오세요'} position={[-33.84,2.1,30]} rotation={[0,Math.PI/2,0]} size={[1.2,.8]} dark compact action={{type:'cafe-sign',privateBooking:true}}/>
  <group onClick={e=>{e.stopPropagation();onOpen({type:'cafe-sign',goodsZone:true})}}><CafeGoodsDetails onSelect={goodsName=>onOpen({type:'cafe-sign',goodsName})}/></group>
  <B p={[-22.65,.015,16.65]} s={[4.4,.025,1.9]} c="#b8a68c"/>
@@ -101,10 +103,12 @@ export default function BookCafe({config,books,onOpen,time}){
  <Sign action="cafe" text={'INVITATION\n유령단의 초대장\n미니맵 · 이용 안내'} position={[-18.12,2.01,20.18]} rotation={[0,Math.PI/2,0]} size={[1.2,1.05]}/>
  <B p={[-18.2,1.75,20.18]} s={[.08,.65,.7]} c="#ac8a5d"/>
  </group>
- <B p={[-17.9,.65,18.25]} s={[2.5,1.3,4.3]} c="#252625"/>
- <B p={[-17.9,1.34,18.25]} s={[2.7,.12,4.5]} c="#d9cfbc"/>
+ <B p={[-17.25,.65,18.25]} s={[1.2,1.3,4.3]} c="#252625"/>
+ <B p={[-17.25,1.34,18.25]} s={[1.4,.12,4.5]} c="#d9cfbc"/>
 
-<CafeCoffeeBar onOpen={onOpen} menu={config.menu}/>
+<B p={[-18.3,.65,19.85]} s={[3.3,1.3,1.1]} c="#252625"/><B p={[-18.3,1.34,19.85]} s={[3.5,.12,1.3]} c="#d9cfbc"/>
+ {[18,22.6].map(z=><B key={z} p={[-27,.65,z]} s={[.12,1.3,1.8]} c="#292b29"/>)}
+ <CafeCoffeeBar onOpen={onOpen} menu={config.menu}/>
  <group onClick={click}>
  <Sign text={config.curationTitle+'\n'+(chosen.length?'선별 도서 · 클릭해서 소개 보기':'책방지기의 선정을 기다립니다')} position={[-27.5,3,15.3]} size={[4,1.3]}/>
  {[1.41,2.26].map(y=><B key={y} p={[-27.5,y,15.85]} s={[4.1,.08,.9]} c="#947149"/>)}
@@ -118,7 +122,7 @@ export default function BookCafe({config,books,onOpen,time}){
  <mesh position={[-22.4,1.75,15.85]} scale={[.23,.33,.21]}><sphereGeometry args={[1,12,8]}/><meshStandardMaterial color="#f5ecd9"/></mesh>
  {[-.08,.08].map(x=><mesh key={x} position={[-22.4+x,1.82,16.04]}><sphereGeometry args={[.027,8,6]}/><meshStandardMaterial color="#272121"/></mesh>)}
  {/* Snowman slippers, melted magnet and reading ghost on the goods shelf. */}
- {[-.18,.18].map(dx=><group key={dx} position={[-23.2+dx,1.51,15.8]}><mesh scale={[.13,.07,.24]}><sphereGeometry args={[1,12,8]}/><meshStandardMaterial color="#f1eadc"/></mesh><mesh position={[0,.08,-.05]}><sphereGeometry args={[.10,12,8]}/><meshStandardMaterial color="#eee5d4"/></mesh>{[-.035,.035].map(x=><mesh key={x} position={[x,.10,.04]}><sphereGeometry args={[.015,6,4]}/><meshBasicMaterial color="#303d39"/></mesh>)}</group>)}
+ {[-.18,.18].map(dx=><group key={dx} position={[-23.2+dx,1.42,15.85]} scale={[.28,.28,.28]}><SnowmanSlipper/></group>)}
  <mesh position={[-22.75,1.45,16.1]} scale={[.21,.025,.14]}><sphereGeometry args={[1,16,8]}/><meshStandardMaterial color="#e4dccb"/></mesh>
  <B p={[-22.4,1.65,16.09]} s={[.3,.18,.04]} c="#527366"/>
  {[-.13,.13].map(x=><mesh key={x} position={[-21.3+x,1.57,16]} rotation={[0,0,.15]}><torusGeometry args={[.12,.018,6,14]}/><meshStandardMaterial color="#8e6738" metalness={.65} roughness={.35}/></mesh>)}

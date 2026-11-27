@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {CAFE_STAIR,cafeX,cafeZ,PRIVATE_ROOMS} from '../src/cafeExpansion.js'
+import {CAFE_STAIR,cinemaZ,cafeX,cafeZ,PRIVATE_ROOMS} from '../src/cafeExpansion.js'
 import {reserveRoom,hasRoomReservation} from '../src/cafeReservations.js'
 import {SEATS} from '../src/seating.js'
 import {findClickPath} from '../src/clickNavigation.js'
@@ -11,7 +11,7 @@ test('all three private window seats connect to their own staircase',()=>{
 })
 test('cinema is reached through rear dogleg corridor, not through front sightline or exterior walls',()=>{
  assert.ok(findClickPath(p(-27,25),p(-30,32.5),world))
- assert.ok(findClickPath(p(-30,32.5),p(-23,37.5),world))
+ assert.ok(findClickPath(p(-30,32.5),p(-23,cinemaZ(37.5)),world))
  for(const [x,z] of [[-23,31],[-34,36],[-16,42],[-25,48]])assert.equal(walkHeight(cafeX(x),cafeZ(z),0,world),null)
 })
 test('personal reservation validates dates, rejects duplicate slots and expires after two hours',()=>{

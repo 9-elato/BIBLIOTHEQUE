@@ -38,7 +38,7 @@ export const SEATS=[
  SPRING_BATH,
  ...CAFE_SEATS.map(([x,z],i)=>seat(`cafe-seat-${i}`,i<2?'북카페 창가 1인 소파':i===4?'북카페 벽난로 좌식':'북카페 프라이빗 소파',x,z,CAFE_SEAT_TURNS[i],0,i===4?.25:.63,0,.1*CAFE_SCALE,(i===4?.75:1.2)*CAFE_SCALE)),
  ...PRIVATE_ROOMS.map(r=>seat(r.id,r.name,cafeX(r.x),cafeZ(r.z),Math.PI,7.2,.63,0,0,2.1)),
- ...CINEMA_CHAIRS.map((p,i)=>({...seat(`cinema-recliner-${i}`,'극장 리클라이너 '+(i+1),p.x,p.z,0,0,.65,0,0,1.7),recliner:true})),
+ ...CINEMA_CHAIRS.map((p,i)=>({...seat(`cinema-recliner-${i}`,'극장 리클라이너 '+(i+1),p.x,p.z,0,p.level,.65,0,0,1.7),recliner:true})),
 ]
 const bed=SEATS.find(s=>s.id==='attic-daybed')
 bed.anchor.x=atticX(bed.anchor.x);bed.entry.x=atticX(bed.entry.x)
@@ -135,7 +135,7 @@ function sampleSeating(sitting,dt){
   const progress=next.phase==='seated'?1:smooth(bedExit?Math.max(0,(t-.45)/.55):t)
   const routeAmount=next.phase==='leaving'?1-progress:progress
   const {seat:s,origin:o}=next
-  next.recline=(sitting.recline||0)+((next.phase!=='leaving'?(s.recliner?.28:next.posture==='lying'?Math.PI/2:0):0)-(sitting.recline||0))*(1-Math.exp(-5*Math.max(0,Math.min(dt,.1))))
+  next.recline=(sitting.recline||0)+((next.phase!=='leaving'?(s.recliner?(next.posture==='reclined'?.42:0):next.posture==='lying'?Math.PI/2:0):0)-(sitting.recline||0))*(1-Math.exp(-5*Math.max(0,Math.min(dt,.1))))
   if(bedExit)next.recline=(next.exitRecline||0)*(1-smooth(Math.min(1,t/.45)))
   const lie=next.recline/(Math.PI/2)
   // Follow the clear floor connector before moving onto the owning cushion.

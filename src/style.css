@@ -217,3 +217,15 @@ canvas { touch-action:none; }
 .map-canvas{user-select:none;-webkit-user-select:none;width:100%;height:clamp(150px,45dvh,475px);overflow:auto;touch-action:pan-x pan-y;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 .map-canvas .floor-drawing.story-map{display:block;min-width:0;max-width:none;max-height:none;margin:0;border:0;border-radius:0}
 @media(max-width:700px){.detailed-map{max-height:calc(100dvh - 76px)}.map-zoom-tools{gap:5px}.map-canvas{height:clamp(150px,43dvh,420px)}}
+
+/* Action controls occupy the right edge, leaving the avatar and left joystick clear. */
+.cinema-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;max-width:330px}
+.cinema-actions button{min-height:44px;margin:0;display:flex;align-items:center;gap:6px}
+.cinema-actions button:disabled{opacity:.45;cursor:default}
+.cinema-actions small{width:100%;font-size:11px;color:#d9ccb5}
+@media(max-width:700px){
+ .interaction-hint{left:auto;right:max(12px,env(safe-area-inset-right));bottom:max(100px,calc(env(safe-area-inset-bottom) + 86px));transform:none;max-width:150px;min-height:48px;white-space:normal}
+ .seat-status{left:auto;right:max(10px,env(safe-area-inset-right));bottom:max(164px,calc(env(safe-area-inset-bottom) + 150px));transform:none;width:142px;max-width:35vw;padding:9px;font-size:11px;max-height:45dvh;overflow:auto;text-align:left}
+ .seat-status span{display:block;margin:4px 0}.seat-status button{min-height:44px;margin:4px 0;width:100%;padding:6px}
+ .cinema-actions{display:flex;flex-direction:column}.cinema-actions small{font-size:10px}
+}

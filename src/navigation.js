@@ -1,4 +1,4 @@
-import {CAFE_STAIR,cinemaCurtainBlocks,cinemaFloor,cinemaInside,privateInside,cinemaSolids} from './cafeExpansion.js'
+import {CAFE_STAIR,cinemaGround,cinemaCurtainBlocks,cinemaFloor,cinemaInside,privateInside,cinemaSolids} from './cafeExpansion.js'
 import {READING_LOUNGE_SOLIDS} from './readingLoungeLayout.js'
 import {GALLERY_RAIL_SOLIDS} from './upperArchitecture.js'
 import {CAFE_SOLIDS,inCafe} from './cafeLayout.js'
@@ -118,7 +118,7 @@ export function walkHeight(x,z,previousY,world){
     }
   }
   if(!onStair){
-    if(canWalk(x,z,world))candidates.push(!inCafe(x,z)&&!cinemaInside(x,z)&&inMeadow(x,z)?meadowHeight(x,z):0)
+    if(canWalk(x,z,world))candidates.push(cinemaInside(x,z)?cinemaGround(x,z):!inCafe(x,z)&&!cinemaInside(x,z)&&inMeadow(x,z)?meadowHeight(x,z):0)
     if(supported(basementRegions,x,z))candidates.push(BASEMENT_HEIGHT)
     const {to,width}=MEADOW_STAIRS
     if(cinemaFloor(x,z)||supported(upperRegions,x,z)||(x>=to[0]-PLAYER_RADIUS&&x<=to[0]&&Math.abs(z-to[2])<=width/2-PLAYER_RADIUS))candidates.push(GALLERY_HEIGHT)
@@ -167,7 +167,7 @@ export function movePlayer(position,dx,dz,world,scratch){
   return next
 }
 export function floorName(x,z,y){
- if(cinemaInside(x,z)&&Math.abs(y)<.18)return 'BOOk 안쪽 영화관'
+ if(cinemaInside(x,z)&&y<.6)return 'BOOk 안쪽 영화관'
  if(privateInside(x,z)){if(Math.abs(y-7.2)<.18)return 'BOOk 2층 프라이빗 라운지';if(y>.18&&y<7.02)return 'BOOk 2층 계단';if(Math.abs(y)<.18)return 'BOOk 북카페'}
   if(x>8.4&&Math.abs(z-MEADOW_STAIRS.from[2])<1&&y>.12&&y<GALLERY_HEIGHT-.12)return '온실 계단'
   if(y<-.12&&y>BASEMENT_HEIGHT+.12)return '지하 계단'

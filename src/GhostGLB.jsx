@@ -1,3 +1,6 @@
+import AvatarCafeAccessories from './AvatarCafeAccessories'
+import {useSyncExternalStore} from 'react'
+import {subscribeDrink,drinkSnapshot} from './cafeDrink'
 import {bookDimensions} from './bookAppearance'
 import {BookCoverMesh} from './BookCover'
 import React,{useMemo,useRef,useEffect,useState} from 'react'
@@ -38,7 +41,8 @@ export function FloatingBook({book,pose}){
  </group>
 }
 
-export default function GhostGLB({moving,book=null,pose}){
+export default function GhostGLB({moving,book=null,pose,player}){
+ const drink=useSyncExternalStore(subscribeDrink,drinkSnapshot,drinkSnapshot)
  const {scene}=useLibraryModel(url)
  const model=useMemo(()=>{
   const copy=scene.clone(true),bounds=new Box3().setFromObject(copy)
@@ -95,7 +99,7 @@ export default function GhostGLB({moving,book=null,pose}){
   model.eyes.forEach(({object,scale})=>{object.scale.y=scale*blink})
  })
  return <group ref={root} rotation={[0,Math.PI,0]}>
-  <group ref={body}><primitive object={model.copy}/></group>
-  {book&&<FloatingBook key={book.id||'key'} book={book} pose={pose}/>}
+  <group ref={body}><primitive object={model.copy}/><AvatarCafeAccessories model={model.copy} character="ghost" player={player} pose={pose}/></group>
+  {book&&!drink&&<FloatingBook key={book.id||'key'} book={book} pose={pose}/>}
  </group>
 }

@@ -1,3 +1,6 @@
+import {applyCinemaAction,advanceCinemaSnack,cinemaSeatMotion} from './cinemaActions.js'
+import {readCinemaKit} from './cinemaKitState'
+import {recordStorage} from './recordStorage'
 import CinemaKit from './CinemaKit'
 import {cinemaCurtain} from './cafeExpansion'
 import {findClickPathAsync,enteringCafe} from './clickNavigation'
@@ -112,6 +115,7 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
   useEffect(()=>{
     const s=state.current
     const canvas=gl.domElement
+    const cinemaAction=e=>{if(status.current.blocked||tour.current?.running)return;let kit;try{kit=readCinemaKit(recordStorage.getItem('mll-cinema-kit'))}catch{kit={}};applyCinemaAction(s.seated,e.detail,kit)}
     const interact=()=>{
       const ui=status.current
       if(ui.blocked||ui.mode==='overview'||tour.current?.running)return
@@ -143,6 +147,9 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
       else if(action.type==='cafePrivate')ui.onExperience({type:'cafe-sign',privateBooking:true,roomId:action.roomId})
       else if(action.type==='cinemaLobby')ui.onExperience({type:'cafe-sign',cinemaLobby:true})
       else if(action.type==='cafeMail')ui.onExperience('cafe-mail')
+      else if(action.type==='cafeMenu')ui.onExperience('cafe-menu')
+      else if(action.type==='cafeBooks')ui.onExperience('cafe-books')
+      else if(action.type==='cafeGoods')ui.onExperience({type:'cafe-sign',goodsZone:true})
       else if(action.type==='cafe')ui.onExperience('cafe')
       else if(action.type==='minigame')ui.onExperience(action.game)
       else if(action.type==='blanket')ui.onBlanket()
@@ -158,6 +165,7 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
       if(ui.blocked||ui.mode==='overview'||e.target?.matches?.('input,textarea,select,[contenteditable]'))return
       if(MOVE.includes(e.code)||e.code==='ShiftLeft'||e.code==='ShiftRight'){e.preventDefault();autoWalk.current=null;s.keys.add(e.code)}
       if(e.code==='KeyV'&&!e.repeat&&['meadow-rest','terrace-sofa'].includes(s.seated?.seat.id))s.skyGaze=!s.skyGaze
+      if(['KeyR','KeyP','KeyC'].includes(e.code)&&!e.repeat&&s.seated?.seat.recliner){e.preventDefault();cinemaAction({detail:{KeyR:'recline',KeyP:'popcorn',KeyC:'cola'}[e.code]})}
       if(e.code==='KeyE'&&!e.repeat){e.preventDefault();interact()}
       if(e.code==='KeyF'&&!e.repeat&&!tour.current?.running){
         e.preventDefault()
@@ -204,10 +212,10 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
       const hitTap=tap.current,valid=s.pointer===e.pointerId;tap.current=null;touch.current.delete(e.pointerId);if(valid)s.pointer=null
       if(!valid||!hitTap||hitTap.moved||e.target!==canvas||e.type==='pointercancel'||status.current.blocked||s.seated||s.ladder||tour.current?.running)return
       const rect=canvas.getBoundingClientRect();ray.setFromCamera(new THREE.Vector2((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1),camera)
-      const hits=ray.intersectObjects(scene.children,true),hit=hits.find(h=>{let o=h.object;while(o){if(!o.visible||o.userData.player)return false;o=o.parent}return true})
+      const hits=ray.intersectObjects(scene.children,true),hit=hits.find(h=>{let o=h.object;while(o){if(!o.visible||o.userData.player||o.userData.noCameraCollision)return false;o=o.parent}return true})
       if(!hit?.face)return
       const normal=hit.face.normal.clone().transformDirection(hit.object.matrixWorld);if(normal.y<.7)return
-      const level=walkHeight(hit.point.x,hit.point.z,s.level,status.current.world)
+      const level=walkHeight(hit.point.x,hit.point.z,hit.point.y/WORLD_HEIGHT_SCALE,status.current.world)
       if(level===null||Math.abs(hit.point.y-level*WORLD_HEIGHT_SCALE)>.18)return
       const request={planning:true};autoWalk.current=request;findClickPathAsync({x:s.x,z:s.z,level:s.level},{x:hit.point.x,z:hit.point.z,level},status.current.world,()=>autoWalk.current===request).then(path=>{if(autoWalk.current===request)autoWalk.current=path})
     }
@@ -230,6 +238,7 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
     window.addEventListener('library-seat-pose',posture)
     window.addEventListener('keydown',keyDown);window.addEventListener('keyup',keyUp)
     window.addEventListener('blur',reset)
+    window.addEventListener('library-cinema-action',cinemaAction)
     window.addEventListener('library-interact',interact)
     canvas.addEventListener('pointerdown',down)
     canvas.addEventListener('wheel',wheel,{passive:false})
@@ -241,6 +250,8 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
       window.removeEventListener('library-meadow-sky',skyView)
       window.removeEventListener('keydown',keyDown);window.removeEventListener('keyup',keyUp)
       window.removeEventListener('blur',reset)
+      window.removeEventListener('library-cinema-action',cinemaAction)
+      cinemaSeatMotion.clear()
       window.removeEventListener('library-interact',interact)
       canvas.removeEventListener('pointerdown',down)
       canvas.removeEventListener('wheel',wheel)
@@ -291,7 +302,8 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
     if(s.seated){
       const oldSeat=s.seated
       const result=advanceSeating(oldSeat,dt,world)
-      pose.current=result.pose
+      if(result.seating){result.seating.snack=result.seating.phase==='seated'?advanceCinemaSnack(oldSeat.snack,dt):null}
+      pose.current={...result.pose,snack:result.seating?.snack}
       moving.current=moving.current||Boolean(result.pose.walking)
       s.x=result.pose.x;s.z=result.pose.z;visualY=result.pose.y
       avatar.current.rotation.y=result.pose.rotation
@@ -302,11 +314,12 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
       pose.current={amount:0,climbing:Boolean(s.ladder)}
       avatar.current.rotation.y=mode==='first'?-s.yaw:s.bodyYaw
     }
+    cinemaSeatMotion.clear();if(s.seated?.seat.recliner)cinemaSeatMotion.set(s.seated.seat.id,pose.current.recline||0)
     avatar.current.rotation.order='YXZ'
     avatar.current.rotation.x=pose.current.recline||0
     avatar.current.position.set(s.x,visualY*WORLD_HEIGHT_SCALE,s.z)
     Object.assign(playerPosition.current,{x:s.x,z:s.z,level:s.level})
-    const seatText=s.seated?`${s.seated.seat.label} · ${s.seated.transitionBlocked?'이동 공간 대기 중':s.seated.phase==='floorExit'?'안전한 경로로 나오는 중':s.seated.phase==='entering'?'앉는 중':s.seated.phase==='leaving'?'일어나는 중':s.seated.seat.bathing?'따뜻한 물에서 반신욕 중':s.seated.seat.id==='meadow-rest'?'하늘 구경 중':s.seated.posture==='lying'?'누워 읽기':heldBook?'독서 중':'휴식 중'}`:''
+    const seatText=s.seated?`${s.seated.seat.label} · ${s.seated.transitionBlocked?'이동 공간 대기 중':s.seated.phase==='floorExit'?'안전한 경로로 나오는 중':s.seated.phase==='entering'?'앉는 중':s.seated.phase==='leaving'?'일어나는 중':s.seated.seat.bathing?'따뜻한 물에서 반신욕 중':s.seated.seat.id==='meadow-rest'?'하늘 구경 중':s.seated.seat.recliner?(s.seated.snack?.kind==='popcorn'?'팝콘 먹는 중':s.seated.snack?.kind==='cola'?'콜라 마시는 중':s.seated.posture==='reclined'?'좌석 젖혀 감상 중':'영화 감상 중'):s.seated.posture==='lying'?'누워 읽기':heldBook?'독서 중':'휴식 중'}`:''
     if(seatText!==lastSeatStatus.current){lastSeatStatus.current=seatText;onSeatStatus?.(seatText)}
     const zone=s.ladder?'서가':floorName(s.x,s.z,s.level)||(s.z>32?'잔디 동산':zoneAt(s.x,s.z,layout.end))
     if(zone!==currentZone.current){currentZone.current=zone;onZone(zone)}
@@ -352,7 +365,7 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
   return <><mesh ref={destination} visible={false} rotation={[-Math.PI/2,0,0]} userData={{noCameraCollision:true}}><ringGeometry args={[.18,.24,32]}/><meshBasicMaterial color="#f4dfad" transparent opacity={.85} depthWrite={false}/></mesh><group ref={avatar} userData={{player:true}} visible={mode==='third'}>
     {blanket&&<LoungeBlanket lap pose={pose}/>}
     <CinemaKit player={state} pose={pose} character={character}/>
-    <Suspense fallback={null}><AvatarModels character={character} moving={moving} pose={pose} book={books.find(b=>b.id===heldBook) || null}/></Suspense>
+    <Suspense fallback={null}><AvatarModels player={state} character={character} moving={moving} pose={pose} book={books.find(b=>b.id===heldBook) || null}/></Suspense>
   </group></>
 }
 function Overhead({end}) {

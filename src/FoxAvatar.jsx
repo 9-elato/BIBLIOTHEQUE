@@ -1,3 +1,6 @@
+import AvatarCafeAccessories from './AvatarCafeAccessories'
+import {useSyncExternalStore} from 'react'
+import {subscribeDrink,drinkSnapshot} from './cafeDrink'
 import React,{useEffect,useMemo,useRef} from 'react'
 import {useLibraryModel} from './useLibraryModel'
 import {useFrame} from '@react-three/fiber'
@@ -5,7 +8,8 @@ import * as THREE from 'three'
 import {FloatingBook} from './GhostGLB'
 import {detailedAvatarMaterial} from './avatarSurface'
 const url=import.meta.env.BASE_URL+'models/fox_librarian.glb'
-export default function FoxAvatar({moving,book,pose}){
+export default function FoxAvatar({moving,book,pose,player}){
+ const drink=useSyncExternalStore(subscribeDrink,drinkSnapshot,drinkSnapshot)
  const {scene}=useLibraryModel(url),root=useRef()
  const model=useMemo(()=>{
   const copy=scene.clone(true),box=new THREE.Box3().setFromObject(copy),scale=1.7/(box.max.y-box.min.y)
@@ -35,11 +39,11 @@ export default function FoxAvatar({moving,book,pose}){
    const sign=o.name.endsWith(' L')?1:-1
    o.position.copy(p);o.rotation.copy(r);o.scale.copy(s)
    if(/Boot/.test(o.name)){o.position.z+=Math.sin(t*10)*.15*walk*sign+a*.3;o.position.y+=Math.max(0,Math.cos(t*10)*sign)*.09*walk}
-   if(/forepaw/.test(o.name)){o.position.z+=(book?.16:0);o.position.y+=(book?.13:0);if(pose?.current?.climbing){o.position.y+=.55;o.position.z+=.3;o.rotation.x-=.8}}
+   if(/forepaw/.test(o.name)){if(pose?.current?.snack&&sign===1){o.position.y+=.45*Math.sin(Math.PI*pose.current.snack.elapsed/1.8);o.position.z+=.18*Math.sin(Math.PI*pose.current.snack.elapsed/1.8)}o.position.z+=((book||drink)?.16:0);o.position.y+=((book||drink)?.13:0);if(pose?.current?.climbing){o.position.y+=.55;o.position.z+=.3;o.rotation.x-=.8}}
    if(o.name.startsWith('Plume')){o.rotation.y+=Math.sin(t*(2+walk))*(.07+.04*walk);o.scale.z=s.z*(1-a*.22)}
    if(o.name.startsWith('Sculpted ear'))o.rotation.z+=sign*Math.sin(t*3+sign)*(.012+.018*walk)
    if(o.name.startsWith('Eye'))o.scale.y=s.y*(1-Math.max(0,1-Math.abs(t%4.9-4.72)/.105)**2*.9)
   }
  })
- return <group ref={root} rotation={[0,Math.PI,0]}><primitive object={model.copy}/>{book&&<FloatingBook book={book} pose={pose}/>}</group>
+ return <group ref={root} rotation={[0,Math.PI,0]}><primitive object={model.copy}/><AvatarCafeAccessories model={model.copy} character="fox" player={player} pose={pose}/>{book&&!drink&&<FloatingBook book={book} pose={pose}/>}</group>
 }

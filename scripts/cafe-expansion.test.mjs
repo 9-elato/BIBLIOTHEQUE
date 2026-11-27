@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {CAFE_SCALE,CAFE_STAIR,cafeX,cafeZ,cinemaCurtain} from '../src/cafeExpansion.js'
+import {CAFE_SCALE,cinemaZ,CAFE_STAIR,cafeX,cafeZ,cinemaCurtain} from '../src/cafeExpansion.js'
 import {representativeDisplays} from '../src/cafeDisplays.js'
 import {movePlayer,walkHeight,stairPoint} from '../src/navigation.js'
 import {SEATS} from '../src/seating.js'
@@ -10,7 +10,7 @@ test('four genre displays each contain eight unique representative books',()=>{
  const groups=representativeDisplays([])
  assert.equal(groups.length,4)
  for(const group of groups){assert.equal(group.books.length,8);assert.equal(new Set(group.books.map(b=>b.title)).size,8)}
- assert.ok(CAFE_SCALE>=2)
+ assert.ok(Math.abs(CAFE_SCALE-2.2/1.5)<1e-9)
 })
 test('cafe stair reaches the upper lobby continuously and returns to ground',()=>{
  assert.ok(findClickPath({x:cafeX(-20.8),z:22.25,level:0},{x:CAFE_STAIR.from[0],z:CAFE_STAIR.from[2]+.5,level:0},world),'entrance aisle reaches stair approach')
@@ -24,10 +24,10 @@ test('cafe stair reaches the upper lobby continuously and returns to ground',()=
 test('curtain blocks closed entrance and all five private seats connect to lobby when open',()=>{
  const seats=SEATS.filter(s=>s.id.startsWith('cinema-recliner-'))
  assert.equal(seats.length,5)
- assert.equal(walkHeight(cafeX(-23),cafeZ(38.85),0,world),null)
+ assert.equal(walkHeight(cafeX(-23),cafeZ(cinemaZ(38.85)),0,world),null)
  cinemaCurtain.clear=true
  try{
-  const start={x:cafeX(-23),z:cafeZ(37.5),level:0}
-  for(const seat of seats){assert.ok(findClickPath(start,{...seat.entry,level:0},world),seat.id)}
+  const start={x:cafeX(-23),z:cafeZ(cinemaZ(37.5)),level:0}
+  for(const seat of seats){assert.ok(findClickPath(start,{...seat.entry,level:seat.level},world),seat.id)}
  }finally{cinemaCurtain.clear=false}
 })

@@ -1,23 +1,20 @@
-export const CAFE_SCALE=2.2
+export const CAFE_SCALE=2.2/1.5
 export const cafeX=x=>-16+(x+16)*CAFE_SCALE
 export const cafeZ=z=>22.25+(z-22.25)*CAFE_SCALE
 export const cafeLocal=(x,z)=>[(x+16)/CAFE_SCALE-16,(z-22.25)/CAFE_SCALE+22.25]
 export const CAFE_UPPER_LEVEL=7.2
 export const cinemaCurtain={open:false,clear:false}
-export function cinemaCurtainBlocks(x,z){const [a,b]=cafeLocal(x,z);return !cinemaCurtain.clear&&a> -25.15&&a< -20.85&&b>38.5&&b<39.2}
+export function cinemaCurtainBlocks(x,z){const [a,b]=cafeLocal(x,z);return !cinemaCurtain.clear&&a> -25.15&&a< -20.85&&b>cinemaZ(38.5)&&b<cinemaZ(39.2)}
 export const CAFE_STAIR={id:'cafe',from:[cafeX(-33.2),0,cafeZ(29.4)],to:[cafeX(-33.2),7.2,cafeZ(17)],width:2,steps:40}
-export const CINEMA_CHAIRS=[-28,-25.5,-23,-20.5,-18].map(x=>({x:cafeX(x),z:cafeZ(44),level:0}))
+// Annex depth is compressed independently; all physics and props use this mapping.
+export const cinemaZ=z=>32+(z-32)*.65
+export const CINEMA_LOCAL_CHAIRS=[[-25.2,28.8,0],[-20.8,28.8,0],[-28,24.8,.36],[-23,24.8,.36],[-18,24.8,.36]]
+export const CINEMA_CHAIRS=CINEMA_LOCAL_CHAIRS.map(([x,z,level])=>({x:cafeX(x),z:cafeZ(cinemaZ(z+17)),level}))
+export function cinemaGround(x,z){const [a,b]=cafeLocal(x,z),v=(b-32)/.65+15;return a>-33.65&&a<-16.35?.36*Math.max(0,Math.min(1,(v-23)/.8,(27.8-v)/.8)):0}
 export const privateInside=(x,z)=>{const [a,b]=cafeLocal(x,z);return a>-33.8&&a< -16.35&&b>15.35&&b<30.65}
-const oldCinemaSolids=[
- ...CINEMA_CHAIRS.map((s,i)=>({id:`cinema-recliner-${i}`,floor:7.2,rect:[s.x-.8,s.x+.8,s.z-37.4-1.05,s.z-37.4+1.05]})),
- ...[-29.35,-26.75,-24.25,-21.75,-19.25,-16.7].map(x=>({id:`cinema-privacy-${x}`,floor:7.2,rect:[cafeX(x)-.08,cafeX(x)+.08,cafeZ(25.8),cafeZ(28.3)]})),
- ...[[-34,-25,21.7,22],[-21,-16,21.7,22],[-30,-26,16,17]].map((r,i)=>({id:`cinema-lobby-${i}`,floor:7.2,rect:[cafeX(r[0]),cafeX(r[1]),cafeZ(r[2]),cafeZ(r[3])]})),
- // The stairwell has a real opening; guards keep the upstairs route off its sides.
- {id:'cinema-stair-guard',floor:7.2,rect:[cafeX(-31.7),cafeX(-31.55),cafeZ(17.8),cafeZ(30.8)]},
-]
 export function cinemaFloor(x,z){const [a,b]=cafeLocal(x,z);return privateInside(x,z)&&(a> -31.5||b<17.8)}
 
-export const cinemaInside=(x,z)=>{const [a,b]=cafeLocal(x,z);return a>-33.65&&a<-16.35&&b>30.6&&b<47.65&&(b>32.35||(a>-30.77&&a<-29.23))}
+export const cinemaInside=(x,z)=>{const [a,b]=cafeLocal(x,z);return a>-33.65&&a<-16.35&&b>30.6&&b<cinemaZ(47.65)&&(b>32.35||(a>-30.77&&a<-29.23))}
 export const PRIVATE_ROOMS=[-28.5,-24.5,-20.5].map((x,i)=>({id:'cafe-private-'+i,name:'Room '+(i+1),x,z:18.5,level:7.2}))
 const worldRect=r=>[cafeX(r[0]),cafeX(r[1]),cafeZ(r[2]),cafeZ(r[3])]
 export const privateSolids=[
@@ -30,5 +27,7 @@ export const privateSolids=[
  ]),
  {id:'private-stair-guard',floor:7.2,rect:worldRect([-31.7,-31.55,17.8,30.8])},
 ]
-export const cinemaSolids=[...oldCinemaSolids.filter(s=>s.id!=='cinema-stair-guard').map(s=>({...s,floor:0,rect:[s.rect[0],s.rect[1],s.rect[2]+37.4,s.rect[3]+37.4]})),
+export const cinemaSolids=[
+ ...CINEMA_CHAIRS.map((s,i)=>({id:`cinema-recliner-${i}`,floor:s.level,rect:[s.x-.8,s.x+.8,s.z-1.05,s.z+1.05]})),
+ ...[[-34,-25,38.7,39],[-21,-16,38.7,39],[-21.5,-17.5,33,34]].map((r,i)=>({id:'cinema-lobby-'+i,floor:0,rect:worldRect([r[0],r[1],cinemaZ(r[2]),cinemaZ(r[3])])})),
  ...[31,32].flatMap(z=>[[-34,-31,z-.12,z+.12],[-29,-16,z-.12,z+.12]].map((r,i)=>({id:'cinema-entry-'+z+'-'+i,floor:0,rect:worldRect(r)}))),...privateSolids]

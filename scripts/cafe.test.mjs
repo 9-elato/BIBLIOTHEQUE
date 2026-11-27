@@ -3,9 +3,9 @@ import assert from 'node:assert/strict'
 import {isScreeningDate,screeningDates,validCafeTime} from '../src/cafeData.js'
 import {movePlayer as moveWorld,walkHeight as heightWorld} from '../src/navigation.js'
 import {zoneAt} from '../src/layout.js'
-import {cafeX,cafeZ,cafeLocal,cinemaCurtain} from '../src/cafeExpansion.js'
+import {CAFE_SCALE,cinemaZ,cafeX,cafeZ,cafeLocal,cinemaCurtain} from '../src/cafeExpansion.js'
 const walkHeight=(x,z,y,w)=>heightWorld(cafeX(x),cafeZ(z),y,w)
-const movePlayer=(p,dx,dz,w)=>{const q=moveWorld({...p,x:cafeX(p.x),z:cafeZ(p.z)},dx*2.2,dz*2.2,w);const [x,z]=cafeLocal(q.x,q.z);return {...q,x,z}}
+const movePlayer=(p,dx,dz,w)=>{const q=moveWorld({...p,x:cafeX(p.x),z:cafeZ(p.z)},dx*CAFE_SCALE,dz*CAFE_SCALE,w);const [x,z]=cafeLocal(q.x,q.z);return {...q,x,z}}
 const world={end:45,gateReady:true,entranceOpen:true}
 test('Thursday screening uses the whole date divisible by three',()=>{
  assert.ok(isScreeningDate(2026,11,12));assert.equal(isScreeningDate(2026,11,19),false);assert.equal(isScreeningDate(2026,11,15),false)
@@ -20,11 +20,11 @@ test('garden connects to cafe and cinema via clear door and aisle',()=>{
   p=movePlayer(p,x-p.x,z-p.z,world);assert.ok(Math.hypot(p.x-x,p.z-z)<.03,JSON.stringify(p))
  }
  assert.equal(zoneAt(cafeX(p.x),cafeZ(p.z),45),'북카페')
- assert.equal(walkHeight(-34,20,0,world),null);assert.equal(walkHeight(-18,18,0,world),null)
+ assert.equal(walkHeight(-34,20,0,world),null);assert.equal(walkHeight(-17.3,18,0,world),null)
 })
 
 test('cafe overhanging counter and cinema screen block the avatar while the doorway stays open',()=>{
- assert.equal(walkHeight(-19.4,18,0,world),null)
+ assert.equal(walkHeight(-18.5,19.85,0,world),null)
  assert.equal(walkHeight(-26,24.62,0,world),0)
  assert.equal(walkHeight(-16,22.25,0,world),0)
  let p={x:-20.8,z:25.5,level:0,yaw:0}
@@ -46,9 +46,9 @@ test('poster defaults preserve bookkeeper choices and reject unsafe image source
  await assert.rejects(importPoster({type:'image/jpeg',size:11*1024*1024}))
 })
 test('cinema partition blocks both wings but retains the dedicated doorway',()=>{
- assert.equal(walkHeight(-18,38.85,0,world),null)
- assert.equal(walkHeight(-26,38.85,0,world),null)
- assert.equal(walkHeight(-23,38.85,0,world),null)
+ assert.equal(walkHeight(-18,cinemaZ(38.85),0,world),null)
+ assert.equal(walkHeight(-26,cinemaZ(38.85),0,world),null)
+ assert.equal(walkHeight(-23,cinemaZ(38.85),0,world),null)
 })
 
 import {interactionAt as interactionWorld} from '../src/interactions.js'
@@ -81,8 +81,8 @@ test('illustrated menu preserves edited prices and uses neutral artwork for cust
  assert.equal(menuItems('').length,0)
 })
 test('cinema snack console blocks its cabinet but preserves the viewing aisle',()=>{
- assert.equal(walkHeight(-28,33.5,0,world),null)
- assert.equal(walkHeight(-28,35,0,world),0)
+ assert.equal(walkHeight(-19.5,cinemaZ(33.5),0,world),null)
+ assert.equal(walkHeight(-19.5,cinemaZ(35),0,world),0)
 })
 
 test('slow mailbox opens from its approach without capturing seated interactions',()=>{
@@ -122,10 +122,8 @@ test('two avatars can pass side by side between the cafe sofa returns',()=>{
  }
 })
 
-test('cafe entry and browsing prompts only offer the invitation',()=>{
- for(const [x,z] of [[-18.2,22.25],[-26.5,20],[-30.7,18]]){
- const action=interactionAt({x,z,level:0,yaw:0},{world})
- assert.equal(action.type,'cafe')
- assert.equal(action.label,'책방지기의 초대장 펼치기')
- }
+test('cafe entrance offers invitation while display approaches offer books',()=>{
+ assert.equal(interactionAt({x:-18.2,z:22.25,level:0},{world}).type,'cafe')
+ assert.equal(interactionAt({x:-30.7,z:18,level:0},{world}).type,'cafeBooks')
+ assert.equal(interactionAt({x:-26.5,z:20,level:0},{world}),null)
 })
