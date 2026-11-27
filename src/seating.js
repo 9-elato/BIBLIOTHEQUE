@@ -36,7 +36,7 @@ export const SEATS=[
   ...GARDEN_BENCHES.map(([x,z],i)=>seat(`garden-${i}`,i===0?'서쪽 정원 벤치':'동쪽 정원 벤치',x,z,Math.PI,0,.71,0,.08,1.25)),
  ...READING_SOFA_SEATS.map(s=>seat(s.id,s.label,s.x,s.z,s.turn,7.2,.72,0,0,1.05)),
  SPRING_BATH,
- ...CAFE_SEATS.map(([x,z],i)=>seat(`cafe-seat-${i}`,i<2?'북카페 창가 1인 소파':i===4?'북카페 벽난로 좌식':'북카페 프라이빗 소파',x,z,CAFE_SEAT_TURNS[i],0,i===4?.25:.63,0,.1*CAFE_SCALE,(i===4?.75:1.2)*CAFE_SCALE)),
+ ...CAFE_SEATS.map(([x,z],i)=>{const result=seat(`cafe-seat-${i}`,i<2?'북카페 창가 1인 소파':i===4?'북카페 벽난로 좌식':'북카페 프라이빗 소파',x,z,CAFE_SEAT_TURNS[i],0,i===4?.25:.63,0,.1*CAFE_SCALE,(i===4?.75:1.2)*CAFE_SCALE);if(i<2)result.entry={x,z:z+1.1*CAFE_SCALE};return result}),
  ...PRIVATE_ROOMS.map(r=>seat(r.id,r.name,cafeX(r.x),cafeZ(r.z),Math.PI,7.2,.63,0,0,2.1)),
  ...CINEMA_CHAIRS.map((p,i)=>({...seat(`cinema-recliner-${i}`,'극장 리클라이너 '+(i+1),p.x,p.z,0,p.level,.65,0,0,1.7),recliner:true})),
 ]

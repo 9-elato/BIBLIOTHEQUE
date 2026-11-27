@@ -6,7 +6,7 @@ import {cafeX,cafeZ} from '../src/cafeExpansion.js'
 const walkHeight=(x,z,y,w)=>heightWorld(cafeX(x),cafeZ(z),y,w)
 const world={end:45,gateReady:true,entranceOpen:true}
 test('click walking reaches cafe through the real entrance and avoids furniture',()=>{
- const start={x:-11,z:22.25,level:0},goal={x:cafeX(-20.8),z:cafeZ(25.5),level:0},path=findClickPath(start,goal,world)
+ const start={x:-11,z:22.25,level:0},goal={x:cafeX(-20.8),z:cafeZ(24),level:0},path=findClickPath(start,goal,world)
  assert.ok(path);let previous=start;for(const point of path){assert.ok(clearClickSegment(previous,point,world));previous=point}assert.equal(previous,goal)
 })
 test('click walking rejects solid furniture and out-of-range clicks, supports connected floors',()=>{

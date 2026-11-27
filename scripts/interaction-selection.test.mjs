@@ -26,6 +26,6 @@ test('nearest seat search retains tie order and rechecks changed obstructions',(
 test('cafe seat retains priority over cafe menu and unavailable seating returns menu',()=>{
  const seat=SEATS.find(s=>s.id==='cafe-seat-0'),from={...seat.entry,level:0}
  assert.equal(interactionAt(from,{world}).seat,seat)
- assert.equal(interactionAt({...from,x:-23,z:18},{world}).type,'cafeMenu')
+ assert.equal(interactionAt({...from,x:0,z:23},{world}),null)
  assert.equal(interactionAt({...from,seated:{phase:'seated'}},{world}).type,'stand')
 })

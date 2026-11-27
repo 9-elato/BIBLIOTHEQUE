@@ -20,7 +20,7 @@ export function interactionAt(s, {entranceOpen, gateReady, gateOpening=false, bo
     if(s.seated.transitionBlocked)return {type:'wait',label:'이동 공간이 막혀 잠시 멈췄습니다 · 공간이 비면 이어집니다'}
     return s.seated.phase&&s.seated.phase!=='seated'?null:{type:'stand',label:s.seated.exitBlocked?'하차 공간이 막혀 있습니다 · 공간을 비운 뒤 다시 시도':s.seated.seat?.bathing?'온천에서 천천히 나오기':heldBook?'책을 들고 일어나기':'일어나기'}
   }
-  if(s.level===0&&near(cafeX(-17.8),cafeZ(23.6),2))return {type:'cafeMail',label:'1년 뒤의 나에게 편지 보내기'}
+  if(s.level===0&&near(cafeX(-17.8),cafeZ(23.6),1))return {type:'cafeMail',label:'1년 뒤의 나에게 편지 보내기'}
   if(Math.abs(s.level)<.1&&near(cafeX(-19.5),cafeZ(cinemaZ(35)),3))return {type:'cinemaLobby',label:'슬리퍼·담요·관람 간식 준비'}
   if(Math.abs(s.level)<.1&&!cinemaCurtain.open&&near(cafeX(-23),cafeZ(cinemaZ(38.3)),3))return {type:'cinemaCurtain',label:'영화관 커튼 열기'}
   // Resolve cafe seating once: the reachability query includes floor collision checks.

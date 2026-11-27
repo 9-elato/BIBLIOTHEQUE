@@ -52,10 +52,10 @@ export default function BookCafe({config,books,onOpen,time}){
 
  <B p={[-22.3,-.12,23]} s={[15.4,.24,16.5]} c="#9a7955"/>
  <B p={[-14,0,22.25]} s={[4,.08,2.5]} c="#bca887"/>
- <B p={[-34,3.5,27.5]} s={[.28,7,7]} c="#eee6d8"/>
- <B p={[-34,.45,19.5]} s={[.28,.9,9]} c="#eee6d8"/><B p={[-34,6.25,19.5]} s={[.28,1.5,9]} c="#eee6d8"/>
- {[15.15,17.9,20.8,23.85].map(z=><B key={z} p={[-34,3.2,z]} s={[.22,4.6,.09]} c="#242525"/>)}
- <mesh position={[-34,3.2,19.5]} rotation={[0,Math.PI/2,0]}><planeGeometry args={[8.7,4.6]}/><meshStandardMaterial color="#b7cfca" transparent opacity={.07} depthWrite={false} side={THREE.DoubleSide}/></mesh>
+
+ <B p={[-34,.45,23]} s={[.28,.9,16]} c="#eee6d8"/><B p={[-34,6.25,23]} s={[.28,1.5,16]} c="#eee6d8"/>
+ {[15.15,18.3,21.5,24.7,27.8,30.85].map(z=><B key={z} p={[-34,3.2,z]} s={[.22,4.6,.09]} c="#242525"/>)}
+ <mesh position={[-34,3.2,23]} rotation={[0,Math.PI/2,0]}><planeGeometry args={[15.7,4.6]}/><meshStandardMaterial color="#b7cfca" transparent opacity={.07} depthWrite={false} side={THREE.DoubleSide}/></mesh>
 
  <B p={[-25,3.5,15]} s={[18,7,.25]} c="#eee6d8"/>
  <B p={[-32.5,3.5,31]} s={[3,7,.25]} c="#eee6d8"/><B p={[-22.5,3.5,31]} s={[13,7,.25]} c="#eee6d8"/><B p={[-30,5.8,31]} s={[2,2.4,.25]} c="#eee6d8"/>
@@ -133,10 +133,10 @@ export default function BookCafe({config,books,onOpen,time}){
  <StaticBatch revision={time}>
  {CAFE_LOCAL_SEATS.map(([x,z],i)=><group key={i} position={[x,0,z]} rotation={[0,CAFE_SEAT_TURNS[i]-Math.PI,0]}>{i<2?<CafeLoungeChair/>:<CafeSoftSeat floor={i===4} dark={false}/>}</group>)}
  {CAFE_NOOKS.map(item=>item.id.includes('table')?<CafeSideTable key={item.id} p={item.p} s={item.s}/>:item.id.includes('return')?<SoftPad key={item.id} p={item.p} s={item.s} c={item.c}/>:<B key={item.id} p={item.p} s={item.s} c={item.c}/>)}
- {[-25.48].map(x=>[18.45,21.55].map(z=><B key={z} p={[x,.95,z]} s={[.16,.85,1.25]} c="#e4dac9"/>))}
- <B p={[-21.4,.68,17.565]} s={[.96,.78,.035]} c="#252c29"/>
- {[0,1,2].map(i=><mesh key={i} position={[-21.65+i*.25,.53,17.6]} scale={[.10,.21+(i%2)*.1,.05]}><sphereGeometry args={[1,8,6]}/><meshStandardMaterial color="#f2ba6e" emissive="#e9a74a" emissiveIntensity={1.2}/></mesh>)}
- {[[ -25.4,17.85],[-25.4,22.15],[-33.25,18],[-21,17.2]].map(([x,z],i)=><group key={i}><B p={[x,.07,z]} s={[.38,.14,.38]} c="#494138"/><B p={[x,.97,z]} s={[.035,1.8,.035]} c="#b2986b"/><mesh position={[x,1.92,z]}><coneGeometry args={[.25,.32,12,1,true]}/><meshStandardMaterial color="#f1dfb9" emissive="#e5b566" emissiveIntensity={.4} side={THREE.DoubleSide}/></mesh></group>)}
+
+ <B p={[-20.5,.68,29.435]} s={[.96,.78,.035]} c="#252c29"/>
+ {[0,1,2].map(i=><mesh key={i} position={[-20.75+i*.25,.53,29.4]} scale={[.10,.21+(i%2)*.1,.05]}><sphereGeometry args={[1,8,6]}/><meshStandardMaterial color="#f2ba6e" emissive="#e9a74a" emissiveIntensity={1.2}/></mesh>)}
+ {[[-26.5,25.1],[-22.5,25.1],[-33.25,24],[-20,29.2]].map(([x,z],i)=><group key={i}><B p={[x,.07,z]} s={[.38,.14,.38]} c="#494138"/><B p={[x,.97,z]} s={[.035,1.8,.035]} c="#b2986b"/><mesh position={[x,1.92,z]}><coneGeometry args={[.25,.32,12,1,true]}/><meshStandardMaterial color="#f1dfb9" emissive="#e5b566" emissiveIntensity={.4} side={THREE.DoubleSide}/></mesh></group>)}
 
  {[-27,-19].map(x=><group key={x}><B p={[x,5.7,20]} s={[.035,2.6,.035]} c="#806c49"/><mesh position={[x,4.4,20]}><sphereGeometry args={[.3,10,8]}/><meshStandardMaterial color="#fff0cb" emissive="#ffd18b" emissiveIntensity={time==='evening'?1:.4}/></mesh><pointLight position={[x,4,20]} color="#ffd7a0" intensity={5} distance={12}/></group>)}
  </StaticBatch>

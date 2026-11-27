@@ -1,19 +1,19 @@
 import {CAFE_SCALE,cafeX,cafeZ,cafeLocal,cinemaInside} from './cafeExpansion.js'
 export const CAFE_BOUNDS=[cafeX(-34),-16,cafeZ(15),cafeZ(31)]
-export const CAFE_LOCAL_SEATS=[[-32,20],[-32,23],[-24,18.2],[-24,21.8],[-21.4,19.4]]
+export const CAFE_LOCAL_SEATS=[[-32,24.5],[-32,27],[-25,26],[-21,26],[-23,29]]
 export const CAFE_SEATS=CAFE_LOCAL_SEATS.map(([x,z])=>[cafeX(x),cafeZ(z)])
-export const CAFE_SEAT_TURNS=[-Math.PI/2,-Math.PI/2,0,Math.PI,Math.PI]
+export const CAFE_SEAT_TURNS=[-Math.PI/2,-Math.PI/2,0,0,Math.PI]
 export const CAFE_NOOKS=[
- {id:'north-return',p:[-25.05,.46,18.45],s:[.9,.34,1.25],c:'#e4dac9'},
- {id:'south-return',p:[-25.05,.46,21.55],s:[.9,.34,1.25],c:'#e4dac9'},
- {id:'north-screen',p:[-24.5,.82,17.51],s:[2.9,1.64,.12],c:'#292b29'},
- {id:'south-screen',p:[-24.5,.82,22.49],s:[2.9,1.64,.12],c:'#292b29'},
- {id:'hearth',p:[-21.4,.65,17.2],s:[1.35,1.3,.7],c:'#6a6358'},
- {id:'north-side-table',p:[-22.95,.35,18.8],s:[.55,.7,.7],c:'#947354'},
- {id:'south-side-table',p:[-22.95,.35,21.2],s:[.55,.7,.7],c:'#947354'},
- {id:'floor-table',p:[-20.3,.24,19.5],s:[.55,.48,.7],c:'#947354'},
+ {id:'north-return',p:[-26.05,.46,26.25],s:[.9,.34,1.25],c:'#e4dac9'},
+ {id:'south-return',p:[-22.05,.46,26.25],s:[.9,.34,1.25],c:'#e4dac9'},
+ {id:'north-screen',p:[-25.5,.82,25.31],s:[2.9,1.64,.12],c:'#292b29'},
+ {id:'south-screen',p:[-21.5,.82,25.31],s:[2.9,1.64,.12],c:'#292b29'},
+ {id:'hearth',p:[-20.5,.65,29.8],s:[1.35,1.3,.7],c:'#6a6358'},
+ {id:'north-side-table',p:[-23.9,.35,26.5],s:[.55,.7,.7],c:'#947354'},
+ {id:'south-side-table',p:[-19.9,.35,26.5],s:[.55,.7,.7],c:'#947354'},
+ {id:'floor-table',p:[-24.3,.24,29],s:[.55,.48,.7],c:'#947354'},
 ]
-export const CAFE_DISPLAY_Z=[17.5,19.4,21.3,23.2]
+export const CAFE_DISPLAY_Z=[17.5,19,20.5,22]
 const LOCAL_SOLIDS=[
  ...[17.2,28.1].map(z=>({id:`cafe-terrace-bench-${z}`,rect:[-15.31,-14.54,z-1.25,z+1.25]})),
  ...[25.1,29.2].map(z=>({id:`cafe-window-books-${z}`,rect:[-17.05,-16.35,z-.6,z+.6]})),

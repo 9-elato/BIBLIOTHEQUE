@@ -1,4 +1,4 @@
-export const CAFE_SCALE=2.2/1.5
+export const CAFE_SCALE=2.2/1.5/Math.sqrt(2)
 export const cafeX=x=>-16+(x+16)*CAFE_SCALE
 export const cafeZ=z=>22.25+(z-22.25)*CAFE_SCALE
 export const cafeLocal=(x,z)=>[(x+16)/CAFE_SCALE-16,(z-22.25)/CAFE_SCALE+22.25]
@@ -8,9 +8,9 @@ export function cinemaCurtainBlocks(x,z){const [a,b]=cafeLocal(x,z);return !cine
 export const CAFE_STAIR={id:'cafe',from:[cafeX(-33.2),0,cafeZ(29.4)],to:[cafeX(-33.2),7.2,cafeZ(17)],width:2,steps:40}
 // Annex depth is compressed independently; all physics and props use this mapping.
 export const cinemaZ=z=>32+(z-32)*.65
-export const CINEMA_LOCAL_CHAIRS=[[-25.2,28.8,0],[-20.8,28.8,0],[-28,24.8,.36],[-23,24.8,.36],[-18,24.8,.36]]
+export const CINEMA_LOCAL_CHAIRS=[[-25.2,27.9,0],[-20.8,27.9,0],[-28,24.1,.36],[-23,24.1,.36],[-18,24.1,.36]]
 export const CINEMA_CHAIRS=CINEMA_LOCAL_CHAIRS.map(([x,z,level])=>({x:cafeX(x),z:cafeZ(cinemaZ(z+17)),level}))
-export function cinemaGround(x,z){const [a,b]=cafeLocal(x,z),v=(b-32)/.65+15;return a>-33.65&&a<-16.35?.36*Math.max(0,Math.min(1,(v-23)/.8,(27.8-v)/.8)):0}
+export function cinemaGround(x,z){const [a,b]=cafeLocal(x,z),v=(b-32)/.65+15;return a>-33.65&&a<-16.35?.36*Math.max(0,Math.min(1,(v-22.2)/.8,(27.8-v)/.8)):0}
 export const privateInside=(x,z)=>{const [a,b]=cafeLocal(x,z);return a>-33.8&&a< -16.35&&b>15.35&&b<30.65}
 export function cinemaFloor(x,z){const [a,b]=cafeLocal(x,z);return privateInside(x,z)&&(a> -31.5||b<17.8)}
 

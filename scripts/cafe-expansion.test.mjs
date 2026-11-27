@@ -10,7 +10,7 @@ test('four genre displays each contain eight unique representative books',()=>{
  const groups=representativeDisplays([])
  assert.equal(groups.length,4)
  for(const group of groups){assert.equal(group.books.length,8);assert.equal(new Set(group.books.map(b=>b.title)).size,8)}
- assert.ok(Math.abs(CAFE_SCALE-2.2/1.5)<1e-9)
+ assert.ok(Math.abs(CAFE_SCALE-2.2/1.5/Math.sqrt(2))<1e-9)
 })
 test('cafe stair reaches the upper lobby continuously and returns to ground',()=>{
  assert.ok(findClickPath({x:cafeX(-20.8),z:22.25,level:0},{x:CAFE_STAIR.from[0],z:CAFE_STAIR.from[2]+.5,level:0},world),'entrance aisle reaches stair approach')
