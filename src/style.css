@@ -229,3 +229,5 @@ canvas { touch-action:none; }
  .seat-status span{display:block;margin:4px 0}.seat-status button{min-height:44px;margin:4px 0;width:100%;padding:6px}
  .cinema-actions{display:flex;flex-direction:column}.cinema-actions small{font-size:10px}
 }
+
+.shortcut-guide{display:grid;grid-template-columns:max-content 1fr;gap:10px 16px}.shortcut-guide dd{margin:0}.shortcut-guide kbd{font-family:inherit;font-size:.85em;background:#e8decb;padding:3px 6px;border-radius:5px}@media(max-width:500px){.shortcut-guide{grid-template-columns:1fr;gap:5px}.shortcut-guide dd{margin-bottom:10px}}

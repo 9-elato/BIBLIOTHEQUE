@@ -1,3 +1,4 @@
+import {shortcutAllowed,shortcutAction} from './shortcuts'
 import {applyCinemaAction,advanceCinemaSnack,cinemaSeatMotion} from './cinemaActions.js'
 import {readCinemaKit} from './cinemaKitState'
 import {recordStorage} from './recordStorage'
@@ -93,7 +94,7 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
     return()=>{clearInterval(timer);window.removeEventListener('library-tour-start',start);window.removeEventListener('library-tour-stop',stop);window.removeEventListener('keydown',key)}
   },[])
   const bookcases=useMemo(()=>layout.sections.flatMap(section=>section.cases.map(c=>({x:c.x,z:c.z,genre:section.genre.id,slot:(c.number-1)*24}))),[layout])
-  status.current={onMusic,onExperience,onBlanket,gateOpening,blocked,mode,onKey,gateReady,onToggleEntrance,onOpenNotes,onGenre,entranceOpen,onTravel,onRead,bookcases,heldBook,canPlace,onPlaceNearby,world:{end:layout.end,gateReady,entranceOpen,entranceDoor,ladders,studyDoor,glassDoor,verandaDoor}}
+  status.current={blanket,onMusic,onExperience,onBlanket,gateOpening,blocked,mode,onKey,gateReady,onToggleEntrance,onOpenNotes,onGenre,entranceOpen,onTravel,onRead,bookcases,heldBook,canPlace,onPlaceNearby,world:{end:layout.end,gateReady,entranceOpen,entranceDoor,ladders,studyDoor,glassDoor,verandaDoor}}
   const look=useMemo(()=>new THREE.Vector3(),[])
   const target=useMemo(()=>new THREE.Vector3(),[])
   useEffect(()=>{
@@ -162,12 +163,17 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
     }
     const keyDown=e=>{
       const ui=status.current
-      if(ui.blocked||ui.mode==='overview'||e.target?.matches?.('input,textarea,select,[contenteditable]'))return
+      if(ui.blocked||ui.mode==='overview'||!shortcutAllowed(e))return
+      const command=shortcutAction(e)
+      if(command==='close'){autoWalk.current=null;s.keys.clear();s.pointer=null;return}
+      if(command==='read'&&ui.heldBook&&!s.seated?.seat.recliner){e.preventDefault();ui.onRead?.(ui.heldBook)}
+      if(command==='blanket'&&(s.seated?.phase==='seated'||ui.blanket)&&!s.seated?.seat.recliner&&!s.seated?.seat.bathing){e.preventDefault();ui.onBlanket?.()}
+      if(command==='posture'&&s.seated?.phase==='seated'&&s.seated.seat.id==='attic-daybed'){e.preventDefault();posture({detail:s.seated.posture==='lying'?'sitting':'lying'})}
       if(MOVE.includes(e.code)||e.code==='ShiftLeft'||e.code==='ShiftRight'){e.preventDefault();autoWalk.current=null;s.keys.add(e.code)}
-      if(e.code==='KeyV'&&!e.repeat&&['meadow-rest','terrace-sofa'].includes(s.seated?.seat.id))s.skyGaze=!s.skyGaze
-      if(['KeyR','KeyP','KeyC'].includes(e.code)&&!e.repeat&&s.seated?.seat.recliner){e.preventDefault();cinemaAction({detail:{KeyR:'recline',KeyP:'popcorn',KeyC:'cola'}[e.code]})}
-      if(e.code==='KeyE'&&!e.repeat){e.preventDefault();interact()}
-      if(e.code==='KeyF'&&!e.repeat&&!tour.current?.running){
+      if(command==='sky'&&['meadow-rest','terrace-sofa'].includes(s.seated?.seat.id))s.skyGaze=!s.skyGaze
+      if(['posture','popcorn','cola'].includes(command)&&s.seated?.seat.recliner){e.preventDefault();cinemaAction({detail:{posture:'recline',popcorn:'popcorn',cola:'cola'}[command]})}
+      if(command==='interact'){e.preventDefault();interact()}
+      if(command==='front'&&!tour.current?.running){
         e.preventDefault()
         const facing=ui.mode==='first'&&!s.seated?-s.yaw:s.bodyYaw
         s.bodyYaw=facing;s.yaw=frontViewYaw(facing);s.pitch=-.05
