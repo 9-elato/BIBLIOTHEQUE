@@ -50,14 +50,14 @@ function StudyInterior({open,prepare,door,time,weather,event,onNotes,onMusic}){
   {[-1,1].map(side=><group key={side}>
    {(side<0?[[-29.5,-19.1]]:[[-29.5,STUDY_EXIT.z-1],[STUDY_EXIT.z+1,-19.1]]).map(([a,b])=><group key={a}>
     <B p={[side*7.03,.61,(a+b)/2]} s={[.10,1.2,b-a]} c="#493025"/>
-    <mesh position={[side*7.025,4.4,(a+b)/2]} rotation={[0,-side*Math.PI/2,0]}><planeGeometry args={[b-a,6.2]}/><meshStandardMaterial map={textures.wall} roughness={1}/></mesh>
+    {side>0&&<mesh position={[side*7.025,4.4,(a+b)/2]} rotation={[0,-side*Math.PI/2,0]}><planeGeometry args={[b-a,6.2]}/><meshStandardMaterial map={textures.wall} roughness={1}/></mesh>}
    </group>)}
    {[-28.9,-26.8,-24.7,-22.6,-20].map(z=><B key={z} p={[side*6.98,.62,z]} s={[.05,1.08,.035]} c="#a08055"/>)}
    {[-28.9,-19.6].map(z=><B key={z} p={[side*6.95,3.7,z]} s={[.18,7.3,.18]} c="#684731"/>)}
   </group>)}
 
   {[-1,1].map(side=><group key={'front'+side}><B p={[side*4.3,.6,-19.16]} s={[5.5,1.2,.08]} c="#493025"/><mesh position={[side*4.3,4.45,-19.16]} rotation={[0,Math.PI,0]}><planeGeometry args={[5.5,6.1]}/><meshStandardMaterial map={textures.wall} roughness={1}/></mesh></group>)}
-  <mesh position={[0,4.45,-29.49]}><planeGeometry args={[14.0,6.1]}/><meshStandardMaterial map={textures.wall} roughness={1}/></mesh>
+
   <B p={[0,.6,-29.44]} s={[14.1,1.2,.10]} c="#4b3225"/>
   <WovenRug p={[0,.05,-26.45]} size={[4.9,3.7]} color="#763d4c"/>
   <RoundRug p={[-3.8,.067,-24.8]}/>

@@ -15,10 +15,12 @@ export const CAFE_NOOKS=[
 ]
 export const CAFE_DISPLAY_Z=[17.5,19,20.5,22]
 const LOCAL_SOLIDS=[
+ {id:"cafe-invitation",rect:[-18.55,-17.85,21.1,21.7]},
+ ...[[-26.5,25.1],[-22.5,25.1],[-33.25,24],[-20,29.2]].map(([x,z])=>({id:`cafe-lamp-${x}`,rect:[x-.25,x+.25,z-.25,z+.25]})),
  ...[17.2,28.1].map(z=>({id:`cafe-terrace-bench-${z}`,rect:[-15.31,-14.54,z-1.25,z+1.25]})),
  ...[25.1,29.2].map(z=>({id:`cafe-window-books-${z}`,rect:[-17.05,-16.35,z-.6,z+.6]})),
  {id:'goods-zone-divider',rect:[-25.06,-24.94,15.38,16.38]},
- ...CAFE_DISPLAY_Z.map(z=>({id:`cafe-genre-${z}`,rect:[-29.75,-28.25,z-.35,z+.35]})),
+ ...CAFE_DISPLAY_Z.map(z=>({id:`cafe-genre-${z}`,rect:[-29.8,-28.2,z-.4,z+.4]})),
  {id:'cafe-mailbox',rect:[-18.225,-17.375,23.725,23.975]},
  ...[20.7,23.8].map(z=>({id:`cafe-folded-door-${z}`,rect:[-17.075,-16.025,z-.05,z+.05]})),
  ...CAFE_NOOKS.map(({id,p:[x,y,z],s:[w,h,d]})=>({id,rect:[x-w/2,x+w/2,z-d/2,z+d/2]})),
@@ -27,7 +29,7 @@ const LOCAL_SOLIDS=[
  ...[18,22.6].map(z=>({id:'cafe-display-screen-'+z,rect:[-27.06,-26.94,z-.9,z+.9]})),
  {id:'cafe-curation',rect:[-29.6,-25.5,15.4,16.3]},
  {id:'cafe-goods',rect:[-24.8,-20.5,15.4,16.3]},
- ...CAFE_LOCAL_SEATS.map(([x,z],i)=>({id:`cafe-seat-${i}`,rect:i<2?[x-.59,x+.59,z-.70,z+.70]:[x-.6,x+.6,z-.48,z+.48]})),
+ ...CAFE_LOCAL_SEATS.map(([x,z],i)=>({id:`cafe-seat-${i}`,rect:i<2?[x-.61,x+.61,z-.72,z+.72]:[x-.6,x+.6,z-.48,z+.48]})),
 
 ]
 export const CAFE_SOLIDS=LOCAL_SOLIDS.map(s=>({...s,rect:[cafeX(s.rect[0]),cafeX(s.rect[1]),cafeZ(s.rect[2]),cafeZ(s.rect[3])]}))

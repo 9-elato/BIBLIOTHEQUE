@@ -1,8 +1,9 @@
+import {canReachEvent} from './interactionReach.js'
 import React from 'react'
 import {Box as B} from './GroundFloor'
 
 export default function CafeBarDetails({onOpen}){
- const inspect=(text)=>e=>{e.stopPropagation();onOpen({type:'cafe-sign',text})}
+ const inspect=(text)=>e=>{e.stopPropagation();if(!canReachEvent(e))return;onOpen({type:'cafe-sign',text})}
  return <group>
  <group position={[-17.3,1.43,17.3]} onClick={inspect('COFFEE GRINDER\n원두를 담는 호퍼, 분쇄도 조절 다이얼과 토출구로 구성된 그라인더입니다. 커피는 손님 쪽 작은 메뉴판에서 살펴보세요.')}>
   <B p={[0,.02,0]} s={[.52,.04,.48]} c="#242625"/>

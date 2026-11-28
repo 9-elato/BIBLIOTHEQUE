@@ -1,4 +1,4 @@
-export const VERANDA_INLET=[-24,-7.8,-45,-14.15]
+export const VERANDA_INLET=[-24,-6.95,-45,-14.15]
 export const inVerandaInlet=x=>x>=VERANDA_INLET[0]&&x<=VERANDA_INLET[1]
 export const northShoreZ=x=>inVerandaInlet(x)?VERANDA_INLET[3]:-34
 // Terrain joins the grassy north/west rim to the sea below it.
@@ -12,3 +12,6 @@ export function northBankHeight(x,z){
  const t=Math.max(0,Math.min(1,(northShoreZ(x)-z)/((inVerandaInlet(x)?2.8:11)-bend*.25)))
  return -7.35*t*t*(3-2*t)
 }
+
+export const STUDY_INLET=[-6.95,7.8,-45,-29.65]
+export const SEA_OPENINGS=[VERANDA_INLET,STUDY_INLET]

@@ -17,6 +17,8 @@ export default function LabradorAvatar({moving,book,pose,player}){
   animateLabrador(model,t,dt,moving.current,Boolean(book||drink),sit)
   if(pose?.current?.snack&&model.parts.ArmL){model.parts.ArmL.node.rotation.x-=.7*Math.sin(Math.PI*pose.current.snack.elapsed/1.8)}
   if(pose?.current?.climbing){for(const key of ['ArmL','ArmR']){const part=model.parts[key];if(part){part.node.rotation.x-=1.2;part.node.position.y+=.15}}if(model.parts.Football)model.parts.Football.node.visible=false}
+  if((pose?.current?.bathing||pose?.current?.ritual)&&model.parts.Football)model.parts.Football.node.visible=false
+  if(pose?.current?.ritual?.stage==='sipping'&&model.parts.ArmL)model.parts.ArmL.node.rotation.x-=.7*Math.sin(Math.PI*pose.current.ritual.elapsed/2.4)
   root.current.position.y=.02+Math.sin(t*9)*.018*(moving.current?1:0)*(1-sit)
  })
  return <group ref={root} rotation={[0,Math.PI,0]}><primitive object={model.copy}/><AvatarCafeAccessories model={model.copy} character="labrador" player={player} pose={pose}/>{book&&!drink&&<FloatingBook key={book.id} book={book} pose={pose}/>}</group>

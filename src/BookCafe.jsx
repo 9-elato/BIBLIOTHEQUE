@@ -1,3 +1,5 @@
+import {canReachEvent} from './interactionReach.js'
+import {CAFE_FLOOR_TILES} from './cafeGroundLayout.js'
 import SnowmanSlipper from './SnowmanSlipper'
 import CafeFinish from './CafeFinish'
 import CafePrivateFloor from './CafePrivateFloor'
@@ -38,21 +40,16 @@ export function Sign({text,position,size=[2,1],rotation=[0,0,0],dark=false,fasci
  const lines=text.split('\n'),start=cy+70,step=Math.min(62,(h-start-24)/Math.max(1,lines.length));x.textAlign='center';x.textBaseline='middle';x.fillStyle=dark?'#f4ead5':'#243d36';lines.forEach((line,i)=>{x.font=`${i===0?'600':'400'} ${Math.min(i===0?44:32,step*.72)}px Georgia, serif`;x.fillText(line,512,start+(i+.5)*step,930)});
  }
  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t},[text,dark,fascia,compact,size[0],size[1]]);useEffect(()=>()=>texture.dispose(),[texture])
- return <mesh onClick={e=>{e.stopPropagation();openSign?.(action||{type:'cafe-sign',text,signArtwork:texture.image.toDataURL('image/png')})}} userData={{noCameraCollision:true}} position={position} rotation={rotation}><planeGeometry args={size}/><meshBasicMaterial map={texture} side={THREE.DoubleSide}/></mesh>
+ return <mesh onClick={e=>{e.stopPropagation();if(!canReachEvent(e))return;openSign?.(action||{type:'cafe-sign',text,signArtwork:texture.image.toDataURL('image/png')})}} userData={{noCameraCollision:true}} position={position} rotation={rotation}><planeGeometry args={size}/><meshBasicMaterial map={texture} side={THREE.DoubleSide}/></mesh>
 }
 export default function BookCafe({config,books,onOpen,time}){
  config=withCafePoster(cafeIdentity(config))
  const chosen=curatedDisplay(config,books)
  const displays=representativeDisplays(books)
- const click=e=>{e.stopPropagation();onOpen('cafe-books')}
+ const click=e=>{e.stopPropagation();if(!canReachEvent(e))return;onOpen('cafe-books')}
  return <CafeSignContext.Provider value={onOpen}><group position={[-16,0,22.25]} scale={[CAFE_SCALE,1,CAFE_SCALE]}><group position={[16,0,-22.25]}>
  <StaticBatch>
- <B p={[-32,-.12,23]} s={[4,.24,16] } c="#9a7955"/>
-
-
- <B p={[-22.3,-.12,23]} s={[15.4,.24,16.5]} c="#9a7955"/>
- <B p={[-14,0,22.25]} s={[4,.08,2.5]} c="#bca887"/>
-
+ {CAFE_FLOOR_TILES.map(({id,rect:[l,r,b,f],color})=><B key={id} p={[(l+r)/2,-.12,(b+f)/2]} s={[r-l,.24,f-b]} c={color}/>)}
  <B p={[-34,.45,23]} s={[.28,.9,16]} c="#eee6d8"/><B p={[-34,6.25,23]} s={[.28,1.5,16]} c="#eee6d8"/>
  {[15.15,18.3,21.5,24.7,27.8,30.85].map(z=><B key={z} p={[-34,3.2,z]} s={[.22,4.6,.09]} c="#242525"/>)}
  <mesh position={[-34,3.2,23]} rotation={[0,Math.PI/2,0]}><planeGeometry args={[15.7,4.6]}/><meshStandardMaterial color="#b7cfca" transparent opacity={.07} depthWrite={false} side={THREE.DoubleSide}/></mesh>
@@ -61,27 +58,27 @@ export default function BookCafe({config,books,onOpen,time}){
  <B p={[-32.5,3.5,31]} s={[3,7,.25]} c="#eee6d8"/><B p={[-22.5,3.5,31]} s={[13,7,.25]} c="#eee6d8"/><B p={[-30,5.8,31]} s={[2,2.4,.25]} c="#eee6d8"/>
 
 
- <B p={[-16,5.7,22.25]} s={[.25,2.6,2.5]} c="#d5c4a3"/>
+ <B p={[-16,6,22.25]} s={[.25,2,3.1]} c="#222323"/>
 
  </StaticBatch>
  <CafeFinish/><CafeShopfront/><CafeDoorBell/>
  <Sign text={'2F PRIVATE\n예약 전용 · 1인 공간\n← 계단으로 올라오세요'} position={[-33.84,2.1,30]} rotation={[0,Math.PI/2,0]} size={[1.2,.8]} dark compact action={{type:'cafe-sign',privateBooking:true}}/>
- <group onClick={e=>{e.stopPropagation();onOpen({type:'cafe-sign',goodsZone:true})}}><CafeGoodsDetails onSelect={goodsName=>onOpen({type:'cafe-sign',goodsName})}/></group>
+ <group onClick={e=>{e.stopPropagation();if(!canReachEvent(e))return;onOpen({type:'cafe-sign',goodsZone:true})}}><CafeGoodsDetails onSelect={goodsName=>onOpen({type:'cafe-sign',goodsName})}/></group>
  <B p={[-22.65,.015,16.65]} s={[4.4,.025,1.9]} c="#b8a68c"/>
  <B p={[-25,1.1,15.88]} s={[.12,2.2,1]} c="#40382f"/>
  <CafeCinema config={config} Sign={Sign}/><CafePrivateFloor Sign={Sign} onOpen={onOpen}/>
- <group onClick={e=>{e.stopPropagation();onOpen('cafe-books')}}>
+ <group onClick={e=>{e.stopPropagation();if(!canReachEvent(e))return;onOpen('cafe-books')}}>
  <B p={[-16.24,1.35,16.15]} s={[.34,.1,1.6]} c="#8f7352"/>
  {(chosen.length?chosen.slice(0,3):[{id:'display',color:'#665648'}]).map((b,i)=><group key={b.id} position={[-16.22,1.75,15.65+i*.48]}><B p={[0,0,0]} s={[.10,.7,.4]} c={b.color||'#6c5c46'}/><BookCoverMesh url={b.cover} position={[.06,0,0]} rotation={[0,Math.PI/2,0]} size={[.38,.67]}/></group>)}
  </group>
- <group onClick={e=>{e.stopPropagation();onOpen({type:'cafe-sign',text:'다음 상영작\n'+config.filmTitle,image:config.filmPoster})}}>
+ <group onClick={e=>{e.stopPropagation();if(!canReachEvent(e))return;onOpen({type:'cafe-sign',text:'다음 상영작\n'+config.filmTitle,image:config.filmPoster})}}>
  <B p={[-16.2,2.7,17.45]} s={[.07,1.72,1.18]} c="#292a28"/>
- <group onClick={e=>{e.stopPropagation();onOpen({type:'cafe-sign',text:config.filmTitle,image:config.filmPoster})}}><BookCoverMesh url={config.filmPoster} position={[-16.15,2.7,17.45]} rotation={[0,Math.PI/2,0]} size={[1.1,1.62]}/></group>
+ <group onClick={e=>{e.stopPropagation();if(!canReachEvent(e))return;onOpen({type:'cafe-sign',text:config.filmTitle,image:config.filmPoster})}}><BookCoverMesh url={config.filmPoster} position={[-16.15,2.7,17.45]} rotation={[0,Math.PI/2,0]} size={[1.1,1.62]}/></group>
  </group>
  <Sign text={'WANTED\n함께 읽을 유령을 찾습니다\n유령단 독서모임\n책 한 권 · 다른 생각들\n모임 일정은 책방지기에게'} position={[-16.14,2.7,18.75]} rotation={[0,Math.PI/2,0]} size={[1.1,1.65]} compact/>
 
  <Sign text={config.title+'\n책 여는 시간 10:00 · 책 닫는 시간 20:00'} position={[-15.53,5.75,23]} rotation={[0,Math.PI/2,0]} size={[10,1.27]} dark fascia/>
- <group onClick={e=>{e.stopPropagation();onOpen('cafe-mail')}}>
+ <group onClick={e=>{e.stopPropagation();if(!canReachEvent(e))return;onOpen('cafe-mail')}}>
  <B p={[-17.8,1.6,23.85]} s={[.85,.9,.25]} c="#292b29"/>
  <B p={[-17.8,1.85,23.715]} s={[.58,.055,.02]} c="#1d3029"/>
  <Sign action="cafe-mail" text={'느린 우편함\n1년 뒤의 나에게'} position={[-17.8,1.48,23.71]} rotation={[0,Math.PI,0]} size={[.72,.45]}/>
@@ -98,10 +95,11 @@ export default function BookCafe({config,books,onOpen,time}){
 
  <Sign text={'유령단\n책 여는 시간 10:00\n책 닫는 시간 20:00'} position={[-15.79,1.8,24.2]} rotation={[0,Math.PI/2,0]} size={[.78,.43]} dark compact/>
  <group userData={{noCameraCollision:true}}>
- <B p={[-18.2,1.46,20.05]} s={[.65,.08,.7]} c="#f4ead5"/>
- <B p={[-18.2,1.53,20.05]} s={[.59,.04,.65]} c="#fff6e5"/>
- <Sign action="cafe" text={'INVITATION\n유령단의 초대장\n미니맵 · 이용 안내'} position={[-18.12,2.01,20.18]} rotation={[0,Math.PI/2,0]} size={[1.2,1.05]}/>
- <B p={[-18.2,1.75,20.18]} s={[.08,.65,.7]} c="#ac8a5d"/>
+ <group position={[-18.2,0,21.4]}>
+ <B p={[0,.55,0]} s={[.55,1.1,.5]} c="#292b29"/>
+ <B p={[0,1.13,0]} s={[.7,.06,.6]} c="#ac8a5d"/>
+ <Sign action="cafe" text={'INVITATION\n유령단의 초대장'} position={[0,1.17,0]} rotation={[-Math.PI/2,0,Math.PI/2]} size={[.58,.45]}/>
+ </group>
  </group>
  <B p={[-17.25,.65,18.25]} s={[1.2,1.3,4.3]} c="#252625"/>
  <B p={[-17.25,1.34,18.25]} s={[1.4,.12,4.5]} c="#d9cfbc"/>
@@ -128,7 +126,7 @@ export default function BookCafe({config,books,onOpen,time}){
  {[-.13,.13].map(x=><mesh key={x} position={[-21.3+x,1.57,16]} rotation={[0,0,.15]}><torusGeometry args={[.12,.018,6,14]}/><meshStandardMaterial color="#8e6738" metalness={.65} roughness={.35}/></mesh>)}
  <B p={[-21.3,1.57,16]} s={[.08,.02,.025]} c="#8e6738"/>
  <Sign text={config.eventTitle+'\n'+config.eventNote} position={[-33.8,3,22]} rotation={[0,Math.PI/2,0]} size={[2.8,1.6]}/>
- <group onClick={e=>{e.stopPropagation();onOpen({type:'cafe-sign',text:config.eventTitle,image:config.eventPoster})}}><BookCoverMesh url={config.eventPoster} position={[-33.78,1.8,22]} rotation={[0,Math.PI/2,0]} size={[1.2,1.6]}/></group>
+ <group onClick={e=>{e.stopPropagation();if(!canReachEvent(e))return;onOpen({type:'cafe-sign',text:config.eventTitle,image:config.eventPoster})}}><BookCoverMesh url={config.eventPoster} position={[-33.78,1.8,22]} rotation={[0,Math.PI/2,0]} size={[1.2,1.6]}/></group>
  </group>
  <StaticBatch revision={time}>
  {CAFE_LOCAL_SEATS.map(([x,z],i)=><group key={i} position={[x,0,z]} rotation={[0,CAFE_SEAT_TURNS[i]-Math.PI,0]}>{i<2?<CafeLoungeChair/>:<CafeSoftSeat floor={i===4} dark={false}/>}</group>)}

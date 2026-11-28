@@ -1,11 +1,10 @@
-import OceanSurface from './OceanSurface'
-import LivingOcean from './LivingOcean'
+import {canReachEvent} from './interactionReach.js'
 import {useFrame} from '@react-three/fiber'
 import React,{useMemo,useRef} from 'react'
 import * as THREE from 'three'
 import {CarvedBox as B} from './StorybookDecor'
 export function OceanWindow({p,turn=0,w,h=5.2,time,weather,motion=1}){
- return <group position={p} rotation={[0,turn,0]} userData={{noBatch:true}}><LivingOcean w={w} h={h} time={time} weather={weather}/><OceanSurface w={w} h={h} time={time} weather={weather} motion={motion}/>{[-1,1].map(a=><group key={a}><B p={[a*w/2,0,.055]} s={[.12,h+.2,.16]} c="#3d332c"/><B p={[0,a*h/2,.055]} s={[w,.12,.16]} c="#3d332c"/></group>)}<mesh position={[0,0,.07]}><planeGeometry args={[w-.05,h-.05]}/><meshStandardMaterial color="#b7d6db" transparent opacity={.035} roughness={.15} metalness={.15} depthWrite={false}/></mesh></group>
+ return <group position={p} rotation={[0,turn,0]} userData={{noBatch:true}}>{[-1,1].map(a=><group key={a}><B p={[a*w/2,0,.055]} s={[.12,h+.2,.16]} c="#3d332c"/><B p={[0,a*h/2,.055]} s={[w,.12,.16]} c="#3d332c"/></group>)}<mesh position={[0,0,.07]}><planeGeometry args={[w-.05,h-.05]}/><meshStandardMaterial color="#b7d6db" transparent opacity={.035} roughness={.15} metalness={.15} depthWrite={false}/></mesh></group>
 }
 export default function CoastalStudy({time,weather,onMusic}){return <group>
  <OceanWindow p={[0,4.10,-29.30]} w={13.7} time={time} weather={weather}/>
@@ -23,7 +22,7 @@ export default function CoastalStudy({time,weather,onMusic}){return <group>
  <group position={[6.53,0,-25.9]} rotation={[0,-Math.PI/2,0]} scale={[1.5,1,1]}>
   <B p={[0,.56,0]} s={[4.1,1.12,.85]} c="#3e3027"/><B p={[0,1.17,0]} s={[4.25,.13,.95]} c="#8b6746"/>
   {Array.from({length:38},(_,i)=><B key={i} p={[-1.9+i*.067,.57,.44]} s={[.035,.76,.045]} c={['#aa8a66','#716e65','#52665e','#8f5b56'][i%4]}/>)}
-  {[1.9,3.05].map((y,row)=><group key={y}><B p={[0,y,-.08]} s={[4.3,.10,.46]} c="#876244"/><B p={[0,y+.065,.14]} s={[4.1,.02,.025]} c="#f0ca85"/><mesh position={[0,y+.05,.17]}><boxGeometry args={[4.12,.015,.02]}/><meshBasicMaterial color="#ffd99a"/></mesh>{[0,1,2,3,4].map(i=><group key={i} position={[-1.65+i*.82,y+.60,.02]} scale={[1,1.5,1]} userData={{noBatch:true}} onClick={e=>{e.stopPropagation();onMusic(row*5+i)}}><B s={[.73,.74,.055]} c={['#314b53','#ad9973','#814f49','#5f6b51','#383849'][(i+row)%5]}/><mesh position={[0,0,.035]}><ringGeometry args={[.10,.23,24]}/><meshStandardMaterial color={row%2?'#c3a973':'#d9c7a1'} roughness={.9}/></mesh><B p={[0,-.27,.04]} s={[.46,.018,.01]} c="#ddd0af"/></group>)}</group>)}
+  {[1.9,3.05].map((y,row)=><group key={y}><B p={[0,y,-.08]} s={[4.3,.10,.46]} c="#876244"/><B p={[0,y+.065,.14]} s={[4.1,.02,.025]} c="#f0ca85"/><mesh position={[0,y+.05,.17]}><boxGeometry args={[4.12,.015,.02]}/><meshBasicMaterial color="#ffd99a"/></mesh>{[0,1,2,3,4].map(i=><group key={i} position={[-1.65+i*.82,y+.60,.02]} scale={[1,1.5,1]} userData={{noBatch:true}} onClick={e=>{e.stopPropagation();if(!canReachEvent(e))return;onMusic(row*5+i)}}><B s={[.73,.74,.055]} c={['#314b53','#ad9973','#814f49','#5f6b51','#383849'][(i+row)%5]}/><mesh position={[0,0,.035]}><ringGeometry args={[.10,.23,24]}/><meshStandardMaterial color={row%2?'#c3a973':'#d9c7a1'} roughness={.9}/></mesh><B p={[0,-.27,.04]} s={[.46,.018,.01]} c="#ddd0af"/></group>)}</group>)}
   {[-1,1].map(a=><group key={a} position={[a*2.1,0,0]}><B p={[0,.73,0]} s={[.55,1.46,.60]} c="#282d2c"/>{[.42,.94].map(y=><mesh key={y} position={[0,y,.31]}><circleGeometry args={[.19,28]}/><meshStandardMaterial color="#151b1e" metalness={.25} roughness={.5}/></mesh>)}</group>)}
  </group>
  </group>}

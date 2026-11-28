@@ -77,7 +77,6 @@ export const FURNITURE=[
   {floor:ATTIC_HEIGHT,rect:[-19.15,-16.05,-1.65,1.65],id:'daybed'},
   {floor:ATTIC_HEIGHT,rect:[-17.45,-14.35,-6.3,-5.1],id:'attic-shelves'},
   {floor:ATTIC_HEIGHT,rect:[-13.78,-12,-5.85,-4.9],id:'attic-cabinet'},
-  {floor:ATTIC_HEIGHT,rect:[-17.85,-16.65,4,5.2],id:'telescope'},
   {floor:ATTIC_HEIGHT,rect:[-12.15,-11.55,-5.3,4.65],id:'attic-side-furnishings'},
 ]
 FURNITURE.forEach(item=>{if(item.floor===ATTIC_HEIGHT&&!item.id.startsWith('attic-0')&&!item.id.startsWith('attic-1')){item.rect[0]=atticX(item.rect[0]);item.rect[1]=atticX(item.rect[1])}})

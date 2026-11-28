@@ -1,3 +1,4 @@
+import {canReachEvent} from './interactionReach.js'
 import React from 'react'
 import * as THREE from 'three'
 import {Box as B} from './GroundFloor'
@@ -10,7 +11,7 @@ export default function CafeGoodsDetails({onSelect}){
   [-21.6,2.37,.29,.58,'노트'],[-21.18,2.3,.33,.43,'달력'],[-20.78,2.37,.29,.58,'큐앤에이다이어리'],
   [-23.2,1.47,.62,.39,'눈사람 실내화'],[-22.75,1.35,.43,.22,'녹은 눈사람 모양 냉장고 마그넷'],
   [-22.4,1.62,.37,.65,'독서하는 유령 소형 조각상'],[-21.3,1.47,.6,.3,'여우의 삐뚤어진 안경 키링']
- ].map(([x,y,w,h,name])=><mesh key={name} position={[x,y,16.18]} userData={{noCameraCollision:true}} onClick={e=>{e.stopPropagation();onSelect?.(name)}}><planeGeometry args={[w,h]}/><meshBasicMaterial transparent opacity={0} depthWrite={false} side={THREE.DoubleSide}/></mesh>)}
+ ].map(([x,y,w,h,name])=><mesh key={name} position={[x,y,16.18]} userData={{noCameraCollision:true}} onClick={e=>{e.stopPropagation();if(!canReachEvent(e))return;onSelect?.(name)}}><planeGeometry args={[w,h]}/><meshBasicMaterial transparent opacity={0} depthWrite={false} side={THREE.DoubleSide}/></mesh>)}
  <StaticBatch>
  <B p={[-22.65,2.53,15.76]} s={[4.3,1.05,.06]} c="#e6dcc8"/>
  <B p={[-24.3,2.86,15.91]} s={[.025,.025,.30]} c="#72634d"/>

@@ -39,7 +39,7 @@ export default function FoxAvatar({moving,book,pose,player}){
    const sign=o.name.endsWith(' L')?1:-1
    o.position.copy(p);o.rotation.copy(r);o.scale.copy(s)
    if(/Boot/.test(o.name)){o.position.z+=Math.sin(t*10)*.15*walk*sign+a*.3;o.position.y+=Math.max(0,Math.cos(t*10)*sign)*.09*walk}
-   if(/forepaw/.test(o.name)){if(pose?.current?.snack&&sign===1){o.position.y+=.45*Math.sin(Math.PI*pose.current.snack.elapsed/1.8);o.position.z+=.18*Math.sin(Math.PI*pose.current.snack.elapsed/1.8)}o.position.z+=((book||drink)?.16:0);o.position.y+=((book||drink)?.13:0);if(pose?.current?.climbing){o.position.y+=.55;o.position.z+=.3;o.rotation.x-=.8}}
+   if(/forepaw/.test(o.name)){if(sign===1&&pose?.current?.ritual?.stage==='sipping'){o.position.y+=.4*Math.sin(Math.PI*pose.current.ritual.elapsed/2.4);o.position.z+=.16;}if(pose?.current?.snack&&sign===1){o.position.y+=.45*Math.sin(Math.PI*pose.current.snack.elapsed/1.8);o.position.z+=.18*Math.sin(Math.PI*pose.current.snack.elapsed/1.8)}o.position.z+=((book||drink)?.16:0);o.position.y+=((book||drink)?.13:0);if(pose?.current?.climbing){o.position.y+=.55;o.position.z+=.3;o.rotation.x-=.8}}
    if(o.name.startsWith('Plume')){o.rotation.y+=Math.sin(t*(2+walk))*(.07+.04*walk);o.scale.z=s.z*(1-a*.22)}
    if(o.name.startsWith('Sculpted ear'))o.rotation.z+=sign*Math.sin(t*3+sign)*(.012+.018*walk)
    if(o.name.startsWith('Eye'))o.scale.y=s.y*(1-Math.max(0,1-Math.abs(t%4.9-4.72)/.105)**2*.9)

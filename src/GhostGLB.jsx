@@ -18,6 +18,7 @@ export function FloatingBook({book,pose}){
  const opened=useRef(0)
  useFrame(({clock},dt)=>{
   if(!root.current)return
+  root.current.visible=!pose?.current?.bathing&&!pose?.current?.ritual
   const sit=pose?.current?.amount||0,t=clock.elapsedTime
   opened.current=MathUtils.damp(opened.current,1,6,dt)
   root.current.scale.setScalar(Math.max(.01,opened.current))

@@ -1,3 +1,4 @@
+import {setInteractionWorld} from './interactionReach.js'
 import {shortcutAllowed,shortcutAction} from './shortcuts'
 import {applyCinemaAction,advanceCinemaSnack,cinemaSeatMotion} from './cinemaActions.js'
 import {readCinemaKit} from './cinemaKitState'
@@ -57,7 +58,7 @@ import PlacedBooks from './PlacedBooks'
 import LibraryDetails from './LibraryDetails'
 import MainRoomDetails from './MainRoomDetails'
 import {HallDetails} from './RoomDetails'
-import {startSitting,startStanding,advanceSeating} from './seating'
+import {SEATS,startSitting,startStanding,advanceSeating} from './seating'
 
 const MOVE=['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight']
 const AtticGLB=lazy(()=>import('./AtticGLB'))
@@ -106,7 +107,7 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
       const s=state.current
       Object.assign(s,{x,z,level,yaw,bodyYaw:-yaw,pitch:0})
       cameraYaw.current=yaw
-      autoWalk.current=null;s.keys.clear();s.seated=null;if(s.ladder)s.ladder.item.occupied=false;s.ladder=null;pose.current={amount:0}
+      autoWalk.current=null;s.keys.clear();s.seated=null;s.verandaPending=null;s.ritual=null;if(s.ladder)s.ladder.item.occupied=false;s.ladder=null;pose.current={amount:0}
     }
   },[teleport])
   useEffect(()=>{
@@ -128,7 +129,7 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
       if(!action)return
       s.keys.clear()
       if(action.type==='place')ui.onPlaceNearby?.(action.target)
-      else if(action.type==='stand')s.seated=startStanding(s.seated,ui.world)
+      else if(action.type==='stand'){s.verandaPending=null;s.seated=startStanding(s.seated,ui.world);if(s.ritual){s.ritual=null;ui.onExperience(null)}}
       else if(action.type==='seat'){const sitting=action.sitting||startSitting(s,action.seat,ui.world);if(sitting){s.skyGaze=false;s.seated=sitting;s.yaw=-action.seat.turn-.4;s.pitch=0}}
       else if(action.type==='door'){
         // Do not swing the door through a visitor standing in its sweep.
@@ -143,7 +144,7 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
       else if(action.type==='music')ui.onMusic?.()
       else if(action.type==='ladder')boardLadder(s,action.ladder,(x,z)=>walkHeight(x,z,0,ui.world)===0,(a,b)=>{const p=movePlayer(a,b.x-a.x,b.z-a.z,ui.world);return Math.hypot(p.x-b.x,p.z-b.z)<.01})
       else if(action.type==='ladderExit'){s.ladder.phase='descending';s.ladder.blocked=false}
-      else if(action.type==='telescope'||action.type==='board')ui.onExperience(action.type)
+      else if(action.type==='board')ui.onExperience(action.type)
       else if(action.type==='cinemaCurtain')cinemaCurtain.open=true
       else if(action.type==='cafePrivate')ui.onExperience({type:'cafe-sign',privateBooking:true,roomId:action.roomId})
       else if(action.type==='cinemaLobby')ui.onExperience({type:'cafe-sign',cinemaLobby:true})
@@ -239,6 +240,17 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
       if(touch.current.size<2)zoom.current=THREE.MathUtils.clamp(gestureZoom*e.scale,.8,2.6)
     }
     const skyView=()=>{if(['meadow-rest','terrace-sofa'].includes(s.seated?.seat.id))s.skyGaze=!s.skyGaze}
+    const verandaStart=e=>{
+      if(!['tea','meditation'].includes(e.detail)||status.current.blocked)return
+      if(s.seated?.phase==='seated'&&s.seated.seat.id.startsWith('veranda-')){s.ritual={kind:e.detail};status.current.onExperience(e.detail);return}
+      if(s.seated)return
+      const choices=SEATS.filter(seat=>seat.id.startsWith('veranda-')).sort((a,b)=>Math.hypot(s.x-a.entry.x,s.z-a.entry.z)-Math.hypot(s.x-b.entry.x,s.z-b.entry.z))
+      for(const seat of choices){const sitting=startSitting(s,seat,status.current.world);if(sitting){autoWalk.current=null;s.keys.clear();s.seated=sitting;s.verandaPending=e.detail;return}}
+      window.dispatchEvent(new CustomEvent('veranda-message',{detail:'방석 앞에 가까이 다가가 앉은 뒤 시작해주세요.'}))
+    }
+    const ritualState=e=>{if(s.seated?.seat.id.startsWith('veranda-'))s.ritual=e.detail}
+    window.addEventListener('veranda-start',verandaStart)
+    window.addEventListener('veranda-ritual-state',ritualState)
     window.addEventListener('library-meadow-sky',skyView)
     const posture=e=>{if(s.seated?.phase==='seated'&&s.seated.seat.id==='attic-daybed'){s.seated={...s.seated,posture:['lying','cinema'].includes(e.detail)?'lying':'sitting'};s.cinema=e.detail==='cinema';s.yaw=e.detail==='lying'?0:-s.seated.seat.turn-.4;s.pitch=0}}
     window.addEventListener('library-seat-pose',posture)
@@ -252,6 +264,8 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
     canvas.addEventListener('gesturechange',gestureChange,{passive:false})
     window.addEventListener('pointermove',move);window.addEventListener('pointerup',up);window.addEventListener('pointercancel',up)
     return ()=>{
+      window.removeEventListener('veranda-start',verandaStart)
+      window.removeEventListener('veranda-ritual-state',ritualState)
       window.removeEventListener('library-seat-pose',posture)
       window.removeEventListener('library-meadow-sky',skyView)
       window.removeEventListener('keydown',keyDown);window.removeEventListener('keyup',keyUp)
@@ -309,11 +323,12 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
       const oldSeat=s.seated
       const result=advanceSeating(oldSeat,dt,world)
       if(result.seating){result.seating.snack=result.seating.phase==='seated'?advanceCinemaSnack(oldSeat.snack,dt):null}
-      pose.current={...result.pose,snack:result.seating?.snack}
+      pose.current={...result.pose,snack:result.seating?.snack,ritual:s.ritual}
       moving.current=moving.current||Boolean(result.pose.walking)
       s.x=result.pose.x;s.z=result.pose.z;visualY=result.pose.y
       avatar.current.rotation.y=result.pose.rotation
       s.seated=result.seating
+      if(s.verandaPending&&s.seated?.phase==='seated'){const kind=s.verandaPending;s.verandaPending=null;s.ritual={kind};status.current.onExperience(kind)}
       s.bodyYaw=result.pose.rotation
       if(!s.seated){s.keys.clear()}
     }else{
@@ -324,7 +339,7 @@ function WalkControl({entranceDoor,playerPosition,verandaDoor,blanket,onBlanket,
     avatar.current.rotation.order='YXZ'
     avatar.current.rotation.x=pose.current.recline||0
     avatar.current.position.set(s.x,visualY*WORLD_HEIGHT_SCALE,s.z)
-    Object.assign(playerPosition.current,{x:s.x,z:s.z,level:s.level})
+    Object.assign(playerPosition.current,{x:s.x,z:s.z,level:s.level});setInteractionWorld(playerPosition.current,scene)
     const seatText=s.seated?`${s.seated.seat.label} · ${s.seated.transitionBlocked?'이동 공간 대기 중':s.seated.phase==='floorExit'?'안전한 경로로 나오는 중':s.seated.phase==='entering'?'앉는 중':s.seated.phase==='leaving'?'일어나는 중':s.seated.seat.bathing?'따뜻한 물에서 반신욕 중':s.seated.seat.id==='meadow-rest'?'하늘 구경 중':s.seated.seat.recliner?(s.seated.snack?.kind==='popcorn'?'팝콘 먹는 중':s.seated.snack?.kind==='cola'?'콜라 마시는 중':s.seated.posture==='reclined'?'좌석 젖혀 감상 중':'영화 감상 중'):s.seated.posture==='lying'?'누워 읽기':heldBook?'독서 중':'휴식 중'}`:''
     if(seatText!==lastSeatStatus.current){lastSeatStatus.current=seatText;onSeatStatus?.(seatText)}
     const zone=s.ladder?'서가':floorName(s.x,s.z,s.level)||(s.z>32?'잔디 동산':zoneAt(s.x,s.z,layout.end))

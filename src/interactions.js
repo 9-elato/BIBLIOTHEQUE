@@ -45,7 +45,6 @@ export function interactionAt(s, {entranceOpen, gateReady, gateOpening=false, bo
   const game=GAME_SPOTS.find(g=>Math.abs(s.level-g.level)<.1&&near(g.x,g.z,1.65))
   if(game)return {type:'minigame',game:game.id,label:game.title+' 시작'}
   if(s.level===0&&near(-16.8,-1.8,1.3))return {type:'blanket',label:'라운지 담요 챙기기 / 내려놓기'}
-  if(Math.abs(s.level-ATTIC_HEIGHT)<.1&&near(atticX(-17.25),4.6,1.8))return {type:'telescope',label:'망원경으로 별과 달 보기'}
   if(s.level===0&&near(-13.4,.15,2))return {type:'board',label:'별자리 삼목 시작'}
   const ladder=s.level===0?world?.ladders?.find(l=>near(l.x,l.z,1.9)):null
   if(ladder)return {type:'ladder',ladder,label:'사다리 타기 · 탑승 후 A/D 레일 사다리 이동'}

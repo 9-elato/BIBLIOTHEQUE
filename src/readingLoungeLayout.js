@@ -4,6 +4,9 @@ export const READING_SOFA=[
  {id:'reading-sofa-back',rect:[12.2,13.25,-2.8,2.8]},
 ]
 export const READING_LOUNGE_SOLIDS=[...READING_SOFA,
+ {id:'reading-north-upholstery',rect:[9.3,13,-2.88,-2.36]},
+ {id:'reading-south-upholstery',rect:[9.3,13,2.36,2.88]},
+ {id:'reading-east-upholstery',rect:[12.79,13.31,-2.83,2.83]},
  {id:'reading-table',rect:[10,11.5,-.45,.45]},
  {id:'reading-shelves',rect:[14.25,14.95,-4.65,4.65]},
  ...[-1,1].map(a=>({id:'reading-wall-shelf-'+a,rect:[8.2,14.25,a<0?-4.9:4.3,a<0?-4.3:4.9]})),

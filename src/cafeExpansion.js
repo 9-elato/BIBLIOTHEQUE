@@ -28,6 +28,6 @@ export const privateSolids=[
  {id:'private-stair-guard',floor:7.2,rect:worldRect([-31.7,-31.55,17.8,30.8])},
 ]
 export const cinemaSolids=[
- ...CINEMA_CHAIRS.map((s,i)=>({id:`cinema-recliner-${i}`,floor:s.level,rect:[s.x-.8,s.x+.8,s.z-1.05,s.z+1.05]})),
+ ...CINEMA_CHAIRS.map((s,i)=>({id:`cinema-recliner-${i}`,floor:s.level,rect:[s.x-.8,s.x+.8,s.z-1.13,s.z+1.32]})),
  ...[[-34,-25,38.7,39],[-21,-16,38.7,39],[-21.5,-17.5,33,34]].map((r,i)=>({id:'cinema-lobby-'+i,floor:0,rect:worldRect([r[0],r[1],cinemaZ(r[2]),cinemaZ(r[3])])})),
  ...[31,32].flatMap(z=>[[-34,-31,z-.12,z+.12],[-29,-16,z-.12,z+.12]].map((r,i)=>({id:'cinema-entry-'+z+'-'+i,floor:0,rect:worldRect(r)}))),...privateSolids]

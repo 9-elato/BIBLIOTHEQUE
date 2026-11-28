@@ -37,7 +37,6 @@ export default function CafeShopfront(){
    <mesh position={[-15.2,3.05,z]}><boxGeometry args={[.045,.34,.21]}/><meshStandardMaterial color="#ffe5b1" emissive="#ffc774" emissiveIntensity={.8}/></mesh>
    <mesh position={[-15.38,3.4,z]}><coneGeometry args={[.29,.22,4]}/><meshStandardMaterial color={ink}/></mesh>
   </group>)}
-  <B p={[-14.4,-.04,23]} s={[3.2,.16,16]} c="#a28a6b"/>
   {[17.2,28.1].map(z=><group key={z}><B p={[-14.9,.48,z]} s={[.72,.16,2.5]} c={wood}/><B p={[-15.2,.91,z]} s={[.12,.72,2.5]} c={wood}/>{[-.9,.9].map(d=><B key={d} p={[-14.9,.2,z+d]} s={[.6,.4,.10]} c={ink}/>)}</group>)}
   <B p={[-16,.425,27.4]} s={[.25,.85,6.9]} c={ink}/><B p={[-16,5.925,27.4]} s={[.25,2.15,6.9]} c={ink}/>
   <mesh position={[-16,2.85,27.4]} rotation={[0,Math.PI/2,0]}><planeGeometry args={[6.6,4]}/><meshStandardMaterial color="#d0dcd5" transparent opacity={.04} roughness={.2} depthWrite={false} side={THREE.DoubleSide}/></mesh>

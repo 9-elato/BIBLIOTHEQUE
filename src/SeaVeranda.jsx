@@ -1,14 +1,17 @@
-import React,{useRef} from 'react'
+import {canReachEvent} from './interactionReach.js'
+import {useLibraryModel} from './useLibraryModel'
+import React,{useRef,useMemo,Suspense,useState,useEffect} from 'react'
 import {useFrame} from '@react-three/fiber'
 import StaticBatch from './StaticBatch'
 import {Text} from '@react-three/drei'
 import {CarvedBox as B} from './StorybookDecor'
-import {advanceGuardedDoor,verandaDoorBlocks} from './doorMotion'
+import {advanceGuardedDoor,verandaDoorBlocks,toggleVerandaDoor} from './doorMotion'
 export default function SeaVeranda({door,time,weather,onExperience,playerPosition}){
- const slider=useRef()
+ const slider=useRef(),[message,setMessage]=useState('차 마시기')
+ useEffect(()=>{const receive=e=>setMessage(e.detail);window.addEventListener('veranda-message',receive);return()=>window.removeEventListener('veranda-message',receive)},[])
  useFrame((_,dt)=>{advanceGuardedDoor(door,dt,playerPosition?.current,verandaDoorBlocks);if(slider.current)slider.current.position.x=-10.2-door.amount*1.9})
- const toggle=e=>{e.stopPropagation();window.dispatchEvent(new CustomEvent('library-interact'))}
- return <StaticBatch revision={time+weather}>
+ const toggle=e=>{e.stopPropagation();if(!canReachEvent(e))return;toggleVerandaDoor(door,playerPosition?.current)}
+ return <group><Suspense fallback={null}><VerandaFurniture/></Suspense><StaticBatch revision={time+weather}>
   <B p={[-14.7,-.13,-10.4]} s={[11.8,.26,7.5]} c="#83634b"/>
   {Array.from({length:21},(_,i)=><B key={i} p={[-14.7,.004,-6.85-i*.35]} s={[11.7,.012,.016]} c="#4b392e"/>)}
   <B p={[-14.7,6.3,-10.4]} s={[11.8,.2,7.5]} c="#584132"/>
@@ -28,20 +31,21 @@ export default function SeaVeranda({door,time,weather,onExperience,playerPositio
    <B p={[.65,1.15,.12]} s={[.05,.3,.07]} c="#bba16c"/>
   </group>
   <Text position={[-10.2,3.45,-6.48]} fontSize={.16} color="#f0dfbb">바다 마루</Text>
-  <B p={[-15,.43,-11]} s={[1.75,.14,1.1]} c="#5b3e2e"/>
-  {[-.65,.65].flatMap(x=>[-.35,.35].map(z=><B key={`${x}/${z}`} p={[-15+x,.2,-11+z]} s={[.09,.4,.09]} c="#50382b"/>))}
-  <group userData={{noBatch:true}} onClick={e=>{e.stopPropagation();onExperience('tea')}} position={[-15,.6,-11]}>
+  <group userData={{noBatch:true}} onClick={e=>{e.stopPropagation();if(!canReachEvent(e))return;window.dispatchEvent(new CustomEvent('veranda-start',{detail:'tea'}))}} position={[-15,.6,-11]}>
    <mesh><sphereGeometry args={[.19,16,10]}/><meshStandardMaterial color="#a4bbb1" roughness={.4}/></mesh>
    {[-.45,.45].map(x=><mesh key={x} position={[x,-.02,.16]}><cylinderGeometry args={[.1,.07,.14,16]}/><meshStandardMaterial color="#e4d6be"/></mesh>)}
-   <Text position={[0,.35,0]} fontSize={.12} color="#f5e5c4">차 마시기</Text>
+   <Text position={[0,.35,0]} fontSize={.12} color="#f5e5c4">{message}</Text>
   </group>
-  {[-17.5,-12.5].map(x=><group key={x}>
-   <mesh position={[x,.14,-11.8]} scale={[.7,.16,.65]}><sphereGeometry args={[1,20,12]}/><meshStandardMaterial color="#c4af87" roughness={1}/></mesh>
-  </group>)}
-  <group userData={{noBatch:true}} position={[-19,.5,-12.8]} onClick={e=>{e.stopPropagation();onExperience('meditation')}}>
+  <group userData={{noBatch:true}} position={[-19,.5,-12.8]} onClick={e=>{e.stopPropagation();if(!canReachEvent(e))return;window.dispatchEvent(new CustomEvent('veranda-start',{detail:'meditation'}))}}>
    <B s={[.38,.8,.38]} c="#4c3a2c"/><B s={[.31,.65,.4]} c="#f4d9a2"/>
    <pointLight color="#ffce8b" intensity={2.2} distance={5}/>
    <Text position={[0,.65,0]} fontSize={.13} color="#f5e5c4">바다 명상</Text>
   </group>
- </StaticBatch>
+ </StaticBatch></group>
+}
+
+function VerandaFurniture(){
+ const {scene}=useLibraryModel(`${import.meta.env.BASE_URL}models/veranda_furniture.glb`)
+ const model=useMemo(()=>{const copy=scene.clone(true);copy.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});return copy},[scene])
+ return <primitive object={model}/>
 }

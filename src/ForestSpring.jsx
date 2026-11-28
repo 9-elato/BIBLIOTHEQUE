@@ -6,13 +6,13 @@ import * as THREE from 'three'
 import {Box as B} from './GroundFloor'
 import StaticBatch from './StaticBatch'
 import {ambientUpdateDue} from './ambientUpdates'
-import {BASEMENT_HEIGHT as H,SPRING_POOL as P,SPRING_WALK_REGION,BASEMENT_BOUNDS,SPRING_OUTDOOR_REGION,SPRING_CURBS,SPRING_CANOPY_HEIGHT,SPRING_LANTERNS,cutFloor} from './basementLayout'
+import {BASEMENT_HEIGHT as H,SPRING_POOL as P,SPRING_WALK_REGION,BASEMENT_BOUNDS,SPRING_OUTDOOR_REGION,SPRING_CURBS,SPRING_CANOPY_HEIGHT,SPRING_LANTERNS,SPRING_WATER_HEIGHT,SPRING_BENCH_TOP,cutFloor} from './basementLayout'
 const rockCount=18,tileColumns=16,tileRows=40
 function LandscapeInstances(){
- const rocks=useMemo(()=>Array.from({length:rockCount},(_,i)=>{return {position:[13.4-(i%3)*.35,H+.12,1.5+i*.85],scale:[.3+(i%3)*.07,.18+(i%4)*.03,.35],seed:i+31,waterLevel:H+.13,moss:true}}),[]),leaves=useRef(),tiles=useRef()
+ const rocks=useMemo(()=>Array.from({length:rockCount},(_,i)=>{return {position:[13.4-(i%3)*.35,H+.12,7.3+i*.52],scale:[.3+(i%3)*.07,.18+(i%4)*.03,.35],seed:i+31,waterLevel:H+.13,moss:true}}),[]),leaves=useRef(),tiles=useRef()
  useLayoutEffect(()=>{const o=new THREE.Object3D(),c=new THREE.Color()
 
-  for(let i=0;i<180;i++){const plant=Math.floor(i/12),j=i%12,side=plant%2?-1:1,baseX=side<0?13.3:28.5,baseZ=1.4+Math.floor(plant/2)*1.6,a=j*2.4;o.position.set(baseX+Math.cos(a)*.4,H+.6+Math.sin(j*.7)*.28,baseZ+Math.sin(a)*.4);o.scale.set(.11,.52,.045);o.rotation.set(.7,a,.65);o.updateMatrix();leaves.current.setMatrixAt(i,o.matrix);c.set(['#365a3a','#567448','#77935a'][j%3]);leaves.current.setColorAt(i,c)}
+  for(let i=0;i<180;i++){const plant=Math.floor(i/12),j=i%12,side=plant%2?-1:1,baseX=side<0?13.3:28.5,baseZ=7.4+Math.floor(plant/2)*1.2,a=j*2.4;o.position.set(baseX+Math.cos(a)*.4,H+.6+Math.sin(j*.7)*.28,baseZ+Math.sin(a)*.4);o.scale.set(.11,.52,.045);o.rotation.set(.7,a,.65);o.updateMatrix();leaves.current.setMatrixAt(i,o.matrix);c.set(['#365a3a','#567448','#77935a'][j%3]);leaves.current.setColorAt(i,c)}
   for(let i=0;i<tileColumns*tileRows;i++){o.position.set(18.25+(i%tileColumns)*.48,H+.025,-6.35+Math.floor(i/tileColumns)*.62);o.rotation.set(0,0,0);const inPool=Math.abs(o.position.x-P.x)<P.rx+.24&&Math.abs(o.position.z-P.z)<P.rz+.31;o.scale.set(inPool?0:.46,inPool?0:.06,inPool?0:.60);o.updateMatrix();tiles.current.setMatrixAt(i,o.matrix);c.set(['#48564e','#56625a','#606a5e','#414e49'][i%4]);tiles.current.setColorAt(i,c)}
   for(const ref of [leaves,tiles]){ref.current.instanceMatrix.needsUpdate=true;if(ref.current.instanceColor)ref.current.instanceColor.needsUpdate=true;ref.current.computeBoundingSphere()}
  },[])
@@ -26,7 +26,7 @@ function SpringWater(){
  useEffect(()=>()=>mist.dispose(),[mist])
  const pos=useMemo(()=>new Float32Array(18*3),[])
  useFrame(({clock})=>{if(!ambientUpdateDue(water.current,clock.elapsedTime,null))return;uniforms.clock.value=clock.elapsedTime;if(ambientUpdateDue(steam.current,clock.elapsedTime,last.current)){last.current=clock.elapsedTime;const a=steam.current.geometry.attributes.position;for(let i=0;i<18;i++){const t=(clock.elapsedTime*.12+i*.37)%1;a.setXYZ(i,Math.sin(i*2.4)*1.8+Math.sin(t*3+i)*.12,.25+t*1.15,Math.cos(i*2.4)*P.rz*.8)}a.needsUpdate=true}})
- return <group position={[P.x,H+.13,P.z]}><mesh ref={water} rotation={[-Math.PI/2,0,0]}><shapeGeometry args={[shape]}/><shaderMaterial uniforms={uniforms} vertexShader="varying vec2 p;void main(){p=position.xy;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}" fragmentShader="varying vec2 p;uniform float clock;void main(){float r=sin(length(p)*12.-clock*.65)*sin(p.x*5.+p.y*3.+clock*.3);float glint=pow(max(0.,r),9.);vec3 c=mix(vec3(.06,.19,.16),vec3(.23,.39,.30),.5+.5*sin(p.y*2.+p.x));gl_FragColor=vec4(c+vec3(.60,.43,.19)*glint*.28,1.);}" side={THREE.DoubleSide}/></mesh><mesh position={[6.2,2.58,22-P.z]}><planeGeometry args={[.55,5.8]}/><shaderMaterial uniforms={uniforms} transparent depthWrite={false} side={THREE.DoubleSide} vertexShader="varying vec2 uvv;void main(){uvv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}" fragmentShader="varying vec2 uvv;uniform float clock;void main(){float edge=sin(uvv.x*3.14159);float flow=.55+.25*sin(uvv.y*75.+clock*4.);gl_FragColor=vec4(.70,.82,.75,edge*flow);}"/></mesh><points ref={steam} frustumCulled={false}><bufferGeometry><bufferAttribute attach="attributes-position" args={[pos,3]}/></bufferGeometry><pointsMaterial map={mist} size={1.35} transparent opacity={.30} depthWrite={false} color="#dce8d5"/></points></group>
+ return <group position={[P.x,H+SPRING_WATER_HEIGHT,P.z]}><mesh ref={water} rotation={[-Math.PI/2,0,0]}><shapeGeometry args={[shape]}/><shaderMaterial uniforms={uniforms} vertexShader="varying vec2 p;void main(){p=position.xy;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}" fragmentShader="varying vec2 p;uniform float clock;void main(){float r=sin(length(p)*12.-clock*.65)*sin(p.x*5.+p.y*3.+clock*.3);float glint=pow(max(0.,r),9.);vec3 c=mix(vec3(.06,.19,.16),vec3(.23,.39,.30),.5+.5*sin(p.y*2.+p.x));gl_FragColor=vec4(c+vec3(.60,.43,.19)*glint*.28,1.);}" side={THREE.DoubleSide}/></mesh><mesh position={[6.2,2.58,22-P.z]}><planeGeometry args={[.55,5.8]}/><shaderMaterial uniforms={uniforms} transparent depthWrite={false} side={THREE.DoubleSide} vertexShader="varying vec2 uvv;void main(){uvv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}" fragmentShader="varying vec2 uvv;uniform float clock;void main(){float edge=sin(uvv.x*3.14159);float flow=.55+.25*sin(uvv.y*75.+clock*4.);gl_FragColor=vec4(.70,.82,.75,edge*flow);}"/></mesh><points ref={steam} frustumCulled={false}><bufferGeometry><bufferAttribute attach="attributes-position" args={[pos,3]}/></bufferGeometry><pointsMaterial map={mist} size={1.35} transparent opacity={.30} depthWrite={false} color="#dce8d5"/></points></group>
 }
 function Fireflies({time,active}){
  const positions=useMemo(()=>Float32Array.from(Array.from({length:44},(_,i)=>[
@@ -68,7 +68,7 @@ export default function ForestSpring({time,weather,active=true}){
  <B p={[P.x,H-.38,P.z+side*(P.rz+.08)]} s={[P.rx*2,1.24,.16]} c="#56645b"/>
  <B p={[P.x,H+.24,P.z+side*(P.rz+.08)]} s={[P.rx*2,.12,.28]} c="#899083"/>
  </group>)}
- <B p={[P.x+P.rx-.42,H-.62,P.z]} s={[.78,.24,P.rz*2-.6]} c="#65776a"/>
+ <B p={[P.x+P.rx-.42,H+SPRING_BENCH_TOP-.12,P.z]} s={[.78,.24,P.rz*2-.6]} c="#65776a"/>
  <B p={[25.35,H+SPRING_CANOPY_HEIGHT,12]} s={[1.6,.18,10]} c="#493d2e"/>
  {[7.1,16.8].map(z=><B key={'post'+z} p={[25.85,H+SPRING_CANOPY_HEIGHT/2,z]} s={[.14,SPRING_CANOPY_HEIGHT,.14]} c="#493d2e"/>)}
  {/* Dry edge deck and quiet timber lintel frame the existing open garden. */}
